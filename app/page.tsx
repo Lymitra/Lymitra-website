@@ -24,7 +24,7 @@ export default function Home() {
           <TokenFlow />
           <HowItWorks />
           <AiSection />
-          <AgentSection onLaunchApp={() => setView("app")} />
+          <AgentSection />
 <MiniGame onLaunchApp={() => setView("app")} />
           <Footer onGoLanding={() => setView("landing")} />
         </div>

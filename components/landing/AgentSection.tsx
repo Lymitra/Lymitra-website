@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { Lock, DollarSign, CalendarCheck, TrendingDown } from "lucide-react";
 
+
 const benefits = [
   {
     Icon: TrendingDown,
@@ -26,11 +27,7 @@ const benefits = [
   },
 ];
 
-interface AgentSectionProps {
-  onLaunchApp: () => void;
-}
-
-export function AgentSection({ onLaunchApp }: AgentSectionProps) {
+export function AgentSection() {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -67,11 +64,7 @@ export function AgentSection({ onLaunchApp }: AgentSectionProps) {
         ))}
       </div>
 
-      <div className="reveal" style={{ textAlign: "center", marginTop: "2rem" }}>
-        <button className="btn-primary" style={{ height: 50, padding: "0 36px", fontSize: 15, cursor: "pointer" }} onClick={onLaunchApp}>
-          Start paying your team
-        </button>
-      </div>
+
     </section>
   );
 }
