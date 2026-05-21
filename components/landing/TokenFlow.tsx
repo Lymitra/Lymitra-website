@@ -2,18 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { Zap } from "lucide-react";
-
-function SomniaSVG({ size = 44 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 44 44" fill="none">
-      <circle cx="22" cy="22" r="22" fill="#7B3FE4" />
-      <path
-        d="M13 18 Q13 11 22 11 Q31 11 31 18 Q31 22 22 22 Q13 22 13 26 Q13 33 22 33 Q31 33 31 26"
-        stroke="white" strokeWidth="3.2" fill="none" strokeLinecap="round"
-      />
-    </svg>
-  );
-}
+import Image from "next/image";
 
 function EthSVG({ size = 44 }: { size?: number }) {
   return (
@@ -57,7 +46,7 @@ export function TokenFlow() {
         {/* ── Input tokens ── */}
         <div className="tf-inputs">
           <div className="tf-chip tf-chip-stt">
-            <SomniaSVG size={40} />
+            <Image src="/logos/somi-token-roundel-1.png" width={40} height={40} alt="Somnia STT" style={{ borderRadius: "50%" }} />
             <div>
               <div className="tf-chip-name">Somnia</div>
               <div className="tf-chip-sym">STT</div>

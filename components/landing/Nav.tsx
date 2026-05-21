@@ -2,6 +2,8 @@
 
 import { Logo } from "@/components/ui/Logo";
 import { useTheme } from "@/components/ui/ThemeContext";
+import { Sun, Moon } from "lucide-react";
+import Image from "next/image";
 
 interface NavProps {
   onLaunchApp: () => void;
@@ -18,14 +20,19 @@ export function Nav({ onLaunchApp }: NavProps) {
       </div>
       <ul className="l-links">
         <li><a href="#how">How it works</a></li>
-        <li><a href="#agents-l">Agents</a></li>
-        <li><a href="#chains-l">Chains</a></li>
+        <li><a href="#why">Why Lymitra</a></li>
+        <li>
+          <div className="l-somnia-badge">
+            <Image src="/logos/somnia-logomark.svg" width={14} height={11} alt="Somnia" />
+            <span>Built on Somnia</span>
+          </div>
+        </li>
       </ul>
       <div className="l-nav-right">
-        <button className="theme-btn-land" onClick={toggleTheme}>
-          {theme === "dark" ? "☀" : "☾"}
+        <button className="theme-btn-land" onClick={toggleTheme} aria-label="Toggle theme">
+          {theme === "dark" ? <Sun size={15} /> : <Moon size={15} />}
         </button>
-        <div className="l-cta" onClick={onLaunchApp}>Launch app →</div>
+        <button className="l-cta" onClick={onLaunchApp}>Get started free</button>
       </div>
     </nav>
   );
