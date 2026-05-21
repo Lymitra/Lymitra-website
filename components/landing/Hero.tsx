@@ -7,9 +7,9 @@ interface HeroProps {
 }
 
 const TEAM = [
-  { name: "Alex Kim",    role: "Head of Engineering",    salary: "$4,500", avatar: "https://i.pravatar.cc/80?img=11" },
-  { name: "Sofia Reyes", role: "Senior Product Designer", salary: "$3,800", avatar: "https://i.pravatar.cc/80?img=5"  },
-  { name: "Marcus N.",   role: "Protocol Engineer",       salary: "$4,200", avatar: "https://i.pravatar.cc/80?img=52" },
+  { name: "Alex Kim",    role: "Product Lead",   salary: "$4,500", avatar: "https://i.pravatar.cc/80?img=11" },
+  { name: "Sofia Reyes", role: "Designer",       salary: "$3,800", avatar: "https://i.pravatar.cc/80?img=5"  },
+  { name: "Marcus N.",   role: "Lead Engineer",  salary: "$4,200", avatar: "https://i.pravatar.cc/80?img=52" },
 ];
 
 export function Hero({ onLaunchApp }: HeroProps) {
