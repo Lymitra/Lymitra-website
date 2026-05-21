@@ -7,15 +7,15 @@ const steps = [
   {
     n: "01",
     Icon: Wallet,
-    title: "Deposit USDC",
-    desc: "Connect your wallet and deposit USDC into your on-chain vault. Only your wallet can withdraw it.",
+    title: "Deposit STT or ETH",
+    desc: "Connect your wallet and deposit STT or ETH into your vault. Only your wallet can withdraw it.",
     tag: "One-time setup",
   },
   {
     n: "02",
     Icon: Repeat,
-    title: "AI picks the moment",
-    desc: "Our on-chain AI monitors 17+ price feeds and decides the optimal window to convert before each payday.",
+    title: "AI converts at the right moment",
+    desc: "Our on-chain AI watches the rate and converts your tokens to USDC at the optimal window.",
     tag: "Running 24/7",
   },
   {
@@ -43,10 +43,7 @@ export function HowItWorks() {
     <section id="how" className="how" ref={ref}>
       <div className="reveal" style={{ marginBottom: "1rem" }}>
         <div className="sec-eyebrow">How it works</div>
-        <h2 className="sec-h">
-          Three steps.<br />Then <span className="accent">nothing.</span>
-        </h2>
-        <p className="sec-sub">No recurring effort. No spreadsheets.</p>
+        <h2 className="sec-h">Set up once. <span className="accent">Walk away.</span></h2>
       </div>
       <div className="steps">
         {steps.map((s) => (

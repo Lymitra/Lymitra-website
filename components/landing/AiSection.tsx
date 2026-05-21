@@ -3,12 +3,12 @@
 import { useEffect, useRef, useState } from "react";
 
 const LOG_ENTRIES = [
-  { tag: "RATE_WATCH", cls: "al-blue", msg: "ETH/USDC → $3,512.44 · agent consensus reached" },
-  { tag: "LLM_AGENT",  cls: "al-blue", msg: "Decision: WAIT 4h · bullish trend detected" },
-  { tag: "RATE_WATCH", cls: "al-blue", msg: "ETH/USDC → $3,548.90 · rate improving" },
-  { tag: "LLM_AGENT",  cls: "al-blue", msg: "Decision: CONVERT NOW · peak window open" },
-  { tag: "PAYROLL",    cls: "al-green", msg: "Payroll executed · $18,500 USDC · 6 employees · 0.8s" },
-  { tag: "SCHEDULED",  cls: "al-green", msg: "Next run queued · Jul 1 00:00 UTC · Reactivity active" },
+  { tag: "RATE_WATCH", cls: "al-blue", msg: "STT/USDC → $0.038 · below target threshold" },
+  { tag: "LLM_AGENT",  cls: "al-blue", msg: "Decision: WAIT · rate unfavorable, monitoring" },
+  { tag: "RATE_WATCH", cls: "al-blue", msg: "STT/USDC → $0.051 · upward trend confirmed" },
+  { tag: "LLM_AGENT",  cls: "al-blue", msg: "Decision: CONVERT NOW · optimal window open" },
+  { tag: "CONVERT",    cls: "al-blue", msg: "363,000 STT → 18,500 USDC · slippage 0.02%" },
+  { tag: "PAYROLL",    cls: "al-green", msg: "Disbursed to 6 employees · 18,500 USDC · 0.8s" },
 ];
 
 export function AiSection() {
