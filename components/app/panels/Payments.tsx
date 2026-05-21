@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Clock, Circle } from "lucide-react";
 import { useAccount } from "wagmi";
 import {
   useEmployees,
@@ -91,7 +92,7 @@ export function Payments() {
           )}
           {isRegistered && (
             <button className="tb-btn green" onClick={handleSchedule} disabled={scheduling || !payDate}>
-              {scheduling ? "Scheduling…" : "⏱ Schedule payroll"}
+              {scheduling ? "Scheduling…" : <><Clock size={11} style={{display:"inline",verticalAlign:"middle",marginRight:5}} />Schedule payroll</>}
             </button>
           )}
         </div>
@@ -180,8 +181,11 @@ export function Payments() {
               <div className="td">USDC</div>
               <div className="td">{nextPayDate}</div>
               <div>
-                <span className={`pill ${e.active ? "p-active" : "p-pending"}`}>
-                  {e.active ? "● Active" : "◌ Inactive"}
+                <span className={`pill ${e.active ? "p-active" : "p-pending"}`} style={{display:"inline-flex",alignItems:"center",gap:4}}>
+                  {e.active
+                    ? <><Circle size={5} fill="currentColor" stroke="none" />Active</>
+                    : <><Circle size={5} />Inactive</>
+                  }
                 </span>
               </div>
             </div>

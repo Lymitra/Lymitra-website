@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Zap } from "lucide-react";
 
 const initialMessages = [
   { role: "agent", text: "Hey! I'm your Lymitra AI. I monitor your treasury, watch exchange rates, and can answer anything about your payroll setup. What would you like to know?" },
@@ -41,7 +42,7 @@ export function AiChat() {
         {messages.map((m, i) => (
           <div key={i} style={{ display: "flex", justifyContent: m.role === "user" ? "flex-end" : "flex-start" }}>
             {m.role === "agent" && (
-              <div style={{ width: 28, height: 28, borderRadius: "50%", background: "var(--accent-dim)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, marginRight: 8, flexShrink: 0 }}>⚡</div>
+              <div style={{ width: 28, height: 28, borderRadius: "50%", background: "var(--accent-dim)", display: "flex", alignItems: "center", justifyContent: "center", marginRight: 8, flexShrink: 0, color: "var(--accent)" }}><Zap size={13} /></div>
             )}
             <div style={{
               maxWidth: "72%", padding: "10px 14px", borderRadius: m.role === "user" ? "12px 12px 4px 12px" : "12px 12px 12px 4px",

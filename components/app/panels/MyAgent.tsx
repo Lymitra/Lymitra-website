@@ -1,9 +1,12 @@
 "use client";
 
-const agents = [
+import type { ReactNode } from "react";
+import { Zap, Brain, CheckCircle, Hexagon, Circle, Clock, PauseCircle } from "lucide-react";
+
+const agents: { name: string; icon: ReactNode; status: string; desc: string; lastAction: string; executions: number; uptime: string }[] = [
   {
     name: "Rate Watch Agent",
-    icon: "⚡",
+    icon: <Zap size={16} strokeWidth={1.8} />,
     status: "running",
     desc: "Monitors ETH/USDC rates from CoinGecko, Binance, and 15 other sources every 60s.",
     lastAction: "ETH/USDC at $3,512.44 · 17/17 consensus · 2m ago",
@@ -12,7 +15,7 @@ const agents = [
   },
   {
     name: "LLM Decision Agent",
-    icon: "🧠",
+    icon: <Brain size={16} strokeWidth={1.8} />,
     status: "running",
     desc: "Uses Somnia on-chain LLM to decide optimal conversion timing before each payroll.",
     lastAction: "Decision: WAIT 4h · bullish trend detected · 14:22 UTC",
@@ -21,7 +24,7 @@ const agents = [
   },
   {
     name: "Payroll Reactivity Agent",
-    icon: "✓",
+    icon: <CheckCircle size={16} strokeWidth={1.8} />,
     status: "scheduled",
     desc: "Fires payroll for all employees in a single block via Somnia Reactivity on payday.",
     lastAction: "Next execution: Jun 1 00:00 UTC · $18,500 queued",
@@ -30,7 +33,7 @@ const agents = [
   },
   {
     name: "Yield Harvest Agent",
-    icon: "⬡",
+    icon: <Hexagon size={16} strokeWidth={1.8} />,
     status: "running",
     desc: "Collects SOMI staking yield each epoch and routes 70% back to treasury.",
     lastAction: "+420 SOMI harvested · 294 → treasury · 3h ago",
@@ -39,10 +42,10 @@ const agents = [
   },
 ];
 
-const statusStyle: Record<string, { bg: string; color: string; label: string }> = {
-  running:   { bg: "rgba(79,196,144,0.10)",  color: "#4FC490",       label: "● Running" },
-  scheduled: { bg: "var(--accent-dim)",       color: "var(--accent)", label: "◷ Scheduled" },
-  paused:    { bg: "var(--bg4)",              color: "var(--text3)",  label: "◌ Paused" },
+const statusStyle: Record<string, { bg: string; color: string; label: ReactNode }> = {
+  running:   { bg: "rgba(79,196,144,0.10)",  color: "#4FC490",       label: <><Circle size={6} fill="#4FC490" stroke="none" style={{display:"inline",verticalAlign:"middle",marginRight:4}} />Running</> },
+  scheduled: { bg: "var(--accent-dim)",       color: "var(--accent)", label: <><Clock size={10} style={{display:"inline",verticalAlign:"middle",marginRight:4}} />Scheduled</> },
+  paused:    { bg: "var(--bg4)",              color: "var(--text3)",  label: <><PauseCircle size={10} style={{display:"inline",verticalAlign:"middle",marginRight:4}} />Paused</> },
 };
 
 export function MyAgent() {

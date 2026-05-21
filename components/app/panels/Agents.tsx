@@ -1,10 +1,13 @@
 "use client";
 
-const feed = [
-  { ic: "⚡", cls: "",      title: "JSON_API_AGENT → ETH/USDC: $3,512.44",       sub: "CoinGecko · Binance · 17/17 validators · consensus ✓", time: "14:22:07" },
-  { ic: "🧠", cls: "gold", title: "LLM_AGENT → conversion: WAIT 4h",            sub: "Trend: ETH bullish 6h window. Confidence: 81%",         time: "14:22:09" },
-  { ic: "✓",  cls: "green", title: "REACTIVITY → yield epoch · block 8,442,110", sub: "420 SOMI harvested · 294 → treasury",                   time: "11:08:33" },
-  { ic: "⚡", cls: "",      title: "JSON_API_AGENT → ETH/USDC: $3,489.21",       sub: "CoinGecko · Binance · 17/17 validators · consensus ✓", time: "09:14:52" },
+import type { ReactNode } from "react";
+import { Zap, Brain, Check } from "lucide-react";
+
+const feed: { ic: ReactNode; cls: string; title: string; sub: string; time: string }[] = [
+  { ic: <Zap size={11} />, cls: "",      title: "JSON_API_AGENT → ETH/USDC: $3,512.44",       sub: "CoinGecko · Binance · 17/17 validators · consensus confirmed", time: "14:22:07" },
+  { ic: <Brain size={11} />, cls: "gold", title: "LLM_AGENT → conversion: WAIT 4h",            sub: "Trend: ETH bullish 6h window. Confidence: 81%",                 time: "14:22:09" },
+  { ic: <Check size={11} />, cls: "green", title: "REACTIVITY → yield epoch · block 8,442,110", sub: "420 SOMI harvested · 294 → treasury",                          time: "11:08:33" },
+  { ic: <Zap size={11} />, cls: "",      title: "JSON_API_AGENT → ETH/USDC: $3,489.21",       sub: "CoinGecko · Binance · 17/17 validators · consensus confirmed", time: "09:14:52" },
 ];
 
 export function Agents() {

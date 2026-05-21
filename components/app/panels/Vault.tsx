@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Play } from "lucide-react";
 import { useAccount } from "wagmi";
 import {
   useCompany,
@@ -100,7 +101,7 @@ export function Vault({ onSuccess }: VaultProps) {
         </div>
         {isRegistered && (
           <button className="tb-btn" onClick={handleManualRun} disabled={executing}>
-            {executing ? "Running…" : "▶ Run payroll now"}
+            {executing ? "Running…" : <><Play size={11} style={{display:"inline",verticalAlign:"middle",marginRight:5}} />Run payroll now</>}
           </button>
         )}
       </div>

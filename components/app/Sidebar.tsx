@@ -2,6 +2,7 @@
 
 import { Logo } from "@/components/ui/Logo";
 import { useTheme } from "@/components/ui/ThemeContext";
+import { Sun, Moon } from "lucide-react";
 
 type Panel = "dashboard" | "aichat" | "myagent" | "vault" | "payments" | "earn" | "analytics";
 
@@ -95,10 +96,10 @@ export function Sidebar({ active, onNav, onGoLanding }: SidebarProps) {
         <div className="sb-net-row">
           <div className="net-dot" />
           <span style={{ fontSize: "11.5px", color: "var(--text2)" }}>Somnia Shannon</span>
-          <span style={{ fontSize: "10px", color: "#3ED9B8", marginLeft: "auto" }}>● Live</span>
+          <span style={{ fontSize: "10px", color: "#3ED9B8", marginLeft: "auto", display: "flex", alignItems: "center", gap: 3 }}><span style={{ width: 5, height: 5, borderRadius: "50%", background: "#3ED9B8", display: "inline-block" }} />Live</span>
         </div>
         <button className="theme-btn-app" onClick={toggleTheme}>
-          <span>{theme === "dark" ? "☀" : "☾"}</span>
+          <span>{theme === "dark" ? <Sun size={13} /> : <Moon size={13} />}</span>
           <span>{theme === "dark" ? "Light mode" : "Dark mode"}</span>
         </button>
       </div>

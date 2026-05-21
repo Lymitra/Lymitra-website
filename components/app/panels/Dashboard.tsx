@@ -1,8 +1,18 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import type { ReactNode } from "react";
+import { Users, TrendingUp, BarChart2, Zap, Check, Search } from "lucide-react";
 
 type Panel = "dashboard" | "aichat" | "myagent" | "vault" | "payments" | "earn" | "analytics";
+
+const agentFeed: { ic: ReactNode; cls: string; title: string; sub: string; time: string }[] = [
+  { ic: <Zap size={11} />, cls: "", title: "Rate Watch — optimal rate detected", sub: "ETH/USDC at $3,512. Conversion queued in 4h.", time: "2m" },
+  { ic: <span style={{fontSize:11,fontWeight:700}}>$</span>, cls: "gold", title: "Payroll prep — 11 days to execution", sub: "Reactivity active. Jun 1 00:00 UTC. $18,500 queued.", time: "1h" },
+  { ic: <Check size={11} />, cls: "green", title: "Staking yield collected", sub: "420 SOMI harvested. 294 → treasury.", time: "3h" },
+  { ic: <Search size={11} />, cls: "", title: "Fraud check passed — 0xA8f…3b2c", sub: "LLM Agent: no flags. Consensus confirmed.", time: "1d" },
+  { ic: <Zap size={11} />, cls: "gold", title: "May payroll executed — $18,500", sub: "6 transfers · 1 block · May 1 00:00 UTC.", time: "20d" },
+];
 
 interface DashboardProps {
   onNav: (panel: Panel) => void;
@@ -44,12 +54,12 @@ export function Dashboard({ onNav }: DashboardProps) {
         <div className="dh-glow" />
         <div className="dh-lbl">Total treasury</div>
         <div className="dh-amt" ref={counterRef}>$0.00</div>
-        <div className="dh-chg">▲ +$2,764 · +3.39% today</div>
+        <div className="dh-chg"><TrendingUp size={11} style={{ display: "inline", verticalAlign: "middle", marginRight: 3 }} /> +$2,764 · +3.39% today</div>
         <div className="dh-acts">
           <button className="dh-btn p" onClick={() => onNav("vault")}>+ Deposit</button>
-          <button className="dh-btn" onClick={() => onNav("payments")}>👥 Team</button>
-          <button className="dh-btn" onClick={() => onNav("earn")}>⬡ Stake SOMI</button>
-          <button className="dh-btn" onClick={() => onNav("analytics")}>≡ History</button>
+          <button className="dh-btn" onClick={() => onNav("payments")}><Users size={12} style={{ display: "inline", verticalAlign: "middle", marginRight: 4 }} />Team</button>
+          <button className="dh-btn" onClick={() => onNav("earn")}><TrendingUp size={12} style={{ display: "inline", verticalAlign: "middle", marginRight: 4 }} />Stake</button>
+          <button className="dh-btn" onClick={() => onNav("analytics")}><BarChart2 size={12} style={{ display: "inline", verticalAlign: "middle", marginRight: 4 }} />History</button>
         </div>
       </div>
 
@@ -91,13 +101,7 @@ export function Dashboard({ onNav }: DashboardProps) {
             <div className="agp-cnt">3 running</div>
           </div>
           <div className="agp-feed">
-            {[
-              { ic: "⚡", cls: "", title: "Rate Watch — optimal rate detected", sub: "ETH/USDC at $3,512. Conversion queued in 4h.", time: "2m" },
-              { ic: "$",  cls: "gold", title: "Payroll prep — 11 days to execution", sub: "Reactivity active. Jun 1 00:00 UTC. $18,500 queued.", time: "1h" },
-              { ic: "✓",  cls: "green", title: "Staking yield collected", sub: "420 SOMI harvested. 294 → treasury.", time: "3h" },
-              { ic: "🔍", cls: "", title: "Fraud check passed — 0xA8f…3b2c", sub: "LLM Agent: no flags. Consensus confirmed.", time: "1d" },
-              { ic: "⚡", cls: "gold", title: "May payroll executed — $18,500", sub: "6 transfers · 1 block · May 1 00:00 UTC.", time: "20d" },
-            ].map((a, i) => (
+            {agentFeed.map((a, i) => (
               <div className="ag-item" key={i}>
                 <div className={`ai-ic${a.cls ? " " + a.cls : ""}`}>{a.ic}</div>
                 <div className="ai-body"><div className="ai-title">{a.title}</div><div className="ai-sub">{a.sub}</div></div>

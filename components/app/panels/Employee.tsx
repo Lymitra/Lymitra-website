@@ -1,9 +1,12 @@
 "use client";
 
-const payments = [
-  { period: "May 2026 salary", sub: "0xf21a…5c95", token: "USDC", amt: "+4,387.50", date: "May 1", pill: "p-agent",  pillLabel: "⚡ Agent" },
-  { period: "Apr 2026 salary", sub: "0xe99b…0f0a", token: "USDC", amt: "+4,387.50", date: "Apr 1", pill: "p-active", pillLabel: "✓ Paid" },
-  { period: "Mar 2026 salary", sub: "0xa33c…2d11", token: "USDC", amt: "+4,387.50", date: "Mar 1", pill: "p-active", pillLabel: "✓ Paid" },
+import type { ReactNode } from "react";
+import { Zap, Check } from "lucide-react";
+
+const payments: { period: string; sub: string; token: string; amt: string; date: string; pill: string; pillLabel: ReactNode }[] = [
+  { period: "May 2026 salary", sub: "0xf21a…5c95", token: "USDC", amt: "+4,387.50", date: "May 1", pill: "p-agent",  pillLabel: <><Zap size={10} style={{display:"inline",verticalAlign:"middle",marginRight:3}} />Agent</> },
+  { period: "Apr 2026 salary", sub: "0xe99b…0f0a", token: "USDC", amt: "+4,387.50", date: "Apr 1", pill: "p-active", pillLabel: <><Check size={10} style={{display:"inline",verticalAlign:"middle",marginRight:3}} />Paid</> },
+  { period: "Mar 2026 salary", sub: "0xa33c…2d11", token: "USDC", amt: "+4,387.50", date: "Mar 1", pill: "p-active", pillLabel: <><Check size={10} style={{display:"inline",verticalAlign:"middle",marginRight:3}} />Paid</> },
 ];
 
 export function Employee() {
@@ -44,7 +47,7 @@ export function Employee() {
             <div className="td">{p.token}</div>
             <div className="a-pos">{p.amt}</div>
             <div className="td">{p.date}</div>
-            <div><span className={`pill ${p.pill}`}>{p.pillLabel}</span></div>
+            <div><span className={`pill ${p.pill}`} style={{display:"inline-flex",alignItems:"center"}}>{p.pillLabel}</span></div>
           </div>
         ))}
       </div>

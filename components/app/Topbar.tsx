@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import type { ReactNode } from "react";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { Zap, Check, Calendar } from "lucide-react";
 
 type Panel = "dashboard" | "aichat" | "myagent" | "vault" | "payments" | "earn" | "analytics";
 
@@ -19,10 +21,10 @@ interface TopbarProps {
   active: Panel;
 }
 
-const notifications = [
-  { icon: "⚡", text: "Rate Watch: ETH/USDC optimal · conversion queued", time: "2m" },
-  { icon: "✓",  text: "Staking yield harvested · +420 SOMI → treasury", time: "3h" },
-  { icon: "⬡",  text: "Next payroll in 11 days · Jun 1 00:00 UTC", time: "1d" },
+const notifications: { icon: ReactNode; text: string; time: string }[] = [
+  { icon: <Zap size={11} />, text: "Rate Watch: ETH/USDC optimal · conversion queued", time: "2m" },
+  { icon: <Check size={11} />, text: "Staking yield harvested · +420 SOMI → treasury", time: "3h" },
+  { icon: <Calendar size={11} />, text: "Next payroll in 11 days · Jun 1 00:00 UTC", time: "1d" },
 ];
 
 export function Topbar({ active }: TopbarProps) {

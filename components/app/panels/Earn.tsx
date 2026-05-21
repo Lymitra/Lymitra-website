@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { CheckCircle } from "lucide-react";
 import { useAccount, useBalance } from "wagmi";
 import {
   useStakeOf,
@@ -163,7 +164,7 @@ export function Earn() {
           </div>
           <div style={{ padding: "1.1rem" }}>
             <div className="kv"><span className="kk">STT staked</span><span className="kv-v gold">{fmtStt(staked)} STT</span></div>
-            <div className="kv"><span className="kk">Lock status</span><span className="kv-v">{isLocked ? `Locked until ${unlockDate}` : staked && staked > 0n ? "Unlocked ✓" : "—"}</span></div>
+            <div className="kv"><span className="kk">Lock status</span><span className="kv-v" style={{display:"inline-flex",alignItems:"center",gap:4}}>{isLocked ? `Locked until ${unlockDate}` : staked && staked > 0n ? <><CheckCircle size={12} color="#4FC490" />Unlocked</> : "—"}</span></div>
             <div className="kv"><span className="kk">Pending USDC</span><span className="kv-v accent">{fmtUsdc(reward)}</span></div>
             <div className="kv"><span className="kk">Yield source</span><span className="kv-v">Protocol payroll fees</span></div>
 

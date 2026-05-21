@@ -1,14 +1,16 @@
 "use client";
 
 import { useState } from "react";
+import type { ReactNode } from "react";
+import { Zap, ArrowLeftRight, ArrowDown, Hexagon, Check } from "lucide-react";
 
 const tabs = ["All", "Payroll", "Swaps", "Staking"] as const;
 
-const rows = [
-  { ic: "⚡", icCls: "tx-ag", name: "Agent payroll — May 2026",  sub: "6 recipients · Reactivity · Block 8,012,444", token: "USDC",     amt: "−18,500", amtCls: "a-neg", date: "May 1", pill: "p-agent",  pillLabel: "⚡ Agent" },
-  { ic: "⇄", icCls: "tx-sw", name: "ETH → USDC swap",           sub: "LLM Agent routed · optimal rate",             token: "ETH/USDC", amt: "2.5 ETH",  amtCls: "a-neu", date: "Apr 28", pill: "p-active", pillLabel: "✓ Done" },
-  { ic: "⬇", icCls: "tx-in", name: "ETH bridged from Ethereum",  sub: "LayerZero · 0x6F47… → Somnia",               token: "WETH",     amt: "+8.9 ETH", amtCls: "a-pos", date: "Apr 20", pill: "p-active", pillLabel: "✓ Done" },
-  { ic: "⬡", icCls: "tx-ag", name: "SOMI staked — 42,000",       sub: "Protocol vault · 12% APY",                   token: "SOMI",     amt: "42,000",   amtCls: "a-neu", date: "Apr 18", pill: "p-active", pillLabel: "✓ Done" },
+const rows: { ic: ReactNode; icCls: string; name: string; sub: string; token: string; amt: string; amtCls: string; date: string; pill: string; pillLabel: ReactNode }[] = [
+  { ic: <Zap size={11} />, icCls: "tx-ag", name: "Agent payroll — May 2026",  sub: "6 recipients · Reactivity · Block 8,012,444", token: "USDC",     amt: "−18,500", amtCls: "a-neg", date: "May 1",  pill: "p-agent",  pillLabel: <><Zap size={10} style={{display:"inline",verticalAlign:"middle",marginRight:3}} />Agent</> },
+  { ic: <ArrowLeftRight size={11} />, icCls: "tx-sw", name: "ETH → USDC swap", sub: "LLM Agent routed · optimal rate",            token: "ETH/USDC", amt: "2.5 ETH",  amtCls: "a-neu", date: "Apr 28", pill: "p-active", pillLabel: <><Check size={10} style={{display:"inline",verticalAlign:"middle",marginRight:3}} />Done</> },
+  { ic: <ArrowDown size={11} />, icCls: "tx-in", name: "ETH bridged from Ethereum", sub: "LayerZero · 0x6F47… → Somnia",          token: "WETH",     amt: "+8.9 ETH", amtCls: "a-pos", date: "Apr 20", pill: "p-active", pillLabel: <><Check size={10} style={{display:"inline",verticalAlign:"middle",marginRight:3}} />Done</> },
+  { ic: <Hexagon size={11} />, icCls: "tx-ag", name: "SOMI staked — 42,000",  sub: "Protocol vault · 12% APY",                   token: "SOMI",     amt: "42,000",   amtCls: "a-neu", date: "Apr 18", pill: "p-active", pillLabel: <><Check size={10} style={{display:"inline",verticalAlign:"middle",marginRight:3}} />Done</> },
 ];
 
 export function History() {
@@ -46,7 +48,7 @@ export function History() {
             <div className="td">{r.token}</div>
             <div className={r.amtCls}>{r.amt}</div>
             <div className="td">{r.date}</div>
-            <div><span className={`pill ${r.pill}`}>{r.pillLabel}</span></div>
+            <div><span className={`pill ${r.pill}`} style={{display:"inline-flex",alignItems:"center"}}>{r.pillLabel}</span></div>
           </div>
         ))}
       </div>
