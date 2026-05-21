@@ -44,7 +44,7 @@ export function AgentSection({ onLaunchApp }: AgentSectionProps) {
 
   return (
     <section id="why" className="why-sec" ref={ref}>
-      <div className="reveal" style={{ textAlign: "center", marginBottom: "3.5rem" }}>
+      <div className="reveal" style={{ textAlign: "center", marginBottom: "2rem" }}>
         <div className="sec-eyebrow">Why Lymitra</div>
         <h2 className="sec-h">
           Built for teams that move fast<br />
@@ -67,7 +67,7 @@ export function AgentSection({ onLaunchApp }: AgentSectionProps) {
         ))}
       </div>
 
-      <div className="reveal" style={{ textAlign: "center", marginTop: "3.5rem" }}>
+      <div className="reveal" style={{ textAlign: "center", marginTop: "2rem" }}>
         <button className="btn-primary" style={{ height: 50, padding: "0 36px", fontSize: 15, cursor: "pointer" }} onClick={onLaunchApp}>
           Start paying your team
         </button>

@@ -7,9 +7,9 @@ interface HeroProps {
 }
 
 const TEAM = [
-  { name: "Alex Kim",    role: "Engineering Lead",  salary: "$4,500", initials: "AK", grad: "linear-gradient(135deg,#667eea,#764ba2)" },
-  { name: "Sofia Reyes", role: "Product Design",    salary: "$3,800", initials: "SR", grad: "linear-gradient(135deg,#f093fb,#f5576c)" },
-  { name: "Marcus N.",   role: "Smart Contracts",   salary: "$4,200", initials: "MN", grad: "linear-gradient(135deg,#4facfe,#00f2fe)" },
+  { name: "Alex Kim",    role: "Engineering Lead",  salary: "$4,500", avatar: "https://api.dicebear.com/9.x/lorelei/svg?seed=AlexKim&backgroundColor=b6e3f4" },
+  { name: "Sofia Reyes", role: "Product Design",    salary: "$3,800", avatar: "https://api.dicebear.com/9.x/lorelei/svg?seed=SofiaReyes&backgroundColor=ffd5dc" },
+  { name: "Marcus N.",   role: "Smart Contracts",   salary: "$4,200", avatar: "https://api.dicebear.com/9.x/lorelei/svg?seed=MarcusN&backgroundColor=c0f0e0" },
 ];
 
 export function Hero({ onLaunchApp }: HeroProps) {
@@ -175,9 +175,8 @@ export function Hero({ onLaunchApp }: HeroProps) {
                 return (
                   <div key={emp.name} className={`pay-row${paid ? " pay-row-paid" : ""}`}>
                     <div className={`pay-av-wrap${paid ? " pay-av-paid" : ""}`}>
-                      <div className="pay-av" style={{ background: emp.grad }}>
-                        {emp.initials}
-                      </div>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img className="pay-av" src={emp.avatar} alt={emp.name} />
                       {paid && <div className="pay-av-check">✓</div>}
                     </div>
                     <div className="pay-emp-info">
