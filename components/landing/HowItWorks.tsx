@@ -1,27 +1,28 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { Wallet, Users, Repeat } from "lucide-react";
 
 const steps = [
   {
     n: "01",
-    ico: "💰",
+    Icon: Wallet,
     title: "Deposit funds",
-    desc: "Add money to your company vault in minutes. It stays completely yours — no bank, no middleman, just a secure digital safe you control.",
+    desc: "Deposit USDC into your non-custodial vault. Only you control it.",
     tag: "One-time setup",
   },
   {
     n: "02",
-    ico: "👥",
+    Icon: Users,
     title: "Add your team",
-    desc: "Enter each person's name, wallet address, and monthly salary. Set payday once. That's the last time you'll ever think about running payroll.",
-    tag: "Done in minutes",
+    desc: "Add each employee's wallet and salary. Set the payday once.",
+    tag: "Takes minutes",
   },
   {
     n: "03",
-    ico: "✨",
-    title: "We handle everything",
-    desc: "On payday, Lymitra automatically converts your funds at the best rate and sends every employee their exact salary in stable dollars — no action needed from you.",
+    Icon: Repeat,
+    title: "Lymitra does the rest",
+    desc: "We convert at the best rate and pay everyone in USDC automatically, every month.",
     tag: "Runs forever",
   },
 ];
@@ -40,19 +41,20 @@ export function HowItWorks() {
 
   return (
     <section id="how" className="how" ref={ref}>
-      <div className="reveal">
+      <div className="reveal" style={{ marginBottom: "1rem" }}>
         <div className="sec-eyebrow">How it works</div>
-        <h2 className="sec-h">Three steps.<br />Then <span className="accent">nothing.</span></h2>
-        <p style={{ color: "var(--text2)", maxWidth: 480, margin: "0 auto 2.5rem", textAlign: "center", fontSize: 15, lineHeight: 1.6 }}>
-          No finance team. No spreadsheets. No monthly reminders.
-          Just set it up once and your team gets paid — forever.
-        </p>
+        <h2 className="sec-h">
+          Three steps.<br />Then <span className="accent">nothing.</span>
+        </h2>
+        <p className="sec-sub">No recurring effort. No spreadsheets.</p>
       </div>
       <div className="steps reveal">
         {steps.map((s) => (
           <div className="step" key={s.n}>
             <span className="step-n">{s.n}</span>
-            <div className="step-ico">{s.ico}</div>
+            <div className="step-ico-wrap">
+              <s.Icon size={22} strokeWidth={1.6} />
+            </div>
             <div className="step-title">{s.title}</div>
             <p className="step-desc">{s.desc}</p>
             <div className="step-tag">{s.tag}</div>

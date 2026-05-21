@@ -297,12 +297,16 @@ body {
 .sec-h .muted  { color: var(--text3); }
 .sec-sub { font-size: 15px; color: var(--text2); line-height: 1.65; }
 
-/* ─── HERO TRUST STRIP ─── */
-.hero-trust { display: flex; flex-wrap: wrap; gap: 1.25rem 1.75rem; margin-top: 0.5rem; }
-.ht-item {
-  display: flex; align-items: center; gap: 6px;
-  font-size: 12.5px; color: var(--text2);
+/* ─── HERO SPOTLIGHT ─── */
+.hero-spotlight {
+  position: absolute; inset: 0; pointer-events: none; z-index: 0;
+  transition: background 0.2s ease;
 }
+
+/* ─── HERO TRUST STRIP ─── */
+.hero-trust { display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem 0.75rem; margin-top: 0.5rem; }
+.ht-item { font-size: 12px; color: var(--text3); }
+.ht-sep  { font-size: 12px; color: var(--border2); }
 .ht-icon { color: var(--accent); flex-shrink: 0; }
 
 /* ─── PRICING ─── */
@@ -471,12 +475,12 @@ body {
 /* ─── FOOTER ─── */
 .l-foot {
   border-top: 1px solid var(--border);
-  padding: 2rem 2.5rem;
-  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;
+  padding: 2.5rem 2rem;
+  display: flex; flex-direction: column; align-items: center; gap: 1.25rem; text-align: center;
 }
 .f-note { font-size: 12px; color: var(--text3); }
-.f-links { display: flex; gap: 1.5rem; }
-.f-links a { font-size: 12px; color: var(--text3); text-decoration: none; transition: color 0.2s; }
+.f-links { display: flex; align-items: center; justify-content: center; gap: 1.75rem; }
+.f-links a { font-size: 12.5px; color: var(--text3); text-decoration: none; transition: color 0.2s; display: flex; align-items: center; gap: 5px; }
 .f-links a:hover { color: var(--text2); }
 
 /* ─── SCROLL REVEAL ─── */

@@ -1,27 +1,28 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { Lock, DollarSign, CalendarCheck, TrendingDown } from "lucide-react";
 
 const benefits = [
   {
-    ico: "🔒",
+    Icon: Lock,
     title: "Your money stays yours",
-    desc: "Funds live in a smart contract only you control. No bank. No intermediary. Nobody can freeze or touch it.",
+    desc: "Funds live in a smart contract only you control. No bank. No intermediary.",
   },
   {
-    ico: "💵",
-    title: "Stable dollars, always",
-    desc: "Employees receive the exact amount agreed — in USD stablecoins — regardless of market conditions.",
+    Icon: DollarSign,
+    title: "Stable dollars, every time",
+    desc: "Employees receive their exact salary in USDC, regardless of the market.",
   },
   {
-    ico: "⏰",
+    Icon: CalendarCheck,
     title: "Never miss a payday",
-    desc: "Payroll executes automatically on the date you set. You could be on a beach. It still runs.",
+    desc: "Payroll executes on the date you set. It runs without you.",
   },
   {
-    ico: "📉",
-    title: "Better rates, automatically",
-    desc: "Lymitra picks the optimal moment to convert before payday, so your funds go further every month.",
+    Icon: TrendingDown,
+    title: "Better conversion rates",
+    desc: "Lymitra picks the optimal moment to convert. Your treasury goes further every month.",
   },
 ];
 
@@ -42,23 +43,24 @@ export function AgentSection({ onLaunchApp }: AgentSectionProps) {
   }, []);
 
   return (
-    <section id="agents-l" className="why-sec" ref={ref}>
+    <section id="why" className="why-sec" ref={ref}>
       <div className="reveal" style={{ textAlign: "center", marginBottom: "3.5rem" }}>
         <div className="sec-eyebrow">Why Lymitra</div>
-        <h2 className="sec-h" style={{ marginBottom: "1rem" }}>
-          Built for founders who<br />
-          <span className="accent">hate doing admin.</span>
+        <h2 className="sec-h">
+          Built for teams that move fast<br />
+          and <span className="accent">hate admin work.</span>
         </h2>
-        <p style={{ color: "var(--text2)", fontSize: 15, maxWidth: 460, margin: "0 auto" }}>
-          Running payroll manually every month wastes hours, causes errors,
-          and creates stress. Lymitra eliminates all of it.
+        <p className="sec-sub" style={{ maxWidth: 440, margin: "1rem auto 0" }}>
+          Manual crypto payroll is slow, error-prone, and stressful. Lymitra eliminates it.
         </p>
       </div>
 
       <div className="why-grid reveal">
         {benefits.map((b) => (
           <div key={b.title} className="why-card">
-            <div className="why-ico">{b.ico}</div>
+            <div className="why-ico-wrap">
+              <b.Icon size={20} strokeWidth={1.6} />
+            </div>
             <div className="why-title">{b.title}</div>
             <div className="why-desc">{b.desc}</div>
           </div>
@@ -66,12 +68,8 @@ export function AgentSection({ onLaunchApp }: AgentSectionProps) {
       </div>
 
       <div className="reveal" style={{ textAlign: "center", marginTop: "3.5rem" }}>
-        <button
-          className="btn-primary"
-          style={{ fontSize: 15, height: 50, padding: "0 36px", cursor: "pointer" }}
-          onClick={onLaunchApp}
-        >
-          Start paying your team →
+        <button className="btn-primary" style={{ height: 50, padding: "0 36px", fontSize: 15, cursor: "pointer" }} onClick={onLaunchApp}>
+          Start paying your team
         </button>
       </div>
     </section>
