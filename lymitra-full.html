@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lymitra — Autonomous Crypto Payroll</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ─── DESIGN TOKENS ─── */
+[data-theme="dark"] {
+  --bg:         #0A0A0F;
+  --bg2:        #0F0F16;
+  --bg3:        #14141E;
+  --bg4:        #1A1A26;
+  --border:     rgba(255,255,255,0.06);
+  --border2:    rgba(255,255,255,0.10);
+  --text:       #F5F4F2;
+  --text2:      rgba(245,244,242,0.55);
+  --text3:      rgba(245,244,242,0.28);
+  --accent:     #5B7FFF;
+  --accent2:    #7B9FFF;
+  --accent-dim: rgba(91,127,255,0.10);
+  --accent-b:   rgba(91,127,255,0.25);
+  --gold:       #C8A84B;
+  --gold-dim:   rgba(200,168,75,0.10);
+  --gold-b:     rgba(200,168,75,0.22);
+  --red:        #D4736A;
+  --red-dim:    rgba(212,115,106,0.10);
+  --sb-bg:      #07070C;
+  --card-bg:    #0F0F16;
+  --input-bg:   #0A0A0F;
+}
+[data-theme="light"] {
+  --bg:         #F7F6F3;
+  --bg2:        #FFFFFF;
+  --bg3:        #F0EFEb;
+  --bg4:        #E8E7E3;
+  --border:     rgba(0,0,0,0.07);
+  --border2:    rgba(0,0,0,0.11);
+  --text:       #1A1A1A;
+  --text2:      rgba(26,26,26,0.55);
+  --text3:      rgba(26,26,26,0.35);
+  --accent:     #3B5FD9;
+  --accent2:    #4A70F0;
+  --accent-dim: rgba(59,95,217,0.10);
+  --accent-b:   rgba(59,95,217,0.25);
+  --gold:       #A8882A;
+  --gold-dim:   rgba(168,136,42,0.10);
+  --gold-b:     rgba(168,136,42,0.22);
+  --red:        #B85A52;
+  --red-dim:    rgba(184,90,82,0.10);
+  --sb-bg:      #F0EFEb;
+  --card-bg:    #FFFFFF;
+  --input-bg:   #F7F6F3;
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{height:100%;scroll-behavior:smooth}
+
+body{
+  font-family:'Geist',system-ui,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  font-size:14px;
+  line-height:1.6;
+  min-height:100%;
+  transition:background .3s ease,color .3s ease;
+}
+
+/* ─── VIEW SYSTEM ─── */
+#landing{display:block}
+#landing.gone{display:none}
+#app{display:none;position:fixed;inset:0;z-index:999;background:var(--bg);flex-direction:row}
+#app.show{display:flex}
+
+/* ════════════════════════════════
+   LANDING
+════════════════════════════════ */
+
+/* NAV */
+.l-nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  height:60px;display:flex;align-items:center;justify-content:space-between;
+  padding:0 2.5rem;
+  border-bottom:1px solid var(--border);
+  background:rgba(10,10,15,0.80);
+  backdrop-filter:blur(18px);
+  transition:background .3s;
+}
+[data-theme="light"] .l-nav{background:rgba(247,246,243,0.85)}
+.l-logo{display:flex;align-items:center;gap:9px;cursor:pointer}
+.l-wm{font-size:17px;font-weight:600;letter-spacing:-.03em;color:var(--text)}
+.l-links{display:flex;gap:2rem;list-style:none}
+.l-links a{font-size:13px;font-weight:400;color:var(--text2);text-decoration:none;transition:color .2s;letter-spacing:-.01em}
+.l-links a:hover{color:var(--text)}
+.l-nav-right{display:flex;align-items:center;gap:10px}
+.theme-btn-land{
+  width:34px;height:34px;border-radius:8px;
+  border:1px solid var(--border2);background:transparent;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  color:var(--text2);font-size:16px;transition:all .2s;
+}
+.theme-btn-land:hover{background:var(--bg3);color:var(--text)}
+.l-cta{
+  font-size:13px;font-weight:500;
+  padding:8px 20px;border-radius:99px;
+  border:1px solid var(--border2);background:transparent;
+  color:var(--text2);cursor:pointer;transition:all .2s;letter-spacing:-.01em;
+}
+.l-cta:hover{background:var(--accent-dim);color:var(--text);border-color:var(--accent-b)}
+
+/* ─── HERO ─── */
+.hero{
+  min-height:100vh;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  text-align:center;
+  padding:100px 2rem 80px;
+  position:relative;overflow:hidden;
+}
+
+/* Animated orb */
+.orb{
+  position:absolute;
+  border-radius:50%;
+  filter:blur(80px);
+  pointer-events:none;
+  animation:orb-float 8s ease-in-out infinite;
+}
+.orb-1{
+  width:500px;height:500px;
+  top:-100px;left:50%;transform:translateX(-50%);
+  background:radial-gradient(circle, rgba(91,127,255,0.18) 0%, transparent 70%);
+  animation-delay:0s;
+}
+.orb-2{
+  width:300px;height:300px;
+  bottom:10%;left:20%;
+  background:radial-gradient(circle, rgba(200,168,75,0.08) 0%, transparent 70%);
+  animation-delay:-3s;
+}
+.orb-3{
+  width:250px;height:250px;
+  bottom:20%;right:15%;
+  background:radial-gradient(circle, rgba(62,217,184,0.10) 0%, transparent 70%);
+  animation-delay:-5s;
+}
+
+@keyframes orb-float{
+  0%,100%{transform:translateX(-50%) translateY(0px)}
+  33%{transform:translateX(-50%) translateY(-30px)}
+  66%{transform:translateX(-50%) translateY(15px)}
+}
+
+/* Grid lines */
+.hero-grid{
+  position:absolute;inset:0;
+  background-image:
+    linear-gradient(var(--border) 1px,transparent 1px),
+    linear-gradient(90deg,var(--border) 1px,transparent 1px);
+  background-size:60px 60px;
+  mask-image:radial-gradient(ellipse 70% 70% at 50% 50%,black,transparent);
+  pointer-events:none;
+}
+
+/* Floating particles */
+.particles{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.particle{
+  position:absolute;
+  width:2px;height:2px;
+  border-radius:50%;
+  background:var(--accent);
+  opacity:0;
+  animation:particle-rise linear infinite;
+}
+
+@keyframes particle-rise{
+  0%{opacity:0;transform:translateY(0) scale(0)}
+  10%{opacity:.6}
+  90%{opacity:.2}
+  100%{opacity:0;transform:translateY(-100vh) scale(1.5)}
+}
+
+.hero-inner{position:relative;z-index:1;max-width:900px;width:100%}
+
+/* Eyebrow */
+.h-eye{
+  display:inline-flex;align-items:center;gap:8px;
+  font-size:11px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;
+  color:#3ED9B8;margin-bottom:1.75rem;
+  opacity:0;animation:slide-up .7s ease .1s forwards;
+}
+.h-pulse{
+  width:6px;height:6px;border-radius:50%;
+  background:#3ED9B8;box-shadow:0 0 8px #3ED9B8;
+  animation:glow-pulse 2.5s ease-in-out infinite;
+}
+@keyframes glow-pulse{
+  0%,100%{box-shadow:0 0 8px #3ED9B8;opacity:1}
+  50%{box-shadow:0 0 3px #3ED9B8;opacity:.4}
+}
+
+/* Main headline */
+h1.hero-h{
+  font-size:clamp(52px,8.5vw,108px);
+  font-weight:600;
+  letter-spacing:-.04em;
+  line-height:.93;
+  color:var(--text);
+  margin-bottom:1.5rem;
+  opacity:0;animation:slide-up .8s ease .25s forwards;
+}
+h1.hero-h .accent{color:var(--accent)}
+h1.hero-h .muted{color:var(--text3)}
+
+/* Subheadline */
+.h-sub{
+  font-size:17px;font-weight:300;color:var(--text2);
+  line-height:1.75;max-width:480px;margin:0 auto 2.5rem;
+  letter-spacing:-.01em;
+  opacity:0;animation:slide-up .8s ease .4s forwards;
+}
+
+/* CTA */
+.cta-row{
+  display:flex;align-items:center;justify-content:center;gap:11px;flex-wrap:wrap;
+  opacity:0;animation:slide-up .8s ease .55s forwards;
+}
+.btn-primary{
+  font-size:15px;font-weight:500;
+  padding:13px 32px;border-radius:99px;border:none;
+  background:var(--accent);color:#fff;
+  cursor:pointer;letter-spacing:-.01em;
+  display:inline-flex;align-items:center;gap:7px;
+  transition:all .2s;
+  box-shadow:0 0 40px rgba(124,158,135,0.25);
+}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 6px 48px rgba(124,158,135,.35);background:var(--accent2)}
+.btn-ghost{
+  font-size:14px;font-weight:400;
+  padding:12px 24px;border-radius:99px;
+  border:1px solid var(--border2);background:transparent;
+  color:var(--text2);cursor:pointer;letter-spacing:-.01em;
+  display:inline-flex;align-items:center;gap:6px;transition:all .2s;
+}
+.btn-ghost:hover{border-color:var(--accent-b);color:var(--text);background:var(--accent-dim)}
+
+/* Stats */
+.h-stats{
+  display:flex;align-items:center;justify-content:center;gap:3rem;
+  margin-top:4rem;padding-top:2.25rem;border-top:1px solid var(--border);
+  opacity:0;animation:slide-up .8s ease .7s forwards;
+}
+.hs-n{font-size:30px;font-weight:600;color:var(--text);letter-spacing:-.03em;line-height:1;margin-bottom:4px}
+.hs-n.accent{color:var(--accent)}
+.hs-l{font-size:11px;font-weight:400;color:var(--text3);letter-spacing:.03em}
+.hs-div{width:1px;height:40px;background:var(--border2)}
+
+@keyframes slide-up{
+  from{opacity:0;transform:translateY(20px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+/* ─── HOW ─── */
+.how{position:relative;z-index:1;padding:8rem 2.5rem;max-width:1080px;margin:0 auto}
+.sec-eyebrow{font-size:11px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-bottom:.75rem;display:flex;align-items:center;gap:10px}
+.sec-eyebrow::after{content:'';flex:1;height:1px;background:var(--border2)}
+.sec-h{font-size:clamp(36px,4.5vw,58px);font-weight:600;letter-spacing:-.04em;line-height:1;color:var(--text);margin-bottom:3.75rem}
+.sec-h .accent{color:var(--accent)}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid var(--border2);border-radius:18px;overflow:hidden;background:var(--bg2)}
+.step{padding:2.5rem 2rem;border-right:1px solid var(--border2);transition:background .2s}
+.step:last-child{border-right:none}
+.step:hover{background:var(--bg3)}
+.step-n{font-size:72px;font-weight:600;letter-spacing:-.05em;line-height:1;color:var(--border2);margin-bottom:1.5rem;display:block;transition:color .2s}
+.step:hover .step-n{color:var(--accent-dim)}
+.step-ico{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:1rem;font-size:20px;background:var(--accent-dim);border:1px solid var(--accent-b)}
+.step-title{font-size:20px;font-weight:600;letter-spacing:-.02em;color:var(--text);margin-bottom:.6rem}
+.step-desc{font-size:13.5px;font-weight:300;color:var(--text2);line-height:1.75}
+.step-tag{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:500;letter-spacing:.05em;margin-top:1.1rem;color:var(--accent);opacity:.8}
+
+/* ─── AGENT ─── */
+.ag-sec{
+  position:relative;z-index:1;
+  margin:0 2.5rem 8rem;max-width:1080px;margin-left:auto;margin-right:auto;
+  border:1px solid var(--border2);border-radius:18px;background:var(--bg2);
+  padding:3.25rem;display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center;overflow:hidden;
+}
+.ag-sec::before{
+  content:'';position:absolute;top:-80px;right:-80px;
+  width:300px;height:300px;border-radius:50%;
+  background:radial-gradient(circle,rgba(91,127,255,0.12) 0%,transparent 70%);
+  pointer-events:none;
+}
+.ag-eye{font-size:11px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:#3ED9B8;margin-bottom:1rem;display:flex;align-items:center;gap:7px}
+.ag-dot{width:6px;height:6px;border-radius:50%;background:#3ED9B8;box-shadow:0 0 8px #3ED9B8;animation:glow-pulse 2s ease-in-out infinite}
+.ag-h{font-size:38px;font-weight:600;letter-spacing:-.04em;color:var(--text);line-height:1.05;margin-bottom:1rem}
+.ag-h .accent{color:var(--accent)}
+.ag-p{font-size:14px;font-weight:300;color:var(--text2);line-height:1.8;margin-bottom:1.75rem}
+.terminal{background:var(--sb-bg);border:1px solid var(--border2);border-radius:12px;padding:1rem;overflow:hidden}
+.t-bar{display:flex;align-items:center;gap:6px;margin-bottom:1rem;padding-bottom:.75rem;border-bottom:1px solid var(--border)}
+.td-r{width:9px;height:9px;border-radius:50%;background:#FF5F57}
+.td-y{width:9px;height:9px;border-radius:50%;background:#FFBD2E}
+.td-g{width:9px;height:9px;border-radius:50%;background:#28C840}
+.t-title{font-size:10px;color:var(--text3);margin-left:auto;letter-spacing:.05em}
+.tlog{display:flex;align-items:flex-start;gap:9px;padding:6px 0;border-bottom:1px solid var(--border)}
+.tlog:last-child{border-bottom:none}
+.tl-ic{width:20px;height:20px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;margin-top:1px;background:var(--accent-dim);color:var(--accent)}
+.tl-txt{font-size:11px;line-height:1.55;font-weight:400}
+.tc-a{color:var(--accent)}.tc-g{color:var(--gold)}.tc-gr{color:#4FC490}.tc-d{color:var(--text3)}
+
+/* ─── CHAINS + FINAL ─── */
+.chains{position:relative;z-index:1;padding:0 2.5rem 7rem;max-width:1080px;margin:0 auto;text-align:center}
+.c-lbl{font-size:11px;font-weight:500;letter-spacing:.09em;text-transform:uppercase;color:var(--text3);margin-bottom:1.75rem}
+.c-pills{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap}
+.cp{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:400;padding:8px 16px;border-radius:99px;border:1px solid var(--border2);background:var(--bg2);color:var(--text3);transition:all .2s;letter-spacing:-.01em}
+.cp.live{border-color:var(--accent-b);background:var(--accent-dim);color:var(--text)}
+.cp-dot{width:7px;height:7px;border-radius:50%}
+.cpd-a{background:#3ED9B8;box-shadow:0 0 6px #3ED9B8}
+.cpd-b{background:#627EEA}.cpd-p{background:#8B5CF6}.cpd-gr{background:var(--text3)}
+.live-t{font-size:9px;color:#3ED9B8;letter-spacing:.07em;font-weight:500}
+.fcta{position:relative;z-index:1;padding:0 2.5rem 9rem;max-width:820px;margin:0 auto;text-align:center}
+.fcta-h{font-size:clamp(42px,5.5vw,76px);font-weight:600;letter-spacing:-.04em;line-height:.97;color:var(--text);margin-bottom:1.5rem}
+.fcta-h .accent{color:var(--accent)}.fcta-h .muted{color:var(--text3)}
+.fcta-sub{font-size:16px;font-weight:300;color:var(--text2);margin-bottom:2.25rem;line-height:1.7;letter-spacing:-.01em}
+.l-foot{position:relative;z-index:1;border-top:1px solid var(--border);padding:1.5rem 2.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem}
+.f-note{font-size:12px;color:var(--text3);letter-spacing:.02em}
+.f-links{display:flex;gap:1.5rem}
+.f-links a{font-size:12px;color:var(--text3);text-decoration:none;transition:color .2s;letter-spacing:-.01em}
+.f-links a:hover{color:var(--accent)}
+
+.reveal{opacity:0;transform:translateY(18px);transition:opacity .65s ease,transform .65s ease}
+.reveal.in{opacity:1;transform:none}
+
+/* ════════════════════════════════
+   APP
+════════════════════════════════ */
+
+/* SIDEBAR */
+.sb{
+  width:218px;flex-shrink:0;
+  background:var(--sb-bg);
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;
+  height:100vh;overflow:hidden;
+  transition:background .3s;
+}
+.sb-logo{padding:1.1rem .9rem .85rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;cursor:pointer;flex-shrink:0}
+.sb-wm{font-size:16px;font-weight:600;letter-spacing:-.03em;color:var(--text);line-height:1}
+.sb-tag{font-size:8px;font-weight:500;letter-spacing:.09em;text-transform:uppercase;color:var(--accent);opacity:.7;margin-top:2px}
+.sb-nav{flex:1;padding:.5rem 0;overflow-y:auto}
+.sb-grp{font-size:8.5px;font-weight:500;letter-spacing:.13em;text-transform:uppercase;color:var(--text3);padding:.75rem .9rem .3rem}
+.sb-item{display:flex;align-items:center;gap:8px;padding:7px .9rem;cursor:pointer;border-left:2px solid transparent;transition:all .15s}
+.sb-item:hover{background:var(--accent-dim)}
+.sb-item.on{background:var(--accent-dim);border-left-color:var(--accent)}
+.sb-ic{width:15px;height:15px;opacity:.3;flex-shrink:0;color:var(--text);display:flex;align-items:center;justify-content:center}
+.sb-item.on .sb-ic{opacity:1;color:var(--accent)}
+.sb-lbl{font-size:13px;font-weight:400;color:var(--text3);flex:1;letter-spacing:-.01em}
+.sb-item.on .sb-lbl{color:var(--text);font-weight:500}
+.sb-bdg{font-size:9px;font-weight:500;padding:2px 6px;border-radius:99px;background:var(--accent-dim);color:var(--accent);border:1px solid var(--accent-b);letter-spacing:.02em}
+.sb-bot{padding:.75rem .9rem;border-top:1px solid var(--border);flex-shrink:0;display:flex;flex-direction:column;gap:7px}
+.sb-wallet{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:.55rem .75rem}
+.sb-addr{font-size:10px;font-weight:400;color:var(--text3);margin-bottom:3px;letter-spacing:.01em}
+.sb-net{display:flex;align-items:center;gap:5px;font-size:9.5px;font-weight:500;color:#3ED9B8;letter-spacing:.04em}
+.net-dot{width:6px;height:6px;border-radius:50%;background:#3ED9B8;box-shadow:0 0 5px #3ED9B8;animation:glow-pulse 2s ease-in-out infinite}
+.vtog{display:flex;gap:2px;border:1px solid var(--border2);border-radius:6px;overflow:hidden;background:var(--bg3);padding:2px}
+.vt{font-size:10px;font-weight:500;letter-spacing:.04em;padding:5px 10px;border:none;background:transparent;color:var(--text3);cursor:pointer;border-radius:4px;transition:all .15s;text-transform:uppercase}
+.vt.on{background:var(--bg2);color:var(--text)}
+.theme-btn-app{
+  display:flex;align-items:center;gap:7px;
+  padding:6px 9px;border-radius:6px;
+  border:1px solid var(--border);background:transparent;
+  cursor:pointer;font-size:11px;font-weight:400;
+  color:var(--text3);letter-spacing:.02em;transition:all .15s;width:100%;
+}
+.theme-btn-app:hover{background:var(--bg3);color:var(--text)}
+
+/* MAIN */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;background:var(--bg)}
+
+/* TOPBAR */
+.topbar{height:52px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;border-bottom:1px solid var(--border);background:var(--bg2);transition:background .3s}
+.tb-l{display:flex;flex-direction:column;gap:1px}
+.tb-page{font-size:16px;font-weight:600;color:var(--text);letter-spacing:-.02em;line-height:1}
+.tb-sub{font-size:10px;font-weight:400;color:var(--text3);letter-spacing:.04em;text-transform:uppercase}
+.tb-r{display:flex;align-items:center;gap:7px}
+.tb-btn{display:flex;align-items:center;gap:5px;padding:6px 12px;border-radius:6px;border:1px solid var(--border2);background:transparent;font-size:12.5px;font-weight:500;color:var(--text3);cursor:pointer;transition:all .15s;letter-spacing:-.01em}
+.tb-btn:hover{border-color:var(--accent-b);color:var(--text);background:var(--accent-dim)}
+.tb-btn.green{background:var(--accent);border-color:var(--accent);color:#fff}
+.tb-btn.green:hover{background:var(--accent2);border-color:var(--accent2)}
+
+/* CONTENT */
+.content{flex:1;overflow-y:auto;padding:1.5rem;background:var(--bg)}
+.panel{display:none}
+.panel.on{display:block;animation:slide-up .18s ease}
+
+/* ─── DASHBOARD HERO ─── */
+.dash-hero{
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:16px;padding:1.75rem;
+  position:relative;overflow:hidden;margin-bottom:1.25rem;
+  transition:background .3s;
+}
+/* Animated accent line at top */
+.dash-hero::before{
+  content:'';
+  position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,#3ED9B8,var(--accent),transparent);
+  animation:shimmer 3s ease-in-out infinite;
+}
+@keyframes shimmer{
+  0%{opacity:.4;transform:translateX(-100%)}
+  50%{opacity:1}
+  100%{opacity:.4;transform:translateX(100%)}
+}
+.dh-glow{position:absolute;top:-60px;right:-60px;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,rgba(91,127,255,0.08) 0%,transparent 70%);pointer-events:none}
+.dh-lbl{font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-bottom:.65rem}
+.dh-amt{font-size:48px;font-weight:600;letter-spacing:-.04em;color:var(--text);line-height:1;margin-bottom:.3rem}
+.dh-chg{font-size:12px;font-weight:400;color:#4FC490;display:flex;align-items:center;gap:5px;margin-bottom:1.5rem;letter-spacing:-.01em}
+.dh-acts{display:flex;gap:8px;flex-wrap:wrap}
+.dh-btn{display:flex;align-items:center;gap:6px;padding:7px 15px;border-radius:8px;border:1px solid var(--border2);background:transparent;font-size:12.5px;font-weight:500;color:var(--text2);cursor:pointer;transition:all .15s;letter-spacing:-.01em}
+.dh-btn:hover{border-color:var(--accent-b);color:var(--text);background:var(--accent-dim)}
+.dh-btn.p{background:var(--accent);border-color:var(--accent);color:#fff}
+.dh-btn.p:hover{background:var(--accent2);border-color:var(--accent2)}
+
+/* STAT STRIP */
+.ss{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border:1px solid var(--border2);border-radius:12px;overflow:hidden;margin-bottom:1.25rem}
+.sc{background:var(--bg2);padding:.85rem 1rem;transition:background .15s,all .3s}
+.sc:hover{background:var(--bg3)}
+.sc-l{font-size:9.5px;font-weight:500;letter-spacing:.09em;text-transform:uppercase;color:var(--text3);margin-bottom:5px}
+.sc-v{font-size:22px;font-weight:600;letter-spacing:-.03em;color:var(--text);line-height:1;margin-bottom:3px}
+.sc-v.accent{color:var(--accent)}.sc-v.gold{color:var(--gold)}.sc-v.green{color:#4FC490}
+.sc-s{font-size:10px;font-weight:400;color:var(--text3);letter-spacing:-.01em}
+.sc-s.up{color:#4FC490}
+
+/* 2-col grid */
+.g2{display:grid;grid-template-columns:1fr 295px;gap:1.25rem}
+
+/* CARD */
+.card{background:var(--card-bg);border:1px solid var(--border2);border-radius:12px;overflow:hidden;transition:background .3s}
+.card-h{display:flex;align-items:center;justify-content:space-between;padding:.75rem 1.1rem;border-bottom:1px solid var(--border);background:var(--bg3);transition:background .3s}
+.card-t{font-size:13.5px;font-weight:600;color:var(--text);letter-spacing:-.02em}
+.card-a{font-size:11px;font-weight:500;letter-spacing:.02em;color:var(--accent);cursor:pointer;border:none;background:transparent;transition:opacity .15s}
+.card-a:hover{opacity:.65}
+
+/* TOKEN ROWS */
+.tr{display:flex;align-items:center;gap:10px;padding:.75rem 1.1rem;border-bottom:1px solid var(--border);transition:background .12s;cursor:pointer}
+.tr:hover{background:var(--bg3)}
+.tr:last-child{border-bottom:none}
+.tic{width:32px;height:32px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500}
+.ti-u{background:rgba(74,127,212,.10);border:1px solid rgba(74,127,212,.2);color:#7AA4E8}
+.ti-e{background:rgba(120,80,200,.10);border:1px solid rgba(120,80,200,.2);color:#9B7FE8}
+.ti-s{background:var(--accent-dim);border:1px solid var(--accent-b);color:var(--accent)}
+.ti-b{background:rgba(210,140,40,.10);border:1px solid rgba(210,140,40,.2);color:#D4943A}
+.ti-inf{flex:1}
+.ti-n{font-size:13px;font-weight:500;color:var(--text);margin-bottom:1px;letter-spacing:-.01em}
+.ti-t{font-size:10px;font-weight:400;color:var(--text3);letter-spacing:.01em}
+.t-spark{width:50px;height:20px;flex-shrink:0}
+.t-bal{text-align:right}
+.t-usd{font-size:13px;font-weight:600;color:var(--text);line-height:1.2;letter-spacing:-.01em}
+.t-amt{font-size:10px;font-weight:400;color:var(--text3);letter-spacing:.01em}
+.t-chg{font-size:10px;font-weight:500}
+.up{color:#4FC490}.dn{color:var(--red)}
+
+/* AGENT PANEL */
+.agp{background:var(--card-bg);border:1px solid var(--border2);border-radius:12px;overflow:hidden;display:flex;flex-direction:column;height:100%;transition:background .3s}
+.agp-h{padding:.75rem 1.1rem;border-bottom:1px solid var(--border);background:var(--bg3);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;transition:background .3s}
+.agp-hl{display:flex;align-items:center;gap:7px}
+.ag-led{width:7px;height:7px;border-radius:50%;background:#3ED9B8;box-shadow:0 0 7px #3ED9B8;animation:glow-pulse 2.2s ease-in-out infinite}
+.agp-ht{font-size:11px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--text3)}
+.agp-cnt{font-size:10px;font-weight:500;padding:2px 8px;border-radius:99px;background:var(--accent-dim);color:var(--accent);border:1px solid var(--accent-b)}
+.agp-feed{flex:1;overflow-y:auto}
+.ag-item{display:flex;gap:9px;padding:.7rem 1.1rem;border-bottom:1px solid var(--border);transition:background .12s}
+.ag-item:hover{background:var(--bg3)}
+.ag-item:last-child{border-bottom:none}
+.ai-ic{width:26px;height:26px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;margin-top:1px;background:var(--accent-dim);border:1px solid var(--accent-b);color:var(--accent)}
+.ai-ic.gold{background:var(--gold-dim);border-color:var(--gold-b);color:var(--gold)}
+.ai-ic.green{background:rgba(79,196,144,.09);border:1px solid rgba(79,196,144,.2);color:#4FC490}
+.ai-body{flex:1}
+.ai-title{font-size:12.5px;font-weight:500;color:var(--text);margin-bottom:2px;line-height:1.3;letter-spacing:-.01em}
+.ai-sub{font-size:10.5px;font-weight:400;color:var(--text3);line-height:1.45;letter-spacing:-.01em}
+.ai-time{font-size:10px;font-weight:400;color:var(--text3);flex-shrink:0;margin-top:2px;opacity:.6}
+
+/* CHAIN STRIP IN APP */
+.app-cs{display:flex;align-items:center;gap:.7rem;padding:.75rem 1.1rem;border:1px solid var(--border2);border-radius:10px;background:var(--bg2);margin-bottom:1.25rem;flex-wrap:wrap;transition:background .3s}
+.acs-l{font-size:10px;font-weight:500;letter-spacing:.09em;text-transform:uppercase;color:var(--text3);padding-right:.7rem;border-right:1px solid var(--border);white-space:nowrap}
+.acs-ps{display:flex;gap:6px;flex-wrap:wrap}
+.acp{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:400;padding:4px 10px;border-radius:6px;border:1px solid var(--border2);background:var(--bg3);color:var(--text3);letter-spacing:-.01em}
+.acp.live{border-color:var(--accent-b);background:var(--accent-dim);color:var(--text)}
+.acp-dot{width:6px;height:6px;border-radius:50%}
+.acp-a{background:#3ED9B8;box-shadow:0 0 5px #3ED9B8}
+.acp-b{background:#627EEA}.acp-p{background:#8B5CF6}.acp-gr{background:var(--text3)}
+
+/* PILLS */
+.pill{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:500;letter-spacing:.02em;padding:3px 8px;border-radius:99px}
+.p-active{background:rgba(79,196,144,.09);color:#4FC490;border:1px solid rgba(79,196,144,.2)}
+.p-pending{background:var(--gold-dim);color:var(--gold);border:1px solid var(--gold-b)}
+.p-agent{background:var(--accent-dim);color:var(--accent);border:1px solid var(--accent-b)}
+
+/* TABLE */
+.t-table,.h-table{border:1px solid var(--border2);border-radius:12px;overflow:hidden;background:var(--card-bg);transition:background .3s}
+.t-head{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 100px;gap:1rem;padding:.55rem 1.1rem;background:var(--bg3);border-bottom:1px solid var(--border2);transition:background .3s}
+.th{font-size:9.5px;font-weight:500;letter-spacing:.09em;text-transform:uppercase;color:var(--text3)}
+.t-row{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 100px;gap:1rem;padding:.8rem 1.1rem;border-bottom:1px solid var(--border);align-items:center;transition:background .12s;cursor:pointer}
+.t-row:hover{background:var(--bg3)}
+.t-row:last-child{border-bottom:none}
+.emp-w{display:flex;align-items:center;gap:8px}
+.emp-av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:600;flex-shrink:0}
+.av-a{background:rgba(74,127,212,.12);color:#7AA4E8;border:1px solid rgba(74,127,212,.2)}
+.av-b{background:rgba(79,196,144,.10);color:#4FC490;border:1px solid rgba(79,196,144,.2)}
+.av-c{background:var(--accent-dim);color:var(--accent);border:1px solid var(--accent-b)}
+.av-d{background:rgba(155,127,232,.10);color:#9B7FE8;border:1px solid rgba(155,127,232,.2)}
+.av-e{background:var(--gold-dim);color:var(--gold);border:1px solid var(--gold-b)}
+.emp-n{font-size:13px;font-weight:500;color:var(--text);letter-spacing:-.01em}
+.emp-r{font-size:10.5px;font-weight:400;color:var(--text3);letter-spacing:-.01em}
+.td{font-size:12px;font-weight:400;color:var(--text2);letter-spacing:-.01em}
+.td-amt{font-size:13px;font-weight:600;color:var(--text);letter-spacing:-.01em}
+
+/* FORM */
+.fw{max-width:460px;margin:0 auto}
+.f-card{background:var(--card-bg);border:1px solid var(--border2);border-radius:14px;overflow:hidden;transition:background .3s}
+.f-head{padding:1rem 1.35rem;border-bottom:1px solid var(--border);background:var(--bg3);transition:background .3s}
+.f-title{font-size:18px;font-weight:600;color:var(--text);margin-bottom:3px;letter-spacing:-.02em}
+.f-sub{font-size:11px;font-weight:400;color:var(--text3);letter-spacing:.02em}
+.f-body{padding:1.35rem}
+.f-lbl{display:block;font-size:10px;font-weight:500;letter-spacing:.09em;text-transform:uppercase;color:var(--text3);margin-bottom:6px}
+.f-inp,.f-sel{width:100%;padding:9px 12px;border:1px solid var(--border2);border-radius:7px;background:var(--input-bg);font-family:'Geist',system-ui,sans-serif;font-size:13px;color:var(--text);outline:none;transition:border-color .15s;appearance:none;margin-bottom:1rem;letter-spacing:-.01em}
+.f-inp:focus,.f-sel:focus{border-color:var(--accent-b);box-shadow:0 0 0 3px var(--accent-dim)}
+.f-inp::placeholder{color:var(--text3)}
+.tp{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:1rem}
+.tpo{border:1px solid var(--border2);border-radius:7px;padding:.65rem;cursor:pointer;text-align:center;transition:all .15s;background:var(--input-bg)}
+.tpo:hover{border-color:var(--accent-b)}
+.tpo.sel{border-color:var(--accent);background:var(--accent-dim)}
+.tpo-s{font-size:16px;font-weight:600;color:var(--text);display:block;line-height:1;margin-bottom:3px;letter-spacing:-.02em}
+.tpo-n{font-size:10px;font-weight:400;color:var(--text3);letter-spacing:.02em}
+.ag-box{border:1px solid var(--accent-b);background:var(--accent-dim);border-radius:9px;padding:.85rem .95rem;margin:1rem 0}
+.ab-l{display:flex;align-items:center;gap:6px;font-size:10px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-bottom:.45rem}
+.ab-d{width:5px;height:5px;border-radius:50%;background:#3ED9B8;animation:glow-pulse 2s ease-in-out infinite}
+.ab-t{font-size:12.5px;font-weight:600;color:var(--text);margin-bottom:3px;letter-spacing:-.01em}
+.ab-b{font-size:12px;font-weight:300;color:var(--text2);line-height:1.65;letter-spacing:-.01em}
+.sub-btn{width:100%;padding:12px;border-radius:8px;border:none;background:var(--accent);font-family:'Geist',system-ui,sans-serif;font-size:15px;font-weight:600;color:#fff;cursor:pointer;transition:all .15s;margin-top:.25rem;letter-spacing:-.02em}
+.sub-btn:hover{background:var(--accent2);transform:translateY(-1px)}
+.f-note{font-size:10.5px;font-weight:400;color:var(--text3);text-align:center;margin-top:.6rem;letter-spacing:.02em}
+
+/* KV */
+.kv{display:flex;justify-content:space-between;align-items:center;padding:.45rem 0;border-bottom:1px solid var(--border);font-size:12.5px}
+.kv:last-child{border-bottom:none}
+.kk{color:var(--text2);font-weight:400;letter-spacing:-.01em}
+.kv-v{font-size:12px;font-weight:600;color:var(--text);letter-spacing:-.01em}
+.kv-v.accent{color:var(--accent)}.kv-v.gold{color:var(--gold)}.kv-v.green{color:#4FC490}
+
+/* STAKING */
+.s-bar-w{height:6px;background:var(--bg4);border-radius:99px;overflow:hidden;margin:.75rem 0}
+.s-bar{height:6px;border-radius:99px;background:var(--accent);transition:width .6s}
+
+/* HISTORY TABS */
+.h-tabs{display:flex;gap:0;border-bottom:1px solid var(--border2);margin-bottom:1.1rem}
+.ht{font-size:11px;font-weight:500;letter-spacing:.04em;padding:8px 14px;border:none;border-bottom:2px solid transparent;background:transparent;color:var(--text3);cursor:pointer;white-space:nowrap;transition:all .15s;margin-bottom:-1px}
+.ht:hover{color:var(--text2)}.ht.on{color:var(--accent);border-bottom-color:var(--accent)}
+.h-row{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 90px;gap:1rem;padding:.75rem 1.1rem;border-bottom:1px solid var(--border);align-items:center;transition:background .12s;cursor:pointer}
+.h-row:hover{background:var(--bg3)}.h-row:last-child{border-bottom:none}
+.tx-ic{width:26px;height:26px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px}
+.tx-in{background:rgba(79,196,144,.09)}.tx-out{background:var(--red-dim)}.tx-sw{background:rgba(74,127,212,.09)}.tx-ag{background:var(--accent-dim)}
+.tx-n{font-size:13px;font-weight:500;color:var(--text);letter-spacing:-.01em}
+.tx-s{font-size:10.5px;font-weight:400;color:var(--text3);letter-spacing:-.01em}
+.a-pos{font-size:13px;font-weight:600;color:#4FC490;letter-spacing:-.01em}
+.a-neg{font-size:13px;font-weight:600;color:var(--red);letter-spacing:-.01em}
+.a-neu{font-size:13px;font-weight:600;color:var(--text);letter-spacing:-.01em}
+
+/* PAYSLIP */
+.ps-hero{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:1.75rem;margin-bottom:1.25rem;position:relative;overflow:hidden;transition:background .3s}
+.ps-hero::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#3ED9B8,transparent);animation:shimmer 3s ease-in-out infinite}
+.ps-mo{font-size:10px;font-weight:500;letter-spacing:.09em;text-transform:uppercase;color:#3ED9B8;margin-bottom:.6rem}
+.ps-amt{font-size:48px;font-weight:600;letter-spacing:-.04em;color:var(--text);line-height:1;margin-bottom:.3rem}
+.ps-st{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:500;color:#3ED9B8;letter-spacing:.02em}
+.ps-dot{width:6px;height:6px;border-radius:50%;background:#3ED9B8}
+.ps-bd{margin-top:1.5rem;border-top:1px solid var(--border);padding-top:1rem}
+.ps-ln{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border)}
+.ps-ln:last-child{border-bottom:none}
+.ps-k{color:var(--text3);font-size:11px;font-weight:400;letter-spacing:.02em}
+.ps-v{color:var(--text);font-size:12px;font-weight:600;letter-spacing:-.01em}
+
+/* SEC HEADING */
+.sec-hd{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1.25rem}
+.sec-ht{font-size:20px;font-weight:600;color:var(--text);letter-spacing:-.03em}
+.sec-hs{font-size:11px;font-weight:400;color:var(--text3);letter-spacing:.02em;margin-top:3px}
+</style>
+</head>
+<body>
+
+<!-- ════════════════
+  LANDING
+════════════════ -->
+<div id="landing">
+<nav class="l-nav">
+  <div class="l-logo" onclick="goApp()">
+    <svg width="26" height="26" viewBox="0 0 72 72" fill="none"><polygon points="36,4 6,36 36,68 36,4" fill="#5B82FF" opacity="0.95"/><polygon points="36,4 66,36 36,68 36,4" fill="#5B82FF" opacity="0.40"/><path d="M10,56 Q36,24 62,14" fill="none" stroke="#3ED9B8" stroke-width="4.5" stroke-linecap="round"/><circle cx="62" cy="14" r="5.5" fill="#3ED9B8"/></svg>
+    <span class="l-wm">lymitra</span>
+  </div>
+  <ul class="l-links">
+    <li><a href="#how">How it works</a></li>
+    <li><a href="#agents-l">Agents</a></li>
+    <li><a href="#chains-l">Networks</a></li>
+  </ul>
+  <div class="l-nav-right">
+    <button class="theme-btn-land" onclick="toggleTheme()" id="theme-icon-land">☀</button>
+    <div class="l-cta" onclick="goApp()">Launch app →</div>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+  <div class="particles" id="particles"></div>
+  <div class="hero-inner">
+    <div class="h-eye"><div class="h-pulse"></div>Powered by Somnia Agentic L1</div>
+    <h1 class="hero-h">Pay your team.<br><span class="accent">Agents</span> handle<br><span class="muted">everything else.</span></h1>
+    <p class="h-sub">Deposit ETH or USDC. Add your team once. Somnia AI agents watch rates, convert at the right moment, and pay everyone automatically — every month, forever.</p>
+    <div class="cta-row">
+      <div class="btn-primary" onclick="goApp()">Launch app <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 8H13M13 8L9 4M13 8L9 12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <a class="btn-ghost" href="#how">See how it works</a>
+    </div>
+    <div class="h-stats">
+      <div><div class="hs-n">$0</div><div class="hs-l">Setup fee</div></div>
+      <div class="hs-div"></div>
+      <div><div class="hs-n">2.5%</div><div class="hs-l">On settlement</div></div>
+      <div class="hs-div"></div>
+      <div><div class="hs-n accent">0</div><div class="hs-l">Humans involved</div></div>
+      <div class="hs-div"></div>
+      <div><div class="hs-n">&lt;30s</div><div class="hs-l">Agent execution</div></div>
+    </div>
+  </div>
+</section>
+
+<section id="how" class="how">
+  <div class="reveal"><div class="sec-eyebrow">How it works</div><h2 class="sec-h">Three steps.<br>Then <span class="accent">nothing.</span></h2></div>
+  <div class="steps reveal">
+    <div class="step"><span class="step-n">01</span><div class="step-ico">⬇</div><div class="step-title">Deposit & stake</div><p class="step-desc">Deposit ETH or USDC into your Lymitra treasury. Stake a small amount of SOMI to activate the protocol. Your money stays yours — non-custodial smart contract on Somnia.</p><div class="step-tag">One-time setup</div></div>
+    <div class="step"><span class="step-n">02</span><div class="step-ico">👥</div><div class="step-title">Add your team</div><p class="step-desc">Enter each employee's wallet address, monthly amount, and preferred token. Set the schedule. That's the last time you'll think about payroll.</p><div class="step-tag">Done in minutes</div></div>
+    <div class="step"><span class="step-n">03</span><div class="step-ico">⚡</div><div class="step-title">Agents take over</div><p class="step-desc">Somnia agents monitor exchange rates 24/7, convert at the optimal moment, and execute payroll in the same block on payday. No keeper bots. No servers.</p><div class="step-tag">Runs forever</div></div>
+  </div>
+</section>
+
+<section id="agents-l" class="ag-sec reveal">
+  <div>
+    <div class="ag-eye"><div class="ag-dot"></div>Somnia Agents · Live</div>
+    <h2 class="ag-h">The AI that never<br><span class="accent">clocks out.</span></h2>
+    <p class="ag-p">Three Somnia Agents run autonomously. One watches exchange rates from any API — no Chainlink, no oracles. One decides the optimal conversion timing using onchain LLM inference. One fires payroll in the same 100ms block.</p>
+    <div class="btn-primary" style="cursor:pointer;display:inline-flex;font-size:14px;padding:12px 24px" onclick="goApp()">See agent activity →</div>
+  </div>
+  <div class="terminal">
+    <div class="t-bar"><div class="td-r"></div><div class="td-y"></div><div class="td-g"></div><div class="t-title">lymitra.agent · live</div></div>
+    <div class="tlog"><div class="tl-ic">⚡</div><div class="tl-txt"><span class="tc-a">JSON_API_AGENT</span><span class="tc-d"> → ETH/USDC </span><span class="tc-a">$3,512.44</span><br><span class="tc-d">17/17 validators · consensus ✓</span></div></div>
+    <div class="tlog"><div class="tl-ic">🧠</div><div class="tl-txt"><span class="tc-g">LLM_AGENT</span><span class="tc-d"> → decision: </span><span class="tc-g">convert now</span><br><span class="tc-d">trend: bullish reversal · confidence 84%</span></div></div>
+    <div class="tlog"><div class="tl-ic">✓</div><div class="tl-txt"><span class="tc-gr">REACTIVITY</span><span class="tc-d"> → payroll block </span><span class="tc-gr">8,442,110</span><br><span class="tc-d">6 recipients · $18,500 USDC · 0 failures</span></div></div>
+    <div class="tlog"><div class="tl-ic">⚡</div><div class="tl-txt"><span class="tc-a">YIELD_AGENT</span><span class="tc-d"> → harvested </span><span class="tc-a">+420 SOMI</span><br><span class="tc-d">294 SOMI → treasury · epoch complete</span></div></div>
+  </div>
+</section>
+
+<section id="chains-l" class="chains">
+  <div class="c-lbl reveal">Assets from any chain · Intelligence on Somnia</div>
+  <div class="c-pills reveal">
+    <div class="cp live"><div class="cp-dot cpd-a"></div>Somnia<span class="live-t">● LIVE</span></div>
+    <div class="cp"><div class="cp-dot cpd-b"></div>Ethereum</div>
+    <div class="cp"><div class="cp-dot cpd-b"></div>Base</div>
+    <div class="cp"><div class="cp-dot cpd-p"></div>Polygon</div>
+    <div class="cp"><div class="cp-dot cpd-gr"></div>More soon</div>
+  </div>
+</section>
+
+<section class="fcta reveal">
+  <h2 class="fcta-h">Your team.<br><span class="accent">Paid automatically.</span><br><span class="muted">Every month.</span></h2>
+  <p class="fcta-sub">Set up in under 5 minutes. No code. No finance team. Just your wallet and your team's wallets.</p>
+  <div class="btn-primary" style="cursor:pointer;display:inline-flex;font-size:15px;padding:14px 38px" onclick="goApp()">Launch Lymitra →</div>
+</section>
+
+<footer class="l-foot">
+  <div class="l-logo" onclick="goLanding()"><svg width="20" height="20" viewBox="0 0 72 72" fill="none"><polygon points="36,4 6,36 36,68 36,4" fill="#5B82FF" opacity="0.95"/><polygon points="36,4 66,36 36,68 36,4" fill="#5B82FF" opacity="0.40"/><path d="M10,56 Q36,24 62,14" fill="none" stroke="#3ED9B8" stroke-width="4.5" stroke-linecap="round"/><circle cx="62" cy="14" r="5.5" fill="#3ED9B8"/></svg><span class="l-wm" style="font-size:15px">lymitra</span></div>
+  <div class="f-note">Autonomous payroll · Somnia Agentic L1 · 2026</div>
+  <div class="f-links"><a href="#">Docs</a><a href="#">GitHub</a><a href="#">Twitter</a><a href="#">Discord</a></div>
+</footer>
+</div>
+
+
+<!-- ════════════════
+  APP
+════════════════ -->
+<div id="app">
+<aside class="sb">
+  <div class="sb-logo" onclick="goLanding()">
+    <svg width="27" height="27" viewBox="0 0 72 72" fill="none"><polygon points="36,4 6,36 36,68 36,4" fill="#5B82FF" opacity="0.95"/><polygon points="36,4 66,36 36,68 36,4" fill="#5B82FF" opacity="0.40"/><path d="M10,56 Q36,24 62,14" fill="none" stroke="#3ED9B8" stroke-width="4.5" stroke-linecap="round"/><circle cx="62" cy="14" r="5.5" fill="#3ED9B8"/></svg>
+    <div><div class="sb-wm">lymitra</div><div class="sb-tag">Autonomous Payroll</div></div>
+  </div>
+  <nav class="sb-nav">
+    <div class="sb-grp">Company</div>
+    <div class="sb-item on" onclick="sp('dashboard',this)">
+      <div class="sb-ic"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="8" y="1" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="1" y="8" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="8" y="8" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.2"/></svg></div>
+      <span class="sb-lbl">Dashboard</span>
+    </div>
+    <div class="sb-item" onclick="sp('deposit',this)">
+      <div class="sb-ic"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2V10M7 10L4 7M7 10L10 7" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 12H12" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg></div>
+      <span class="sb-lbl">Deposit</span>
+    </div>
+    <div class="sb-item" onclick="sp('team',this)">
+      <div class="sb-ic"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="5" cy="4.5" r="2" stroke="currentColor" stroke-width="1.2"/><path d="M1 12C1 9.8 2.8 8 5 8C7.2 8 9 9.8 9 12" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><circle cx="10.5" cy="5" r="1.5" stroke="currentColor" stroke-width="1.1"/><path d="M13 12C13 10.3 11.9 9 10.5 9" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg></div>
+      <span class="sb-lbl">Team</span>
+    </div>
+    <div class="sb-item" onclick="sp('staking',this)">
+      <div class="sb-ic"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1L12 3.5V10.5L7 13L2 10.5V3.5L7 1Z" stroke="currentColor" stroke-width="1.2"/></svg></div>
+      <span class="sb-lbl">SOMI Staking</span>
+      <span class="sb-bdg">12%</span>
+    </div>
+    <div class="sb-item" onclick="sp('agents',this)">
+      <div class="sb-ic"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.2"/><circle cx="7" cy="7" r="2" fill="currentColor" opacity="0.4"/></svg></div>
+      <span class="sb-lbl">Agent Activity</span>
+      <span class="sb-bdg">3</span>
+    </div>
+    <div class="sb-item" onclick="sp('history',this)">
+      <div class="sb-ic"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.2"/><path d="M7 4V7L9 9" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <span class="sb-lbl">History</span>
+    </div>
+  </nav>
+  <div class="sb-bot">
+    <div class="sb-wallet">
+      <div class="sb-addr">0x3f4a…9a2c</div>
+      <div class="sb-net"><div class="net-dot"></div>Somnia Shannon</div>
+    </div>
+    <div class="vtog">
+      <button class="vt on" onclick="setRole('company',this)">Company</button>
+      <button class="vt" onclick="setRole('employee',this)">Employee</button>
+    </div>
+    <button class="theme-btn-app" onclick="toggleTheme()"><span id="theme-icon-app">☀</span><span id="theme-label-app">Light mode</span></button>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div class="tb-l">
+      <div class="tb-page" id="tb-page">Dashboard</div>
+      <div class="tb-sub" id="tb-sub">Portfolio overview · Somnia Shannon</div>
+    </div>
+    <div class="tb-r">
+      <button class="tb-btn" onclick="sp('history',null)">History</button>
+      <button class="tb-btn" onclick="sp('staking',null)">⬡ Stake</button>
+      <button class="tb-btn green" onclick="sp('deposit',null)">+ Deposit</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- DASHBOARD -->
+    <div class="panel on" id="p-dashboard">
+      <div class="app-cs">
+        <div class="acs-l">Networks</div>
+        <div class="acs-ps">
+          <div class="acp live"><div class="acp-dot acp-a"></div>Somnia <span style="font-size:8.5px;color:#3ED9B8;letter-spacing:.05em;font-weight:500">LIVE</span></div>
+          <div class="acp"><div class="acp-dot acp-b"></div>Ethereum</div>
+          <div class="acp"><div class="acp-dot acp-b"></div>Base</div>
+          <div class="acp"><div class="acp-dot acp-p"></div>Polygon</div>
+        </div>
+        <div style="margin-left:auto;font-size:10px;color:var(--text3);letter-spacing:.02em">AI runs on Somnia</div>
+      </div>
+
+      <div class="dash-hero">
+        <div class="dh-glow"></div>
+        <div class="dh-lbl">Total treasury</div>
+        <div class="dh-amt" id="dash-counter">$0.00</div>
+        <div class="dh-chg">▲ +$2,764 · +3.39% today</div>
+        <div class="dh-acts">
+          <button class="dh-btn p" onclick="sp('deposit',null)">+ Deposit</button>
+          <button class="dh-btn" onclick="sp('team',null)">👥 Team</button>
+          <button class="dh-btn" onclick="sp('staking',null)">⬡ Stake SOMI</button>
+          <button class="dh-btn" onclick="sp('history',null)">≡ History</button>
+        </div>
+      </div>
+
+      <div class="ss">
+        <div class="sc"><div class="sc-l">Monthly payroll</div><div class="sc-v">$18,500</div><div class="sc-s">6 employees · USDC</div></div>
+        <div class="sc"><div class="sc-l">SOMI staked</div><div class="sc-v accent">42,000</div><div class="sc-s up">12% APY</div></div>
+        <div class="sc"><div class="sc-l">Next payroll</div><div class="sc-v green">11 days</div><div class="sc-s">Jun 1 · auto</div></div>
+        <div class="sc"><div class="sc-l">Gas used</div><div class="sc-v gold">$0.00</div><div class="sc-s">Somnia = free</div></div>
+      </div>
+
+      <div class="g2">
+        <div class="card">
+          <div class="card-h"><div class="card-t">Holdings</div><button class="card-a" onclick="sp('deposit',null)">Manage →</button></div>
+          <div class="tr"><div class="tic ti-u">USDC</div><div class="ti-inf"><div class="ti-n">USD Coin</div><div class="ti-t">Payroll reserve</div></div><svg class="t-spark" viewBox="0 0 50 20"><polyline points="0,16 10,12 22,14 32,8 42,6 50,4" fill="none" stroke="#4FC490" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><div class="t-bal"><div class="t-usd">$36,000</div><div class="t-amt">36,000 USDC</div><div class="t-chg up">Stable</div></div></div>
+          <div class="tr"><div class="tic ti-e">ETH</div><div class="ti-inf"><div class="ti-n">Ethereum</div><div class="ti-t">Bridged via LayerZero</div></div><svg class="t-spark" viewBox="0 0 50 20"><polyline points="0,14 10,10 22,12 32,7 42,9 50,6" fill="none" stroke="#4FC490" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><div class="t-bal"><div class="t-usd">$31,200</div><div class="t-amt">8.9 ETH</div><div class="t-chg up">+4.8%</div></div></div>
+          <div class="tr"><div class="tic ti-s">SOMI</div><div class="ti-inf"><div class="ti-n">Somnia Token</div><div class="ti-t">42,000 staked</div></div><svg class="t-spark" viewBox="0 0 50 20"><polyline points="0,13 10,15 22,9 32,11 42,5 50,3" fill="none" stroke="#4FC490" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><div class="t-bal"><div class="t-usd">$12,600</div><div class="t-amt">42,000 SOMI</div><div class="t-chg up">+11.2%</div></div></div>
+          <div class="tr"><div class="tic ti-b">wBTC</div><div class="ti-inf"><div class="ti-n">Wrapped Bitcoin</div><div class="ti-t">Reserve</div></div><svg class="t-spark" viewBox="0 0 50 20"><polyline points="0,7 10,9 22,12 32,10 42,14 50,13" fill="none" stroke="#D4736A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><div class="t-bal"><div class="t-usd">$4,520</div><div class="t-amt">0.046 BTC</div><div class="t-chg dn">−1.8%</div></div></div>
+        </div>
+        <div class="agp">
+          <div class="agp-h"><div class="agp-hl"><div class="ag-led"></div><div class="agp-ht">Agent Activity</div></div><div class="agp-cnt">3 running</div></div>
+          <div class="agp-feed">
+            <div class="ag-item"><div class="ai-ic">⚡</div><div class="ai-body"><div class="ai-title">Rate Watch — optimal rate detected</div><div class="ai-sub">ETH/USDC at $3,512. Conversion queued in 4h.</div></div><div class="ai-time">2m</div></div>
+            <div class="ag-item"><div class="ai-ic gold">$</div><div class="ai-body"><div class="ai-title">Payroll prep — 11 days to execution</div><div class="ai-sub">Reactivity active. Jun 1 00:00 UTC. $18,500 queued.</div></div><div class="ai-time">1h</div></div>
+            <div class="ag-item"><div class="ai-ic green">✓</div><div class="ai-body"><div class="ai-title">Staking yield collected</div><div class="ai-sub">420 SOMI harvested. 294 → treasury.</div></div><div class="ai-time">3h</div></div>
+            <div class="ag-item"><div class="ai-ic">🔍</div><div class="ai-body"><div class="ai-title">Fraud check passed — 0xA8f…3b2c</div><div class="ai-sub">LLM Agent: no flags. Consensus confirmed.</div></div><div class="ai-time">1d</div></div>
+            <div class="ag-item"><div class="ai-ic gold">⚡</div><div class="ai-body"><div class="ai-title">May payroll executed — $18,500</div><div class="ai-sub">6 transfers · 1 block · May 1 00:00 UTC.</div></div><div class="ai-time">20d</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DEPOSIT -->
+    <div class="panel" id="p-deposit">
+      <div class="fw">
+        <div class="f-card">
+          <div class="f-head"><div class="f-title">Deposit funds</div><div class="f-sub">Non-custodial · Somnia Shannon Testnet</div></div>
+          <div class="f-body">
+            <label class="f-lbl">Choose token</label>
+            <div class="tp">
+              <div class="tpo sel" onclick="selT(this)"><span class="tpo-s">USDC</span><span class="tpo-n">USD Coin</span></div>
+              <div class="tpo" onclick="selT(this)"><span class="tpo-s">ETH</span><span class="tpo-n">Ethereum</span></div>
+              <div class="tpo" onclick="selT(this)"><span class="tpo-s">SOMI</span><span class="tpo-n">Somnia</span></div>
+            </div>
+            <label class="f-lbl">Amount</label>
+            <input class="f-inp" type="number" placeholder="0.00">
+            <label class="f-lbl">SOMI to stake (min 10,000)</label>
+            <input class="f-inp" type="number" placeholder="10,000">
+            <div class="ag-box">
+              <div class="ab-l"><div class="ab-d"></div>Agents activate on deposit</div>
+              <div class="ab-t">Rate Watch starts immediately</div>
+              <div class="ab-b">JSON API Agent monitors ETH/USDC rates. LLM Agent decides optimal conversion before each payroll. Reactivity fires payroll automatically on payday.</div>
+            </div>
+            <button class="sub-btn" onclick="sp('dashboard',null)">Deposit & activate agents</button>
+            <div class="f-note">Somnia testnet · STT tokens · No real value</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TEAM -->
+    <div class="panel" id="p-team">
+      <div class="sec-hd"><div><div class="sec-ht">Team payroll</div><div class="sec-hs">6 employees · Next run Jun 1 · Agent-executed</div></div><button class="tb-btn green">+ Add employee</button></div>
+      <div class="t-table">
+        <div class="t-head"><div class="th">Employee</div><div class="th">Monthly</div><div class="th">Token</div><div class="th">Next pay</div><div class="th">Status</div></div>
+        <div class="t-row"><div class="emp-w"><div class="emp-av av-a">AK</div><div><div class="emp-n">Alex Kim</div><div class="emp-r">Lead Engineer</div></div></div><div class="td-amt">$4,500</div><div class="td">USDC</div><div class="td">Jun 1</div><div><span class="pill p-active">● Active</span></div></div>
+        <div class="t-row"><div class="emp-w"><div class="emp-av av-b">SR</div><div><div class="emp-n">Sofia Reyes</div><div class="emp-r">Product Design</div></div></div><div class="td-amt">$3,800</div><div class="td">USDC</div><div class="td">Jun 1</div><div><span class="pill p-active">● Active</span></div></div>
+        <div class="t-row"><div class="emp-w"><div class="emp-av av-c">MN</div><div><div class="emp-n">Marcus Ndlovu</div><div class="emp-r">Smart Contracts</div></div></div><div class="td-amt">$4,200</div><div class="td">USDC</div><div class="td">Jun 1</div><div><span class="pill p-active">● Active</span></div></div>
+        <div class="t-row"><div class="emp-w"><div class="emp-av av-d">YT</div><div><div class="emp-n">Yuki Tanaka</div><div class="emp-r">Backend Dev</div></div></div><div class="td-amt">$3,500</div><div class="td">USDT</div><div class="td">Jun 1</div><div><span class="pill p-active">● Active</span></div></div>
+        <div class="t-row"><div class="emp-w"><div class="emp-av av-e">FO</div><div><div class="emp-n">Fatima Okafor</div><div class="emp-r">DevRel</div></div></div><div class="td-amt">$1,500</div><div class="td">SOMI</div><div class="td">Jun 1</div><div><span class="pill p-agent">⚡ Agent</span></div></div>
+        <div class="t-row"><div class="emp-w"><div class="emp-av av-a">JP</div><div><div class="emp-n">James Park</div><div class="emp-r">Frontend Dev</div></div></div><div class="td-amt">$1,000</div><div class="td">USDC</div><div class="td">—</div><div><span class="pill p-pending">◌ Pending</span></div></div>
+      </div>
+    </div>
+
+    <!-- STAKING -->
+    <div class="panel" id="p-staking">
+      <div class="sec-hd"><div><div class="sec-ht">SOMI Staking</div><div class="sec-hs">Stake to access protocol · Earn yield while you wait</div></div><button class="tb-btn green">+ Stake more</button></div>
+      <div class="ss" style="margin-bottom:1.25rem">
+        <div class="sc"><div class="sc-l">Staked</div><div class="sc-v gold">42,000</div><div class="sc-s">SOMI · $12,600</div></div>
+        <div class="sc"><div class="sc-l">APY</div><div class="sc-v accent">12%</div><div class="sc-s">~5,040 SOMI/yr</div></div>
+        <div class="sc"><div class="sc-l">This month</div><div class="sc-v green">+420</div><div class="sc-s">SOMI earned</div></div>
+        <div class="sc"><div class="sc-l">Access tier</div><div class="sc-v">Full</div><div class="sc-s">6 employees</div></div>
+      </div>
+      <div class="g2">
+        <div class="card">
+          <div class="card-h"><div class="card-t">Staking position</div><button class="card-a">Unstake →</button></div>
+          <div style="padding:1.1rem">
+            <div class="s-bar-w"><div class="s-bar" style="width:70%"></div></div>
+            <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text3);margin-bottom:1rem"><span>42,000 staked</span><span>60,000 max</span></div>
+            <div class="kv"><span class="kk">SOMI staked</span><span class="kv-v gold">42,000 SOMI</span></div>
+            <div class="kv"><span class="kk">Lock period</span><span class="kv-v">None (liquid)</span></div>
+            <div class="kv"><span class="kk">APY</span><span class="kv-v accent">12.0%</span></div>
+            <div class="kv"><span class="kk">Next yield epoch</span><span class="kv-v">~48 min</span></div>
+            <div class="kv"><span class="kk">Yield split</span><span class="kv-v">70% treasury · 30% protocol</span></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-h"><div class="card-t">Yield history</div></div>
+          <div style="padding:1.1rem">
+            <div class="kv"><span class="kk">May 2026</span><span class="kv-v green">+420 SOMI</span></div>
+            <div class="kv"><span class="kk">Apr 2026</span><span class="kv-v green">+415 SOMI</span></div>
+            <div class="kv"><span class="kk">Mar 2026</span><span class="kv-v green">+408 SOMI</span></div>
+            <div class="kv"><span class="kk">Feb 2026</span><span class="kv-v green">+402 SOMI</span></div>
+            <div class="kv"><span class="kk">Total earned</span><span class="kv-v gold">1,645 SOMI</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AGENTS -->
+    <div class="panel" id="p-agents">
+      <div class="sec-hd"><div><div class="sec-ht">Agent Activity</div><div class="sec-hs">Somnia agents · On-chain reactivity · WebSocket live</div></div><button class="tb-btn green">+ New rule</button></div>
+      <div class="ss" style="margin-bottom:1.25rem">
+        <div class="sc"><div class="sc-l">Active agents</div><div class="sc-v accent">3</div><div class="sc-s">running now</div></div>
+        <div class="sc"><div class="sc-l">Executions</div><div class="sc-v">24</div><div class="sc-s">this month</div></div>
+        <div class="sc"><div class="sc-l">Value managed</div><div class="sc-v gold">$84,320</div><div class="sc-s">by agents</div></div>
+        <div class="sc"><div class="sc-l">Gas total</div><div class="sc-v green">$0.00</div><div class="sc-s">Somnia = free</div></div>
+      </div>
+      <div class="agp" style="height:320px">
+        <div class="agp-h"><div class="agp-hl"><div class="ag-led"></div><div class="agp-ht">Live agent log</div></div><div class="agp-cnt">ws:// live</div></div>
+        <div class="agp-feed">
+          <div class="ag-item"><div class="ai-ic">⚡</div><div class="ai-body"><div class="ai-title">JSON_API_AGENT → ETH/USDC: $3,512.44</div><div class="ai-sub">CoinGecko · Binance · 17/17 validators · consensus ✓</div></div><div class="ai-time">14:22:07</div></div>
+          <div class="ag-item"><div class="ai-ic gold">🧠</div><div class="ai-body"><div class="ai-title">LLM_AGENT → conversion: WAIT 4h</div><div class="ai-sub">Trend: ETH bullish 6h window. Confidence: 81%</div></div><div class="ai-time">14:22:09</div></div>
+          <div class="ag-item"><div class="ai-ic green">✓</div><div class="ai-body"><div class="ai-title">REACTIVITY → yield epoch · block 8,442,110</div><div class="ai-sub">420 SOMI harvested · 294 → treasury</div></div><div class="ai-time">11:08:33</div></div>
+          <div class="ag-item"><div class="ai-ic">⚡</div><div class="ai-body"><div class="ai-title">JSON_API_AGENT → ETH/USDC: $3,489.21</div><div class="ai-sub">CoinGecko · Binance · 17/17 validators · consensus ✓</div></div><div class="ai-time">09:14:52</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HISTORY -->
+    <div class="panel" id="p-history">
+      <div class="sec-hd"><div><div class="sec-ht">Transaction history</div><div class="sec-hs">All activity · Somnia Shannon Testnet</div></div></div>
+      <div class="h-tabs">
+        <button class="ht on" onclick="fH(this)">All</button>
+        <button class="ht" onclick="fH(this)">Payroll</button>
+        <button class="ht" onclick="fH(this)">Swaps</button>
+        <button class="ht" onclick="fH(this)">Staking</button>
+      </div>
+      <div class="h-table">
+        <div class="h-row" style="background:var(--bg3);border-bottom:1px solid var(--border2)"><div class="th">Transaction</div><div class="th">Token</div><div class="th">Amount</div><div class="th">Date</div><div class="th">Status</div></div>
+        <div class="h-row"><div style="display:flex;align-items:center;gap:9px"><div class="tx-ic tx-ag">⚡</div><div><div class="tx-n">Agent payroll — May 2026</div><div class="tx-s">6 recipients · Reactivity · Block 8,012,444</div></div></div><div class="td">USDC</div><div class="a-neg">−18,500</div><div class="td">May 1</div><div><span class="pill p-agent">⚡ Agent</span></div></div>
+        <div class="h-row"><div style="display:flex;align-items:center;gap:9px"><div class="tx-ic tx-sw">⇄</div><div><div class="tx-n">ETH → USDC swap</div><div class="tx-s">LLM Agent routed · optimal rate</div></div></div><div class="td">ETH/USDC</div><div class="a-neu">2.5 ETH</div><div class="td">Apr 28</div><div><span class="pill p-active">✓ Done</span></div></div>
+        <div class="h-row"><div style="display:flex;align-items:center;gap:9px"><div class="tx-ic tx-in">⬇</div><div><div class="tx-n">ETH bridged from Ethereum</div><div class="tx-s">LayerZero · 0x6F47… → Somnia</div></div></div><div class="td">WETH</div><div class="a-pos">+8.9 ETH</div><div class="td">Apr 20</div><div><span class="pill p-active">✓ Done</span></div></div>
+        <div class="h-row"><div style="display:flex;align-items:center;gap:9px"><div class="tx-ic tx-ag">⬡</div><div><div class="tx-n">SOMI staked — 42,000</div><div class="tx-s">Protocol vault · 12% APY</div></div></div><div class="td">SOMI</div><div class="a-neu">42,000</div><div class="td">Apr 18</div><div><span class="pill p-active">✓ Done</span></div></div>
+      </div>
+    </div>
+
+    <!-- EMPLOYEE -->
+    <div class="panel" id="p-employee">
+      <div class="sec-hd"><div><div class="sec-ht">My payments</div><div class="sec-hs">Alex Kim · Lead Engineer · Paid by Lymitra agents</div></div></div>
+      <div class="ps-hero">
+        <div class="ps-mo">May 2026 — Payslip</div>
+        <div class="ps-amt">4,387.50 USDC</div>
+        <div class="ps-st"><div class="ps-dot"></div>Paid by agent · May 1 00:00 UTC</div>
+        <div class="ps-bd">
+          <div class="ps-ln"><span class="ps-k">Gross salary</span><span class="ps-v">4,500.00 USDC</span></div>
+          <div class="ps-ln"><span class="ps-k">Lymitra fee (2.5%)</span><span class="ps-v">−112.50 USDC</span></div>
+          <div class="ps-ln"><span class="ps-k">Net received</span><span class="ps-v" style="color:#3ED9B8">4,387.50 USDC</span></div>
+          <div class="ps-ln"><span class="ps-k">Executed by</span><span class="ps-v">Somnia Reactivity · Block 8,012,444</span></div>
+          <div class="ps-ln"><span class="ps-k">Tx hash</span><span class="ps-v" style="font-size:11px">0xf21ad71a…5c951</span></div>
+        </div>
+      </div>
+      <div style="font-size:17px;font-weight:600;color:var(--text);margin-bottom:1rem;letter-spacing:-.02em">Payment history</div>
+      <div class="h-table">
+        <div class="h-row" style="background:var(--bg3);border-bottom:1px solid var(--border2)"><div class="th">Period</div><div class="th">Token</div><div class="th">Amount</div><div class="th">Date</div><div class="th">Status</div></div>
+        <div class="h-row"><div style="display:flex;align-items:center;gap:9px"><div class="tx-ic tx-in">$</div><div><div class="tx-n">May 2026 salary</div><div class="tx-s">0xf21a…5c95</div></div></div><div class="td">USDC</div><div class="a-pos">+4,387.50</div><div class="td">May 1</div><div><span class="pill p-agent">⚡ Agent</span></div></div>
+        <div class="h-row"><div style="display:flex;align-items:center;gap:9px"><div class="tx-ic tx-in">$</div><div><div class="tx-n">Apr 2026 salary</div><div class="tx-s">0xe99b…0f0a</div></div></div><div class="td">USDC</div><div class="a-pos">+4,387.50</div><div class="td">Apr 1</div><div><span class="pill p-active">✓ Paid</span></div></div>
+        <div class="h-row"><div style="display:flex;align-items:center;gap:9px"><div class="tx-ic tx-in">$</div><div><div class="tx-n">Mar 2026 salary</div><div class="tx-s">0xa33c…2d11</div></div></div><div class="td">USDC</div><div class="a-pos">+4,387.50</div><div class="td">Mar 1</div><div><span class="pill p-active">✓ Paid</span></div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<script>
+/* ─── ROUTING ─── */
+const meta={
+  dashboard:['Dashboard','Portfolio overview · Somnia Shannon'],
+  deposit:['Deposit','Add funds to treasury'],
+  team:['Team Payroll','6 employees · Agent-executed'],
+  staking:['SOMI Staking','Stake to access · Earn yield'],
+  agents:['Agent Activity','Somnia agents · On-chain reactivity'],
+  history:['Transaction History','All activity · Somnia Shannon'],
+  employee:['My Payments','Alex Kim · Lead Engineer'],
+};
+
+function sp(id,el){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
+  document.getElementById('p-'+id).classList.add('on');
+  document.querySelectorAll('.sb-item').forEach(n=>n.classList.remove('on'));
+  const nav=document.querySelector(`.sb-item[onclick*="'${id}'"]`);
+  if(nav) nav.classList.add('on');
+  if(meta[id]){
+    document.getElementById('tb-page').textContent=meta[id][0];
+    document.getElementById('tb-sub').textContent=meta[id][1];
+  }
+  if(id==='dashboard') animateCounter();
+}
+
+function goApp(){
+  document.getElementById('landing').classList.add('gone');
+  document.getElementById('app').style.display='flex';
+  sp('dashboard',null);
+}
+
+function goLanding(){
+  document.getElementById('app').style.display='none';
+  document.getElementById('landing').classList.remove('gone');
+  window.scrollTo(0,0);
+}
+
+function setRole(r,el){
+  document.querySelectorAll('.vt').forEach(b=>b.classList.remove('on'));
+  el.classList.add('on');
+  sp(r==='employee'?'employee':'dashboard',null);
+}
+
+function selT(el){
+  document.querySelectorAll('.tpo').forEach(o=>o.classList.remove('sel'));
+  el.classList.add('sel');
+}
+
+function fH(el){
+  document.querySelectorAll('.ht').forEach(t=>t.classList.remove('on'));
+  el.classList.add('on');
+}
+
+/* ─── THEME ─── */
+function toggleTheme(){
+  const html=document.documentElement;
+  const isDark=html.getAttribute('data-theme')==='dark';
+  html.setAttribute('data-theme',isDark?'light':'dark');
+  const icon=isDark?'☾':'☀';
+  const label=isDark?'Dark mode':'Light mode';
+  const il=document.getElementById('theme-icon-land');
+  const ia=document.getElementById('theme-icon-app');
+  const la=document.getElementById('theme-label-app');
+  if(il) il.textContent=icon;
+  if(ia) ia.textContent=icon;
+  if(la) la.textContent=label;
+}
+
+/* ─── DASHBOARD COUNTER ANIMATION ─── */
+function animateCounter(){
+  const el=document.getElementById('dash-counter');
+  if(!el) return;
+  const target=84320.48;
+  const duration=1200;
+  const start=performance.now();
+  function step(now){
+    const p=Math.min((now-start)/duration,1);
+    const ease=1-Math.pow(1-p,3);
+    const val=(target*ease).toFixed(2);
+    el.textContent='$'+Number(val).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+    if(p<1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+/* ─── PARTICLES ─── */
+function createParticles(){
+  const container=document.getElementById('particles');
+  if(!container) return;
+  for(let i=0;i<18;i++){
+    const p=document.createElement('div');
+    p.className='particle';
+    p.style.cssText=`
+      left:${Math.random()*100}%;
+      bottom:${-Math.random()*20}%;
+      animation-duration:${6+Math.random()*8}s;
+      animation-delay:${Math.random()*8}s;
+      width:${1+Math.random()*2}px;
+      height:${1+Math.random()*2}px;
+      opacity:0;
+    `;
+    container.appendChild(p);
+  }
+}
+createParticles();
+
+/* ─── SCROLL REVEAL ─── */
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting) e.target.classList.add('in');});
+},{threshold:.1});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+
+/* smooth scroll */
+document.querySelectorAll('a[href^="#"]').forEach(a=>{
+  a.addEventListener('click',e=>{
+    const id=a.getAttribute('href');
+    if(id&&id!=='#'){e.preventDefault();document.querySelector(id)?.scrollIntoView({behavior:'smooth'});}
+  });
+});
+</script>
+</body>
+</html>

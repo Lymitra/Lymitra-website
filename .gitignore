@@ -1,0 +1,14 @@
+node_modules
+.next
+out
+
+# Environment — never commit secrets
+.env
+.env.local
+.env*.local
+
+# Hardhat build artifacts
+artifacts
+cache
+typechain-types
+ignition/deployments
