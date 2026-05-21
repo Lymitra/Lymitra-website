@@ -5,23 +5,23 @@ import { useEffect, useRef } from "react";
 const benefits = [
   {
     ico: "🔒",
-    title: "Your money never leaves your control",
-    desc: "Everything lives in a smart contract you own. We can't touch it, freeze it, or lose it. Not your bank — your vault.",
+    title: "Your money stays yours",
+    desc: "Funds live in a smart contract only you control. No bank. No intermediary. Nobody can freeze or touch it.",
   },
   {
     ico: "💵",
-    title: "Employees always get stable dollars",
-    desc: "No matter what the market does, your team receives the exact amount in their agreed salary — in USD stablecoins, every time.",
+    title: "Stable dollars, always",
+    desc: "Employees receive the exact amount agreed — in USD stablecoins — regardless of market conditions.",
   },
   {
     ico: "⏰",
-    title: "Never miss a payroll again",
-    desc: "Payroll runs automatically on the date you set — even while you sleep, travel, or take a break. It just works.",
+    title: "Never miss a payday",
+    desc: "Payroll executes automatically on the date you set. You could be on a beach. It still runs.",
   },
   {
     ico: "📉",
-    title: "Stop losing money to bad timing",
-    desc: "Lymitra picks the best moment to convert your funds before payday, so your team gets paid more without you doing anything.",
+    title: "Better rates, automatically",
+    desc: "Lymitra picks the optimal moment to convert before payday, so your funds go further every month.",
   },
 ];
 
@@ -42,33 +42,33 @@ export function AgentSection({ onLaunchApp }: AgentSectionProps) {
   }, []);
 
   return (
-    <section id="agents-l" className="ag-sec" ref={ref}>
-      <div className="ag-sec-inner reveal" style={{ flexDirection: "column", alignItems: "center", textAlign: "center", gap: "2.5rem" }}>
-        <div>
-          <div className="sec-eyebrow">Why Lymitra</div>
-          <h2 className="ag-h">
-            Built for founders<br />
-            <span className="accent">who hate admin work.</span>
-          </h2>
-          <p className="ag-p" style={{ maxWidth: 520, margin: "0 auto 2rem" }}>
-            Running payroll manually every month costs you hours, creates errors,
-            and causes stress. Lymitra eliminates all of it — one setup, then nothing.
-          </p>
-        </div>
+    <section id="agents-l" className="why-sec" ref={ref}>
+      <div className="reveal" style={{ textAlign: "center", marginBottom: "3.5rem" }}>
+        <div className="sec-eyebrow">Why Lymitra</div>
+        <h2 className="sec-h" style={{ marginBottom: "1rem" }}>
+          Built for founders who<br />
+          <span className="accent">hate doing admin.</span>
+        </h2>
+        <p style={{ color: "var(--text2)", fontSize: 15, maxWidth: 460, margin: "0 auto" }}>
+          Running payroll manually every month wastes hours, causes errors,
+          and creates stress. Lymitra eliminates all of it.
+        </p>
+      </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "1rem", width: "100%", maxWidth: 860 }}>
-          {benefits.map((b) => (
-            <div key={b.title} className="card" style={{ textAlign: "left" }}>
-              <div style={{ fontSize: 28, marginBottom: "0.75rem" }}>{b.ico}</div>
-              <div style={{ fontWeight: 600, color: "var(--text)", marginBottom: "0.4rem", fontSize: 14 }}>{b.title}</div>
-              <div style={{ color: "var(--text2)", fontSize: 13, lineHeight: 1.6 }}>{b.desc}</div>
-            </div>
-          ))}
-        </div>
+      <div className="why-grid reveal">
+        {benefits.map((b) => (
+          <div key={b.title} className="why-card">
+            <div className="why-ico">{b.ico}</div>
+            <div className="why-title">{b.title}</div>
+            <div className="why-desc">{b.desc}</div>
+          </div>
+        ))}
+      </div>
 
+      <div className="reveal" style={{ textAlign: "center", marginTop: "3.5rem" }}>
         <button
           className="btn-primary"
-          style={{ cursor: "pointer", display: "inline-flex", fontSize: 15, padding: "14px 38px" }}
+          style={{ fontSize: 15, height: 50, padding: "0 36px", cursor: "pointer" }}
           onClick={onLaunchApp}
         >
           Start paying your team →
