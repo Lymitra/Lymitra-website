@@ -6,6 +6,7 @@ import { Nav } from "@/components/landing/Nav";
 import { Hero } from "@/components/landing/Hero";
 import { HowItWorks } from "@/components/landing/HowItWorks";
 import { AiSection } from "@/components/landing/AiSection";
+import { TokenFlow } from "@/components/landing/TokenFlow";
 import { AgentSection } from "@/components/landing/AgentSection";
 import { MiniGame } from "@/components/landing/MiniGame";
 import { Footer } from "@/components/landing/Footer";
@@ -20,6 +21,7 @@ export default function Home() {
         <div>
           <Nav onLaunchApp={() => setView("app")} />
           <Hero onLaunchApp={() => setView("app")} />
+          <TokenFlow />
           <HowItWorks />
           <AiSection />
           <AgentSection onLaunchApp={() => setView("app")} />

@@ -16,6 +16,7 @@ export function Hero({ onLaunchApp }: HeroProps) {
   const sectionRef  = useRef<HTMLElement>(null);
   const spotlightRef = useRef<HTMLDivElement>(null);
   const rightRef    = useRef<HTMLDivElement>(null);
+  const glareRef    = useRef<HTMLDivElement>(null);
 
   const [paidIdx, setPaidIdx] = useState(-1);
   const [running, setRunning] = useState(false);
@@ -54,29 +55,39 @@ export function Hero({ onLaunchApp }: HeroProps) {
     const sp = spotlightRef.current;
     if (!s || !sp) return;
     const r = s.getBoundingClientRect();
-    sp.style.background = `radial-gradient(600px circle at ${e.clientX - r.left}px ${e.clientY - r.top}px, rgba(91,127,255,0.10), transparent 65%)`;
+    const x = e.clientX - r.left;
+    const y = e.clientY - r.top;
+    sp.style.background = `radial-gradient(1000px circle at ${x}px ${y}px, rgba(91,127,255,0.28) 0%, rgba(91,127,255,0.08) 40%, transparent 70%)`;
   }, []);
 
   const onSectionLeave = useCallback(() => {
     if (spotlightRef.current) spotlightRef.current.style.background = "";
   }, []);
 
-  // 3D perspective tilt on the card column
+  // Strong 3D tilt + card glare
   const onRightMove = useCallback((e: MouseEvent) => {
     const el = rightRef.current;
+    const glare = glareRef.current;
     if (!el) return;
     const r = el.getBoundingClientRect();
     const cx = (e.clientX - r.left - r.width  / 2) / (r.width  / 2);
     const cy = (e.clientY - r.top  - r.height / 2) / (r.height / 2);
-    el.style.transform  = `perspective(900px) rotateY(${cx * 9}deg) rotateX(${-cy * 7}deg)`;
-    el.style.transition = "transform 0.08s ease";
+    el.style.transform  = `perspective(700px) rotateY(${cx * 20}deg) rotateX(${-cy * 15}deg) scale(1.03)`;
+    el.style.transition = "transform 0.06s ease";
+    if (glare) {
+      const gx = ((e.clientX - r.left) / r.width) * 100;
+      const gy = ((e.clientY - r.top)  / r.height) * 100;
+      glare.style.background = `radial-gradient(circle at ${gx}% ${gy}%, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.04) 50%, transparent 70%)`;
+    }
   }, []);
 
   const onRightLeave = useCallback(() => {
     const el = rightRef.current;
+    const glare = glareRef.current;
     if (!el) return;
     el.style.transform  = "";
-    el.style.transition = "transform 0.55s ease";
+    el.style.transition = "transform 0.65s cubic-bezier(0.16,1,0.3,1)";
+    if (glare) glare.style.background = "";
   }, []);
 
   useEffect(() => {
@@ -145,6 +156,7 @@ export function Hero({ onLaunchApp }: HeroProps) {
           style={{ transformStyle: "preserve-3d" }}
         >
           <div className="pay-card">
+            <div className="pay-glare" ref={glareRef} />
             <div className="pay-card-header">
               <div>
                 <div className="pay-card-title">June Payroll</div>
