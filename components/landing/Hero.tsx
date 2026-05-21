@@ -7,9 +7,9 @@ interface HeroProps {
 }
 
 const TEAM = [
-  { name: "Alex Kim",    role: "Engineering Lead",  salary: "$4,500", avatar: "https://api.dicebear.com/9.x/lorelei/svg?seed=AlexKim&backgroundColor=b6e3f4" },
-  { name: "Sofia Reyes", role: "Product Design",    salary: "$3,800", avatar: "https://api.dicebear.com/9.x/lorelei/svg?seed=SofiaReyes&backgroundColor=ffd5dc" },
-  { name: "Marcus N.",   role: "Smart Contracts",   salary: "$4,200", avatar: "https://api.dicebear.com/9.x/lorelei/svg?seed=MarcusN&backgroundColor=c0f0e0" },
+  { name: "Alex Kim",    role: "Head of Engineering",    salary: "$4,500", avatar: "https://i.pravatar.cc/80?img=11" },
+  { name: "Sofia Reyes", role: "Senior Product Designer", salary: "$3,800", avatar: "https://i.pravatar.cc/80?img=5"  },
+  { name: "Marcus N.",   role: "Protocol Engineer",       salary: "$4,200", avatar: "https://i.pravatar.cc/80?img=52" },
 ];
 
 export function Hero({ onLaunchApp }: HeroProps) {
