@@ -294,7 +294,78 @@ body {
 }
 .sec-h { font-size: clamp(2rem, 4vw, 2.8rem); font-weight: 600; letter-spacing: -0.035em; line-height: 1.15; color: var(--text); }
 .sec-h .accent { color: var(--accent); }
-.sec-h .muted { color: var(--text3); }
+.sec-h .muted  { color: var(--text3); }
+.sec-sub { font-size: 15px; color: var(--text2); line-height: 1.65; }
+
+/* ─── HERO TRUST STRIP ─── */
+.hero-trust { display: flex; flex-wrap: wrap; gap: 1.25rem 1.75rem; margin-top: 0.5rem; }
+.ht-item {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 12.5px; color: var(--text2);
+}
+.ht-icon { color: var(--accent); flex-shrink: 0; }
+
+/* ─── PRICING ─── */
+.pricing-sec { padding: 100px 2rem; max-width: 1100px; margin: 0 auto; }
+.pricing-layout {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;
+}
+@media (max-width: 768px) { .pricing-layout { grid-template-columns: 1fr; } }
+.price-card {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 20px; padding: 2rem;
+}
+.price-card-main {
+  border-color: var(--accent-b);
+  box-shadow: 0 0 0 1px var(--accent-b), 0 12px 40px rgba(91,127,255,0.08);
+}
+.price-badge {
+  display: inline-block; font-size: 11px; font-weight: 600;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  background: var(--accent-dim); color: var(--accent);
+  border-radius: 100px; padding: 4px 12px; margin-bottom: 1.5rem;
+}
+.price-amount { display: flex; align-items: baseline; gap: 10px; margin-bottom: 0.75rem; }
+.price-pct {
+  font-size: 3.5rem; font-weight: 700; letter-spacing: -0.04em;
+  color: var(--text); line-height: 1;
+}
+.price-per { font-size: 14px; color: var(--text2); }
+.price-desc { font-size: 13.5px; color: var(--text2); line-height: 1.65; margin-bottom: 1.25rem; }
+.price-divider { height: 1px; background: var(--border); margin: 1.25rem 0; }
+.price-features { list-style: none; display: flex; flex-direction: column; gap: 0.7rem; margin-bottom: 1.75rem; }
+.price-feature { display: flex; align-items: center; gap: 9px; font-size: 13.5px; color: var(--text2); }
+.price-check { color: #4FC490; flex-shrink: 0; }
+.price-cta { width: 100%; justify-content: center; height: 48px; font-size: 14.5px; }
+.price-note { text-align: center; font-size: 11.5px; color: var(--text3); margin-top: 0.75rem; }
+
+.price-card-alt { display: flex; flex-direction: column; gap: 1.5rem; }
+.price-alt-title { font-size: 13px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: 0.06em; }
+.price-compare-rows { display: flex; flex-direction: column; gap: 0; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.pcr {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 11px 14px; border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+.pcr:last-child { border-bottom: none; }
+.pcr-item { color: var(--text2); }
+.pcr-cost { font-weight: 600; }
+.pcr-cost.bad  { color: var(--red); }
+.pcr-cost.good { color: #4FC490; }
+.pcr-lymitra { background: rgba(79,196,144,0.05); }
+
+.price-example {
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 14px; padding: 1.25rem;
+}
+.pe-label { font-size: 11.5px; color: var(--text3); margin-bottom: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 500; }
+.pe-row {
+  display: flex; justify-content: space-between;
+  font-size: 13.5px; padding: 6px 0;
+  border-bottom: 1px solid var(--border); color: var(--text2);
+}
+.pe-row:last-child { border-bottom: none; }
+.pe-row strong { color: var(--text); }
 
 /* ─── HOW IT WORKS ─── */
 .how { padding: 100px 2rem; max-width: 1100px; margin: 0 auto; text-align: center; }
@@ -311,6 +382,12 @@ body {
 .step:hover::after { opacity: 1; }
 .step-n { font-size: 11px; font-weight: 600; color: var(--text3); letter-spacing: 0.08em; }
 .step-ico { font-size: 28px; margin: 0.75rem 0; }
+.step-ico-wrap {
+  width: 44px; height: 44px; border-radius: 12px;
+  background: var(--accent-dim); color: var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  margin: 0.75rem 0;
+}
 .step-title { font-size: 17px; font-weight: 600; letter-spacing: -0.02em; color: var(--text); margin-bottom: 0.75rem; }
 .step-desc { font-size: 13.5px; color: var(--text2); line-height: 1.65; margin-bottom: 1.25rem; }
 .step-tag { display: inline-block; font-size: 10.5px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); background: var(--accent-dim); border-radius: 100px; padding: 3px 10px; }
@@ -330,6 +407,12 @@ body {
 .why-card:hover {
   border-color: var(--border2);
   box-shadow: 0 0 0 1px var(--accent-b), 0 8px 30px rgba(0,0,0,0.15);
+}
+.why-ico-wrap {
+  width: 44px; height: 44px; border-radius: 12px;
+  background: var(--accent-dim); color: var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 1.1rem;
 }
 .why-ico   { font-size: 26px; margin-bottom: 1rem; }
 .why-title { font-size: 15px; font-weight: 600; color: var(--text); letter-spacing: -0.02em; margin-bottom: 0.5rem; }
