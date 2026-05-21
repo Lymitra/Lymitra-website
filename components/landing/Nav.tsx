@@ -20,6 +20,7 @@ export function Nav({ onLaunchApp }: NavProps) {
       <ul className="l-links">
         <li><a href="#how">How it works</a></li>
         <li><a href="#why">Why Lymitra</a></li>
+        <li><a href="#pricing">Pricing</a></li>
       </ul>
       <div className="l-nav-right">
         <button className="theme-btn-land" onClick={toggleTheme} aria-label="Toggle theme">
