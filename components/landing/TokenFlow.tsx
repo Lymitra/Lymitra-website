@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { Zap } from "lucide-react";
+import { Zap, TrendingUp } from "lucide-react";
 import Image from "next/image";
 
-function EthSVG({ size = 44 }: { size?: number }) {
+function EthSVG({ size = 40 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 44 44" fill="none">
       <circle cx="22" cy="22" r="22" fill="#627EEA" />
@@ -43,7 +43,7 @@ export function TokenFlow() {
     <section className="tf-sec" ref={ref}>
       <div className="tf-inner reveal">
 
-        {/* ── Input tokens ── */}
+        {/* ── Input tokens — side by side, equal level ── */}
         <div className="tf-inputs">
           <div className="tf-chip tf-chip-stt">
             <Image src="/logos/somi-token-roundel-1.png" width={40} height={40} alt="Somnia STT" style={{ borderRadius: "50%" }} />
@@ -51,13 +51,21 @@ export function TokenFlow() {
               <div className="tf-chip-name">Somnia</div>
               <div className="tf-chip-sym">STT</div>
             </div>
+            <div className="tf-chip-growth">
+              <TrendingUp size={10} strokeWidth={2.5} /> Growing
+            </div>
           </div>
-          <div className="tf-or">or</div>
+
+          <div className="tf-or-divider"><span>or</span></div>
+
           <div className="tf-chip tf-chip-eth">
             <EthSVG size={40} />
             <div>
               <div className="tf-chip-name">Ethereum</div>
               <div className="tf-chip-sym">ETH</div>
+            </div>
+            <div className="tf-chip-growth">
+              <TrendingUp size={10} strokeWidth={2.5} /> Growing
             </div>
           </div>
         </div>
@@ -85,9 +93,7 @@ export function TokenFlow() {
           </div>
           <div className="tf-usdc-name">USDC</div>
           <div className="tf-usdc-tag">Stablecoin · paid to team</div>
-          <div className="tf-growth">
-            <span className="tf-growth-arrow">↑</span> Stable &amp; growing
-          </div>
+          <div className="tf-stable-badge">Stable</div>
         </div>
 
       </div>
