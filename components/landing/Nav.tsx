@@ -26,7 +26,7 @@ export function Nav({ onLaunchApp }: NavProps) {
         <button className="theme-btn-land" onClick={toggleTheme} aria-label="Toggle theme">
           {theme === "dark" ? <Sun size={15} /> : <Moon size={15} />}
         </button>
-        <button className="l-cta" onClick={onLaunchApp}>Get started free</button>
+        <button className="l-cta" onClick={onLaunchApp}>Login</button>
       </div>
     </nav>
   );

@@ -139,13 +139,9 @@ export function Hero({ onLaunchApp }: HeroProps) {
           </div>
 
           <div className="hero-trust">
-            <span className="ht-item">ETH or STT in</span>
+            <span className="ht-item">No manual transfers. Ever.</span>
             <span className="ht-sep">·</span>
-            <span className="ht-item">AI converts</span>
-            <span className="ht-sep">·</span>
-            <span className="ht-item">USDC out</span>
-            <span className="ht-sep">·</span>
-            <span className="ht-item">5 min setup</span>
+            <span className="ht-item">Your team gets paid while you sleep.</span>
           </div>
         </div>
 
