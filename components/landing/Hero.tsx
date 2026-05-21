@@ -7,9 +7,9 @@ interface HeroProps {
 }
 
 const TEAM = [
-  { name: "Alex Kim",    role: "Engineering Lead",  salary: "$4,500", initials: "AK" },
-  { name: "Sofia Reyes", role: "Product Design",    salary: "$3,800", initials: "SR" },
-  { name: "Marcus N.",   role: "Smart Contracts",   salary: "$4,200", initials: "MN" },
+  { name: "Alex Kim",    role: "Engineering Lead",  salary: "$4,500", initials: "AK", grad: "linear-gradient(135deg,#667eea,#764ba2)" },
+  { name: "Sofia Reyes", role: "Product Design",    salary: "$3,800", initials: "SR", grad: "linear-gradient(135deg,#f093fb,#f5576c)" },
+  { name: "Marcus N.",   role: "Smart Contracts",   salary: "$4,200", initials: "MN", grad: "linear-gradient(135deg,#4facfe,#00f2fe)" },
 ];
 
 export function Hero({ onLaunchApp }: HeroProps) {
@@ -111,13 +111,13 @@ export function Hero({ onLaunchApp }: HeroProps) {
           </div>
 
           <h1 className="hero-h">
-            Pay your team.<br />
-            <span className="accent">Automatically.</span>
+            Hold crypto.<br />
+            <span className="accent">Pay in stablecoins.</span>
           </h1>
 
           <p className="h-sub">
-            Deposit USDC once. Our AI picks the optimal payroll moment
-            and pays every employee — every month, without you.
+            Deposit ETH or STT. Our AI converts at the right moment
+            and pays your team in USDC — every month, automatically.
           </p>
 
           <div className="cta-row" style={{ justifyContent: "flex-start" }}>
@@ -128,11 +128,11 @@ export function Hero({ onLaunchApp }: HeroProps) {
           </div>
 
           <div className="hero-trust">
-            <span className="ht-item">Deposit USDC</span>
+            <span className="ht-item">ETH or STT in</span>
             <span className="ht-sep">·</span>
-            <span className="ht-item">AI-optimized timing</span>
+            <span className="ht-item">AI converts</span>
             <span className="ht-sep">·</span>
-            <span className="ht-item">On-chain vault</span>
+            <span className="ht-item">USDC out</span>
             <span className="ht-sep">·</span>
             <span className="ht-item">5 min setup</span>
           </div>
@@ -155,6 +155,18 @@ export function Hero({ onLaunchApp }: HeroProps) {
               </div>
             </div>
 
+            {/* Progress bar */}
+            <div className="pay-progress-wrap">
+              <div
+                className="pay-progress-bar"
+                style={{ width: `${paidIdx < 0 ? 0 : Math.round(((paidIdx + 1) / TEAM.length) * 100)}%` }}
+              />
+            </div>
+            <div className="pay-progress-label">
+              <span>{paidIdx < 0 ? 0 : paidIdx + 1} of {TEAM.length} paid</span>
+              <span>{paidIdx < 0 ? 0 : Math.round(((paidIdx + 1) / TEAM.length) * 100)}%</span>
+            </div>
+
             <div className="pay-divider" />
 
             <div className="pay-employees">
@@ -162,7 +174,12 @@ export function Hero({ onLaunchApp }: HeroProps) {
                 const paid = paidIdx >= i;
                 return (
                   <div key={emp.name} className={`pay-row${paid ? " pay-row-paid" : ""}`}>
-                    <div className="pay-av">{emp.initials}</div>
+                    <div className={`pay-av-wrap${paid ? " pay-av-paid" : ""}`}>
+                      <div className="pay-av" style={{ background: emp.grad }}>
+                        {emp.initials}
+                      </div>
+                      {paid && <div className="pay-av-check">✓</div>}
+                    </div>
                     <div className="pay-emp-info">
                       <div className="pay-emp-name">{emp.name}</div>
                       <div className="pay-emp-role">{emp.role}</div>
