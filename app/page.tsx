@@ -7,7 +7,6 @@ import { Hero } from "@/components/landing/Hero";
 import { HowItWorks } from "@/components/landing/HowItWorks";
 import { AiSection } from "@/components/landing/AiSection";
 import { AgentSection } from "@/components/landing/AgentSection";
-import { FinalCta } from "@/components/landing/FinalCta";
 import { MiniGame } from "@/components/landing/MiniGame";
 import { Footer } from "@/components/landing/Footer";
 import { AppShell } from "@/components/app/AppShell";
@@ -24,8 +23,7 @@ export default function Home() {
           <HowItWorks />
           <AiSection />
           <AgentSection onLaunchApp={() => setView("app")} />
-          <FinalCta onLaunchApp={() => setView("app")} />
-          <MiniGame onLaunchApp={() => setView("app")} />
+<MiniGame onLaunchApp={() => setView("app")} />
           <Footer onGoLanding={() => setView("landing")} />
         </div>
       ) : (
