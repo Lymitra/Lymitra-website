@@ -5,8 +5,8 @@ import { Providers } from "./providers";
 import { Nav } from "@/components/landing/Nav";
 import { Hero } from "@/components/landing/Hero";
 import { HowItWorks } from "@/components/landing/HowItWorks";
+import { AiSection } from "@/components/landing/AiSection";
 import { AgentSection } from "@/components/landing/AgentSection";
-import { Chains } from "@/components/landing/Chains";
 import { FinalCta } from "@/components/landing/FinalCta";
 import { MiniGame } from "@/components/landing/MiniGame";
 import { Footer } from "@/components/landing/Footer";
@@ -22,10 +22,10 @@ export default function Home() {
           <Nav onLaunchApp={() => setView("app")} />
           <Hero onLaunchApp={() => setView("app")} />
           <HowItWorks />
+          <AiSection />
           <AgentSection onLaunchApp={() => setView("app")} />
-          <Chains />
           <FinalCta onLaunchApp={() => setView("app")} />
-          <MiniGame />
+          <MiniGame onLaunchApp={() => setView("app")} />
           <Footer onGoLanding={() => setView("landing")} />
         </div>
       ) : (

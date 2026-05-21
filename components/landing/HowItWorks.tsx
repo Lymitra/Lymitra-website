@@ -7,23 +7,23 @@ const steps = [
   {
     n: "01",
     Icon: Wallet,
-    title: "Deposit funds",
-    desc: "Deposit USDC into your non-custodial vault. Only you control it.",
+    title: "Deposit ETH or STT",
+    desc: "Connect your wallet and deposit your volatile tokens. They sit in a non-custodial vault — only you control them.",
     tag: "One-time setup",
   },
   {
     n: "02",
-    Icon: Users,
-    title: "Add your team",
-    desc: "Add each employee's wallet and salary. Set the payday once.",
-    tag: "Takes minutes",
+    Icon: Repeat,
+    title: "AI picks the moment",
+    desc: "Our on-chain AI monitors 17+ price feeds and decides the optimal window to convert before each payday.",
+    tag: "Running 24/7",
   },
   {
     n: "03",
-    Icon: Repeat,
-    title: "Lymitra does the rest",
-    desc: "We convert at the best rate and pay everyone in USDC automatically, every month.",
-    tag: "Runs forever",
+    Icon: Users,
+    title: "Team receives USDC",
+    desc: "On payday, every employee gets their exact agreed salary in stable USDC. You do nothing.",
+    tag: "Every month, forever",
   },
 ];
 

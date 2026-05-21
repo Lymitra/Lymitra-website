@@ -5,14 +5,14 @@ import { Lock, DollarSign, CalendarCheck, TrendingDown } from "lucide-react";
 
 const benefits = [
   {
-    Icon: Lock,
-    title: "Your money stays yours",
-    desc: "Funds live in a smart contract only you control. No bank. No intermediary.",
+    Icon: TrendingDown,
+    title: "AI times every conversion",
+    desc: "Our agent monitors markets and converts your ETH or STT at the best possible rate — before every payday.",
   },
   {
     Icon: DollarSign,
-    title: "Stable dollars, every time",
-    desc: "Employees receive their exact salary in USDC, regardless of the market.",
+    title: "Stable USDC, always",
+    desc: "Employees receive their exact agreed salary in USDC, regardless of what the market does.",
   },
   {
     Icon: CalendarCheck,
@@ -20,9 +20,9 @@ const benefits = [
     desc: "Payroll executes on the date you set. It runs without you.",
   },
   {
-    Icon: TrendingDown,
-    title: "Better conversion rates",
-    desc: "Lymitra picks the optimal moment to convert. Your treasury goes further every month.",
+    Icon: Lock,
+    title: "Non-custodial vault",
+    desc: "Your tokens stay in a smart contract only you control. No bank. No intermediary.",
   },
 ];
 

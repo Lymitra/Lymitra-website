@@ -107,17 +107,17 @@ export function Hero({ onLaunchApp }: HeroProps) {
         <div className="hero-left">
           <div className="h-badge">
             <span className="h-badge-dot" />
-            Live on Somnia
+            AI-powered payroll on Somnia
           </div>
 
           <h1 className="hero-h">
-            Pay your team.<br />
-            <span className="accent">Automatically.</span>
+            Hold crypto.<br />
+            <span className="accent">Pay in stablecoins.</span>
           </h1>
 
           <p className="h-sub">
-            Deposit once. Lymitra converts at the best rate
-            and pays everyone in USDC — every month, on time.
+            Deposit ETH or STT. Our AI converts at the right moment
+            and pays your team in USDC — every month, automatically.
           </p>
 
           <div className="cta-row" style={{ justifyContent: "flex-start" }}>
@@ -128,11 +128,11 @@ export function Hero({ onLaunchApp }: HeroProps) {
           </div>
 
           <div className="hero-trust">
-            <span className="ht-item">No monthly fee</span>
+            <span className="ht-item">ETH or STT accepted</span>
+            <span className="ht-sep">·</span>
+            <span className="ht-item">AI-optimized rates</span>
             <span className="ht-sep">·</span>
             <span className="ht-item">Non-custodial</span>
-            <span className="ht-sep">·</span>
-            <span className="ht-item">1-second execution</span>
             <span className="ht-sep">·</span>
             <span className="ht-item">5 min setup</span>
           </div>
