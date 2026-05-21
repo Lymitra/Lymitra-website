@@ -111,13 +111,13 @@ export function Hero({ onLaunchApp }: HeroProps) {
           </div>
 
           <h1 className="hero-h">
-            Hold crypto.<br />
-            <span className="accent">Pay in stablecoins.</span>
+            Pay your team.<br />
+            <span className="accent">Automatically.</span>
           </h1>
 
           <p className="h-sub">
-            Deposit ETH or STT. Our AI converts at the right moment
-            and pays your team in USDC — every month, automatically.
+            Deposit USDC once. Our AI picks the optimal payroll moment
+            and pays every employee — every month, without you.
           </p>
 
           <div className="cta-row" style={{ justifyContent: "flex-start" }}>
@@ -128,11 +128,11 @@ export function Hero({ onLaunchApp }: HeroProps) {
           </div>
 
           <div className="hero-trust">
-            <span className="ht-item">ETH or STT accepted</span>
+            <span className="ht-item">Deposit USDC</span>
             <span className="ht-sep">·</span>
-            <span className="ht-item">AI-optimized rates</span>
+            <span className="ht-item">AI-optimized timing</span>
             <span className="ht-sep">·</span>
-            <span className="ht-item">Non-custodial</span>
+            <span className="ht-item">On-chain vault</span>
             <span className="ht-sep">·</span>
             <span className="ht-item">5 min setup</span>
           </div>

@@ -6,8 +6,8 @@ import { Lock, DollarSign, CalendarCheck, TrendingDown } from "lucide-react";
 const benefits = [
   {
     Icon: TrendingDown,
-    title: "AI times every conversion",
-    desc: "Our agent monitors markets and converts your ETH or STT at the best possible rate — before every payday.",
+    title: "AI picks the right moment",
+    desc: "Our on-chain agent monitors rates and decides the optimal payroll execution window — before every payday.",
   },
   {
     Icon: DollarSign,
@@ -21,8 +21,8 @@ const benefits = [
   },
   {
     Icon: Lock,
-    title: "Non-custodial vault",
-    desc: "Your tokens stay in a smart contract only you control. No bank. No intermediary.",
+    title: "Your funds, on-chain",
+    desc: "Your USDC sits in a smart contract on Somnia. Only your wallet can withdraw it.",
   },
 ];
 

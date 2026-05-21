@@ -7,8 +7,8 @@ const steps = [
   {
     n: "01",
     Icon: Wallet,
-    title: "Deposit ETH or STT",
-    desc: "Connect your wallet and deposit your volatile tokens. They sit in a non-custodial vault — only you control them.",
+    title: "Deposit USDC",
+    desc: "Connect your wallet and deposit USDC into your on-chain vault. Only your wallet can withdraw it.",
     tag: "One-time setup",
   },
   {

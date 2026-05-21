@@ -3,12 +3,12 @@
 import { useEffect, useRef, useState } from "react";
 
 const LOG_ENTRIES = [
-  { tag: "RATE_WATCH",   cls: "al-blue", msg: "ETH/USDC → $3,512.44 · 17/17 validators · consensus ✓" },
-  { tag: "LLM_AGENT",    cls: "al-gold", msg: "Decision: WAIT 4h · bullish trend detected · confidence 81%" },
-  { tag: "RATE_WATCH",   cls: "al-blue", msg: "ETH/USDC → $3,548.90 · rate improving · hold" },
-  { tag: "LLM_AGENT",    cls: "al-gold", msg: "Decision: CONVERT NOW · peak window open" },
-  { tag: "CONVERSION",   cls: "al-green", msg: "8.9 ETH → 31,585 USDC · executed in 0.4s" },
-  { tag: "REACTIVITY",   cls: "al-green", msg: "Payroll queued · Jun 1 00:00 UTC · $18,500 ready" },
+  { tag: "RATE_WATCH", cls: "al-blue", msg: "ETH/USDC → $3,512.44 · agent consensus reached" },
+  { tag: "LLM_AGENT",  cls: "al-blue", msg: "Decision: WAIT 4h · bullish trend detected" },
+  { tag: "RATE_WATCH", cls: "al-blue", msg: "ETH/USDC → $3,548.90 · rate improving" },
+  { tag: "LLM_AGENT",  cls: "al-blue", msg: "Decision: CONVERT NOW · peak window open" },
+  { tag: "PAYROLL",    cls: "al-green", msg: "Payroll executed · $18,500 USDC · 6 employees · 0.8s" },
+  { tag: "SCHEDULED",  cls: "al-green", msg: "Next run queued · Jul 1 00:00 UTC · Reactivity active" },
 ];
 
 export function AiSection() {
@@ -50,17 +50,12 @@ export function AiSection() {
             <span className="accent">You don&apos;t have to.</span>
           </h2>
           <p className="sec-sub" style={{ marginTop: "1rem", maxWidth: 400 }}>
-            Lymitra runs three on-chain AI agents continuously — watching rates,
-            choosing the optimal conversion window, and executing payroll
-            the moment conditions are right.
+            Lymitra runs on-chain AI agents continuously — watching rates,
+            choosing the right moment, and executing payroll automatically
+            on Somnia.
           </p>
 
           <div className="ai-stats">
-            <div className="ai-stat">
-              <div className="ai-stat-n">17+</div>
-              <div className="ai-stat-l">Price feeds monitored</div>
-            </div>
-            <div className="ai-stat-div" />
             <div className="ai-stat">
               <div className="ai-stat-n">24/7</div>
               <div className="ai-stat-l">Always running</div>
@@ -69,6 +64,11 @@ export function AiSection() {
             <div className="ai-stat">
               <div className="ai-stat-n">0.8s</div>
               <div className="ai-stat-l">Avg execution time</div>
+            </div>
+            <div className="ai-stat-div" />
+            <div className="ai-stat">
+              <div className="ai-stat-n">$0</div>
+              <div className="ai-stat-l">Gas on Somnia</div>
             </div>
           </div>
         </div>
