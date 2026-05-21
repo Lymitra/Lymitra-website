@@ -48,9 +48,9 @@ export function HowItWorks() {
         </h2>
         <p className="sec-sub">No recurring effort. No spreadsheets.</p>
       </div>
-      <div className="steps reveal">
+      <div className="steps">
         {steps.map((s) => (
-          <div className="step" key={s.n}>
+          <div className="step reveal" key={s.n}>
             <span className="step-n">{s.n}</span>
             <div className="step-ico-wrap">
               <s.Icon size={22} strokeWidth={1.6} />

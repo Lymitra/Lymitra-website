@@ -55,9 +55,9 @@ export function AgentSection({ onLaunchApp }: AgentSectionProps) {
         </p>
       </div>
 
-      <div className="why-grid reveal">
+      <div className="why-grid">
         {benefits.map((b) => (
-          <div key={b.title} className="why-card">
+          <div key={b.title} className="why-card reveal">
             <div className="why-ico-wrap">
               <b.Icon size={20} strokeWidth={1.6} />
             </div>
