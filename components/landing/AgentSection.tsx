@@ -7,7 +7,7 @@ const benefits = [
   {
     Icon: TrendingDown,
     title: "AI times every conversion",
-    desc: "Our agent monitors markets and converts your ETH or STT at the best possible rate — before every payday.",
+    desc: "Our agent monitors markets and converts your ETH or Somnia at the best possible rate — before every payday.",
   },
   {
     Icon: DollarSign,

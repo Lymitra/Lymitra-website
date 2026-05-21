@@ -116,7 +116,7 @@ export function Hero({ onLaunchApp }: HeroProps) {
           </h1>
 
           <p className="h-sub">
-            Deposit ETH or STT. Our AI converts at the right moment
+            Deposit ETH or Somnia. Our AI converts at the right moment
             and pays your team in USDC — every month, automatically.
           </p>
 
@@ -128,7 +128,7 @@ export function Hero({ onLaunchApp }: HeroProps) {
           </div>
 
           <div className="hero-trust">
-            <span className="ht-item">ETH or STT accepted</span>
+            <span className="ht-item">ETH or Somnia accepted</span>
             <span className="ht-sep">·</span>
             <span className="ht-item">AI-optimized rates</span>
             <span className="ht-sep">·</span>

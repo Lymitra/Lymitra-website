@@ -7,7 +7,7 @@ const steps = [
   {
     n: "01",
     Icon: Wallet,
-    title: "Deposit ETH or STT",
+    title: "Deposit ETH or Somnia",
     desc: "Connect your wallet and deposit your volatile tokens. They sit in a non-custodial vault — only you control them.",
     tag: "One-time setup",
   },
