@@ -4,8 +4,8 @@ import { useEffect, useState, useRef } from "react";
 import Image from "next/image";
 import { useAccount, useBalance } from "wagmi";
 import { formatUnits } from "viem";
-import { TrendingUp, Users, BarChart2, Zap, Brain, CalendarCheck } from "lucide-react";
-import { useCompany, useEmployees, useMonthlyPayroll, useUsdcBalance, useWethBalance, fmtUsdc } from "@/lib/hooks";
+import { TrendingUp, Users, BarChart2, Zap, Brain, CalendarCheck, AlertTriangle } from "lucide-react";
+import { useCompany, useEmployees, useMonthlyPayroll, useStakeOf, usePendingReward, useClaimReward, useUsdcBalance, useWethBalance, fmtUsdc, fmtStt } from "@/lib/hooks";
 import { activeChain } from "@/lib/chains";
 
 const TOKEN_LOGOS = {
@@ -48,17 +48,31 @@ interface DashboardProps { onNav: (panel: Panel) => void }
 export function Dashboard({ onNav }: DashboardProps) {
   const { address, isConnected } = useAccount();
   const { somi: somiPrice, eth: ethPrice } = usePrices();
-  const { data: company }      = useCompany(address);
-  const { data: employees }    = useEmployees(address);
-  const { data: monthlyTotal } = useMonthlyPayroll(address);
+  const { data: company }         = useCompany(address);
+  const { data: employees }       = useEmployees(address);
+  const { data: monthlyTotal }    = useMonthlyPayroll(address);
+  const { data: staked }          = useStakeOf(address);
+  const { data: pendingReward, refetch: refetchReward } = usePendingReward(address);
+  const { claim, isPending: claiming } = useClaimReward();
   const isSetUp = company?.owner === address;
 
-  const vaultUsdc   = company?.usdcBalance as bigint | undefined;
-  const empCount    = employees ? (employees as unknown[]).length : 0;
+  const vaultUsdc    = company?.usdcBalance as bigint | undefined;
+  const companyName  = company?.name as string | undefined;
+  const nextPayrollMs = company?.nextPayrollMs as bigint | undefined;
+  const empCount     = employees ? (employees as unknown[]).length : 0;
   const runwayMonths =
     vaultUsdc && monthlyTotal && (monthlyTotal as bigint) > 0n
       ? (Number(vaultUsdc) / Number(monthlyTotal as bigint)).toFixed(1)
       : null;
+  const lowVault = runwayMonths !== null && Number(runwayMonths) < 1;
+
+  const nextPayrollDate = nextPayrollMs && (nextPayrollMs as bigint) > 0n
+    ? new Date(Number(nextPayrollMs)).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+    : null;
+
+  async function handleClaim() {
+    try { await claim(); refetchReward(); } catch {}
+  }
 
   const { data: sttRaw }  = useBalance({ address, chainId: activeChain.id });
   const { data: wethRaw } = useWethBalance(address);
@@ -99,7 +113,9 @@ export function Dashboard({ onNav }: DashboardProps) {
       <div className="dash-hero">
         <div className="dh-glow" />
         <div className="dh-top">
-          <div className="dh-lbl">Total portfolio value</div>
+          <div className="dh-lbl">
+            {companyName ? companyName : "Total portfolio value"}
+          </div>
           <div className="dh-ai-badge">
             <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#3ED9B8", animation: "pulse 1.8s ease-in-out infinite", display: "inline-block", flexShrink: 0 }} />
             {isSetUp ? "Agents active" : "AI ready"}
@@ -163,8 +179,18 @@ export function Dashboard({ onNav }: DashboardProps) {
         </div>
       </div>
 
+      {/* Low vault warning */}
+      {lowVault && (
+        <div style={{ display: "flex", alignItems: "center", gap: 10, background: "rgba(255,107,107,0.08)", border: "1px solid rgba(255,107,107,0.25)", borderRadius: 10, padding: "0.75rem 1rem", marginBottom: "1.25rem", fontSize: 13 }}>
+          <AlertTriangle size={15} color="#ff6b6b" style={{ flexShrink: 0 }} />
+          <span style={{ color: "#ff6b6b", fontWeight: 600 }}>Vault running low</span>
+          <span style={{ color: "var(--text2)", marginLeft: 4 }}>Less than 1 month of payroll remaining. Deposit USDC before next payday.</span>
+          <button className="tb-btn" style={{ marginLeft: "auto", flexShrink: 0 }} onClick={() => onNav("vault")}>Deposit →</button>
+        </div>
+      )}
+
       {/* Main grid */}
-      <div className="g2">
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "1rem" }}>
         {/* Holdings */}
         <div className="card">
           <div className="card-h">
@@ -211,6 +237,54 @@ export function Dashboard({ onNav }: DashboardProps) {
             <div className="t-bal">
               <div className="t-usd">{isConnected ? usd(usdcAmt) : "—"}</div>
               <div className="t-amt">{fmt(usdcAmt, 2)} USDC</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Next payroll + staking */}
+        <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+          {/* Next payroll */}
+          <div className="card">
+            <div className="card-h">
+              <div className="card-t">Next payroll</div>
+              {isSetUp && <button className="card-a" onClick={() => onNav("payments")}>Manage →</button>}
+            </div>
+            <div style={{ padding: "1.1rem" }}>
+              {nextPayrollDate ? (
+                <>
+                  <div style={{ fontSize: 22, fontWeight: 700, color: "var(--accent)", marginBottom: 4 }}>{nextPayrollDate}</div>
+                  <div style={{ fontSize: 12, color: "var(--text2)" }}>
+                    {fmtUsdc(monthlyTotal as bigint | undefined)} · {empCount} {empCount === 1 ? "employee" : "employees"}
+                  </div>
+                </>
+              ) : (
+                <div style={{ fontSize: 13, color: "var(--text3)" }}>
+                  {isSetUp ? "No payroll scheduled yet." : "Set up your vault to schedule payroll."}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Staking snapshot */}
+          <div className="card">
+            <div className="card-h">
+              <div className="card-t">Staking</div>
+              <button className="card-a" onClick={() => onNav("earn")}>View →</button>
+            </div>
+            <div style={{ padding: "1.1rem" }}>
+              <div className="kv">
+                <span className="kk">Staked</span>
+                <span className="kv-v gold">{fmtStt(staked as bigint | undefined)} SOMI</span>
+              </div>
+              <div className="kv">
+                <span className="kk">Pending reward</span>
+                <span className="kv-v accent">{fmtUsdc(pendingReward as bigint | undefined)}</span>
+              </div>
+              {(pendingReward as bigint | undefined) && (pendingReward as bigint) > 0n && (
+                <button className="sub-btn" onClick={handleClaim} disabled={claiming} style={{ marginTop: "0.75rem" }}>
+                  {claiming ? "Claiming…" : `Claim ${fmtUsdc(pendingReward as bigint)} USDC`}
+                </button>
+              )}
             </div>
           </div>
         </div>
