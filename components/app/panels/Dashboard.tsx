@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useState, useRef, type ReactNode } from "react";
+import { useEffect, useState, useRef } from "react";
 import Image from "next/image";
 import { useAccount, useBalance } from "wagmi";
 import { formatUnits } from "viem";
-import { TrendingUp, Users, BarChart2, Zap, Check, Search } from "lucide-react";
+import { TrendingUp, Users, BarChart2, Zap, Brain, CalendarCheck } from "lucide-react";
+import { useCompany } from "@/lib/hooks";
 import { somniaTestnet } from "@/lib/chains";
 import { useUsdcBalance, useWethBalance, fmtUsdc } from "@/lib/hooks";
 
@@ -50,15 +51,6 @@ function usePrices() {
   return { somi, eth };
 }
 
-// ── Agent feed (context only — not live contract data) ──────────────────────
-const agentFeed: { ic: ReactNode; cls: string; title: string; sub: string; time: string }[] = [
-  { ic: <Zap size={11} />,    cls: "",      title: "Rate watch — SOMI/USDC optimal window", sub: "AI queuing conversion for next payroll run.", time: "2m" },
-  { ic: <span style={{ fontSize: 11, fontWeight: 700 }}>$</span>, cls: "gold", title: "Payroll prep — 11 days to execution", sub: "Jun 1 · $18,500 queued · auto-execute on payday.", time: "1h" },
-  { ic: <Check size={11} />,  cls: "green", title: "USDC conversion complete", sub: "Best rate locked · transferred to payroll pool.", time: "3h" },
-  { ic: <Search size={11} />, cls: "",      title: "Fraud check passed — 0xA8f…3b2c", sub: "AI reviewed recipient wallet · no flags.", time: "1d" },
-  { ic: <Zap size={11} />,    cls: "gold",  title: "May payroll executed — $18,500", sub: "6 transfers · 1 block · May 1 00:00 UTC.", time: "20d" },
-];
-
 // ── Helpers ─────────────────────────────────────────────────────────────────
 function fmt(n: number, decimals = 4) {
   return n.toLocaleString("en-US", { maximumFractionDigits: decimals });
@@ -74,6 +66,8 @@ interface DashboardProps { onNav: (panel: Panel) => void }
 export function Dashboard({ onNav }: DashboardProps) {
   const { address, isConnected } = useAccount();
   const { somi: somiPrice, eth: ethPrice } = usePrices();
+  const { data: company } = useCompany(address);
+  const isSetUp = company?.owner === address;
 
   // Native STT balance on Somnia
   const { data: sttRaw } = useBalance({ address, chainId: somniaTestnet.id });
@@ -232,23 +226,39 @@ export function Dashboard({ onNav }: DashboardProps) {
           </div>
         </div>
 
-        {/* Agent activity */}
+        {/* Agent status */}
         <div className="agp">
           <div className="agp-h">
-            <div className="agp-hl"><div className="ag-led" /><div className="agp-ht">Agent Activity</div></div>
-            <div className="agp-cnt">AI running</div>
+            <div className="agp-hl"><div className="ag-led" /><div className="agp-ht">Agents</div></div>
+            <button className="card-a" onClick={() => onNav("myagent")}>View all →</button>
           </div>
           <div className="agp-feed">
-            {agentFeed.map((a, i) => (
-              <div className="ag-item" key={i}>
-                <div className={`ai-ic${a.cls ? " " + a.cls : ""}`}>{a.ic}</div>
+            {[
+              { Icon: Zap,          label: "Rate Watch",        sub: "Monitors SOMI & ETH rates 24/7" },
+              { Icon: Brain,        label: "LLM Decision",      sub: "Finds optimal conversion window" },
+              { Icon: CalendarCheck,label: "Payroll Execution", sub: "Fires transfers on payday" },
+            ].map(({ Icon, label, sub }) => (
+              <div className="ag-item" key={label}>
+                <div className="ai-ic"><Icon size={11} /></div>
                 <div className="ai-body">
-                  <div className="ai-title">{a.title}</div>
-                  <div className="ai-sub">{a.sub}</div>
+                  <div className="ai-title">{label}</div>
+                  <div className="ai-sub">{sub}</div>
                 </div>
-                <div className="ai-time">{a.time}</div>
+                <div className="ai-time" style={{ color: isSetUp ? "#4FC490" : "var(--text3)", fontSize: 10, fontWeight: 500 }}>
+                  {isSetUp ? "Active" : "Waiting"}
+                </div>
               </div>
             ))}
+            {!isConnected && (
+              <div style={{ padding: "1rem 1.25rem", fontSize: "12px", color: "var(--text3)" }}>
+                Connect your wallet to activate agents.
+              </div>
+            )}
+            {isConnected && !isSetUp && (
+              <div style={{ padding: "1rem 1.25rem", fontSize: "12px", color: "var(--text3)" }}>
+                Set up your vault and payroll to activate agents.
+              </div>
+            )}
           </div>
         </div>
       </div>

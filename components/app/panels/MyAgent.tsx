@@ -1,100 +1,99 @@
 "use client";
 
-import type { ReactNode } from "react";
-import { Zap, Brain, CheckCircle, Hexagon, Circle, Clock, PauseCircle } from "lucide-react";
+import { useAccount } from "wagmi";
+import { useCompany } from "@/lib/hooks";
+import { Zap, Brain, CalendarCheck, Circle, ArrowRight } from "lucide-react";
 
-const agents: { name: string; icon: ReactNode; status: string; desc: string; lastAction: string; executions: number; uptime: string }[] = [
+type Panel = "vault" | "payments" | "dashboard" | "aichat" | "myagent" | "earn" | "analytics";
+interface MyAgentProps { onNav?: (panel: Panel) => void }
+
+const agentTypes = [
   {
+    Icon: Zap,
     name: "Rate Watch Agent",
-    icon: <Zap size={16} strokeWidth={1.8} />,
-    status: "running",
-    desc: "Monitors ETH/USDC rates from CoinGecko, Binance, and 15 other sources every 60s.",
-    lastAction: "ETH/USDC at $3,512.44 · 17/17 consensus · 2m ago",
-    executions: 1_440,
-    uptime: "99.98%",
+    desc: "Monitors SOMI and ETH rates every 60 seconds across multiple sources. Flags the optimal conversion window before your payroll date.",
+    when: "Activates when you deposit funds into your vault.",
   },
   {
+    Icon: Brain,
     name: "LLM Decision Agent",
-    icon: <Brain size={16} strokeWidth={1.8} />,
-    status: "running",
-    desc: "Uses Somnia on-chain LLM to decide optimal conversion timing before each payroll.",
-    lastAction: "Decision: WAIT 4h · bullish trend detected · 14:22 UTC",
-    executions: 24,
-    uptime: "100%",
+    desc: "Uses Somnia's on-chain AI to decide the exact moment to convert your tokens to USDC — balancing market conditions against your payday deadline.",
+    when: "Activates 7 days before each scheduled payroll run.",
   },
   {
-    name: "Payroll Reactivity Agent",
-    icon: <CheckCircle size={16} strokeWidth={1.8} />,
-    status: "scheduled",
-    desc: "Fires payroll for all employees in a single block via Somnia Reactivity on payday.",
-    lastAction: "Next execution: Jun 1 00:00 UTC · $18,500 queued",
-    executions: 5,
-    uptime: "100%",
-  },
-  {
-    name: "Yield Harvest Agent",
-    icon: <Hexagon size={16} strokeWidth={1.8} />,
-    status: "running",
-    desc: "Collects SOMI staking yield each epoch and routes 70% back to treasury.",
-    lastAction: "+420 SOMI harvested · 294 → treasury · 3h ago",
-    executions: 720,
-    uptime: "99.91%",
+    Icon: CalendarCheck,
+    name: "Payroll Execution Agent",
+    desc: "Fires all employee transfers in a single block via Somnia Reactivity on your payday. Every employee receives USDC in under 1 second.",
+    when: "Activates on the payday date you set in Payments.",
   },
 ];
 
-const statusStyle: Record<string, { bg: string; color: string; label: ReactNode }> = {
-  running:   { bg: "rgba(79,196,144,0.10)",  color: "#4FC490",       label: <><Circle size={6} fill="#4FC490" stroke="none" style={{display:"inline",verticalAlign:"middle",marginRight:4}} />Running</> },
-  scheduled: { bg: "var(--accent-dim)",       color: "var(--accent)", label: <><Clock size={10} style={{display:"inline",verticalAlign:"middle",marginRight:4}} />Scheduled</> },
-  paused:    { bg: "var(--bg4)",              color: "var(--text3)",  label: <><PauseCircle size={10} style={{display:"inline",verticalAlign:"middle",marginRight:4}} />Paused</> },
-};
+export function MyAgent({ onNav }: MyAgentProps) {
+  const { address, isConnected } = useAccount();
+  const { data: company } = useCompany(address);
+  const isRegistered = company?.owner === address;
 
-export function MyAgent() {
   return (
     <div>
       <div className="sec-hd">
         <div>
           <div className="sec-ht">My Agent</div>
-          <div className="sec-hs">Your autonomous agents · Running on Somnia Reactivity</div>
+          <div className="sec-hs">Autonomous agents · Running on Somnia Reactivity</div>
         </div>
-        <button className="tb-btn green">+ New agent</button>
       </div>
 
-      <div className="ss" style={{ marginBottom: "1.5rem" }}>
-        <div className="sc"><div className="sc-l">Active agents</div><div className="sc-v accent">3</div><div className="sc-s">+ 1 scheduled</div></div>
-        <div className="sc"><div className="sc-l">Total executions</div><div className="sc-v">2,189</div><div className="sc-s">all time</div></div>
-        <div className="sc"><div className="sc-l">Gas spent</div><div className="sc-v green">$0.00</div><div className="sc-s">Somnia = free</div></div>
-        <div className="sc"><div className="sc-l">Avg uptime</div><div className="sc-v gold">99.97%</div><div className="sc-s">30d window</div></div>
-      </div>
+      {isConnected && !isRegistered && (
+        <div className="agent-setup-banner">
+          <div className="asb-left">
+            <div className="ag-led" style={{ flexShrink: 0 }} />
+            <div>
+              <div style={{ fontSize: "13px", fontWeight: 600, color: "var(--text)" }}>Agents are ready to activate</div>
+              <div style={{ fontSize: "12px", color: "var(--text3)", marginTop: 2 }}>
+                Register your company and deposit funds to start your autonomous payroll agents.
+              </div>
+            </div>
+          </div>
+          {onNav && (
+            <button className="dh-btn p" style={{ flexShrink: 0 }} onClick={() => onNav("vault")}>
+              Set up vault <ArrowRight size={12} style={{ display: "inline", verticalAlign: "middle", marginLeft: 4 }} />
+            </button>
+          )}
+        </div>
+      )}
 
-      <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-        {agents.map((a) => {
-          const s = statusStyle[a.status];
-          return (
-            <div className="card" key={a.name}>
-              <div style={{ padding: "1.25rem", display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                    <div style={{ width: 36, height: 36, borderRadius: 10, background: "var(--accent-dim)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16 }}>{a.icon}</div>
-                    <div>
-                      <div style={{ fontSize: 14, fontWeight: 600, color: "var(--text)" }}>{a.name}</div>
-                      <div style={{ fontSize: 11.5, color: "var(--text3)" }}>{a.executions.toLocaleString()} executions · {a.uptime} uptime</div>
-                    </div>
-                  </div>
-                  <span style={{ fontSize: 11, fontWeight: 500, padding: "3px 10px", borderRadius: 100, background: s.bg, color: s.color }}>{s.label}</span>
-                </div>
-                <div style={{ fontSize: 13, color: "var(--text2)", lineHeight: 1.6 }}>{a.desc}</div>
-                <div style={{ fontSize: 12, color: "var(--text3)", background: "var(--bg3)", borderRadius: 8, padding: "8px 12px", fontFamily: "monospace" }}>
-                  {a.lastAction}
-                </div>
-                <div style={{ display: "flex", gap: 8 }}>
-                  <button className="tb-btn">View logs</button>
-                  <button className="tb-btn">Configure</button>
-                  <button className="tb-btn" style={{ marginLeft: "auto", color: "var(--red)" }}>Pause</button>
+      <div className="agent-grid">
+        {agentTypes.map(({ Icon, name, desc, when }) => (
+          <div className="agent-card" key={name}>
+            <div className="ac-header">
+              <div className="ac-icon"><Icon size={16} strokeWidth={1.6} /></div>
+              <div>
+                <div className="ac-name">{name}</div>
+                <div className="ac-status">
+                  <Circle size={5} fill={isRegistered ? "#4FC490" : "var(--text3)"} stroke="none"
+                    style={{ display: "inline", verticalAlign: "middle", marginRight: 4 }} />
+                  {isRegistered ? "Active" : "Waiting for setup"}
                 </div>
               </div>
             </div>
-          );
-        })}
+            <div className="ac-desc">{desc}</div>
+            <div className="ac-when">{when}</div>
+          </div>
+        ))}
+      </div>
+
+      <div className="card" style={{ marginTop: "1.25rem" }}>
+        <div className="card-h">
+          <div className="card-t">Action log</div>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: "11px", color: "var(--text3)" }}>
+            <div className="ag-led" style={{ width: 6, height: 6 }} />Live
+          </div>
+        </div>
+        <div style={{ padding: "2.5rem", textAlign: "center" }}>
+          <div style={{ fontSize: "13px", color: "var(--text3)", marginBottom: 6 }}>No agent actions yet</div>
+          <div style={{ fontSize: "12px", color: "var(--text3)", opacity: 0.7 }}>
+            Rate checks, conversions, and payroll executions will appear here in real time.
+          </div>
+        </div>
       </div>
     </div>
   );

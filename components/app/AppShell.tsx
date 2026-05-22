@@ -24,7 +24,7 @@ export function AppShell({ onGoLanding }: AppShellProps) {
     switch (active) {
       case "dashboard": return <Dashboard onNav={setActive} />;
       case "aichat":    return <AiChat />;
-      case "myagent":   return <MyAgent />;
+      case "myagent":   return <MyAgent onNav={setActive} />;
       case "vault":     return <Vault onSuccess={() => setActive("dashboard")} />;
       case "payments":  return <Payments />;
       case "earn":      return <Earn />;
