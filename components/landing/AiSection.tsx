@@ -7,7 +7,7 @@ const LOG_ENTRIES = [
   { tag: "HOLDING",    cls: "al-dim",   msg: "Tokens held in vault · still appreciating · no sale" },
   { tag: "RATE_WATCH", cls: "al-blue",  msg: "STT/USDC → $0.051 · upward trend confirmed" },
   { tag: "LLM_AGENT",  cls: "al-blue",  msg: "Decision: CONVERT NOW · optimal window open" },
-  { tag: "CONVERT",    cls: "al-blue",  msg: "363,000 STT → 18,500 USDC · slippage 0.02%" },
+  { tag: "CONVERT",    cls: "al-blue",  msg: "Yield converted → 18,500 USDC · tokens held in vault" },
   { tag: "PAYROLL",    cls: "al-green", msg: "Disbursed to 6 employees · 18,500 USDC · 0.8s" },
 ];
 

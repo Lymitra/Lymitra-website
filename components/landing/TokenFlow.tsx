@@ -126,7 +126,7 @@ export function TokenFlow() {
         <div className="tf-head">
           <div className="tf-eyebrow">Mini Game Converter</div>
           <h3 className="tf-title">Can you beat the AI?</h3>
-          <p className="tf-desc">Your STT or ETH sits in the vault and grows. Click Convert when you think the rate peaks. If you miss — your tokens keep appreciating. The AI never dumps at a bad price.</p>
+          <p className="tf-desc">Tokens grow in the vault. AI converts yield at the peak — never before.</p>
         </div>
 
         {/* Game card */}
