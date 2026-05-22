@@ -176,12 +176,15 @@ export function Dashboard({ onNav }: DashboardProps) {
             </div>
             <div className="ti-inf">
               <div className="ti-n">Somnia (SOMI)</div>
-              <div className="ti-t">Native token · Testnet SOMI</div>
+              <div className="ti-t">Native token · Testnet</div>
+            </div>
+            <div style={{ textAlign: "center", minWidth: 90 }}>
+              <div style={{ fontSize: 14, fontWeight: 600, color: "var(--accent)" }}>{somiPrice ? "$" + somiPrice.toFixed(4) : "—"}</div>
+              <div style={{ fontSize: 10, color: "var(--text3)", marginTop: 2 }}>price / token</div>
             </div>
             <div className="t-bal">
               <div className="t-usd">{sttUsd !== null ? usd(sttUsd) : "—"}</div>
               <div className="t-amt">{fmt(sttAmt, 3)} SOMI</div>
-              <div className="t-chg up">{somiPrice ? "$" + somiPrice.toFixed(4) : "—"}</div>
             </div>
           </div>
 
@@ -193,10 +196,13 @@ export function Dashboard({ onNav }: DashboardProps) {
               <div className="ti-n">Ethereum (WETH)</div>
               <div className="ti-t">Wrapped ETH on Somnia</div>
             </div>
+            <div style={{ textAlign: "center", minWidth: 90 }}>
+              <div style={{ fontSize: 14, fontWeight: 600, color: "var(--accent)" }}>{ethPrice ? "$" + Math.round(ethPrice).toLocaleString() : "—"}</div>
+              <div style={{ fontSize: 10, color: "var(--text3)", marginTop: 2 }}>price / token</div>
+            </div>
             <div className="t-bal">
               <div className="t-usd">{wethUsd !== null ? usd(wethUsd) : "—"}</div>
               <div className="t-amt">{fmt(wethAmt, 4)} WETH</div>
-              <div className="t-chg up">{ethPrice ? "$" + Math.round(ethPrice).toLocaleString() : "—"}</div>
             </div>
           </div>
 
@@ -208,10 +214,13 @@ export function Dashboard({ onNav }: DashboardProps) {
               <div className="ti-n">USD Coin (USDC)</div>
               <div className="ti-t">Payroll reserve · Stable</div>
             </div>
+            <div style={{ textAlign: "center", minWidth: 90 }}>
+              <div style={{ fontSize: 14, fontWeight: 600, color: "var(--accent)" }}>$1.00</div>
+              <div style={{ fontSize: 10, color: "var(--text3)", marginTop: 2 }}>price / token</div>
+            </div>
             <div className="t-bal">
               <div className="t-usd">{isConnected ? usd(usdcAmt) : "—"}</div>
               <div className="t-amt">{fmt(usdcAmt, 2)} USDC</div>
-              <div className="t-chg up">Stable · $1.00</div>
             </div>
           </div>
         </div>
