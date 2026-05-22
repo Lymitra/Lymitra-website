@@ -3,7 +3,7 @@ import { defineChain } from "viem";
 export const somniaTestnet = defineChain({
   id: 50312,
   name: "Somnia Shannon Testnet",
-  nativeCurrency: { name: "Somnia Testnet Token", symbol: "STT", decimals: 18 },
+  nativeCurrency: { name: "Somnia", symbol: "SOMI", decimals: 18 },
   rpcUrls: {
     default: {
       http: ["https://dream-rpc.somnia.network"],
