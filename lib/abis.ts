@@ -144,24 +144,10 @@ export const VAULT_ABI = [
   {
     "anonymous": false,
     "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "company",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "requestId",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "rate",
-        "type": "uint256"
-      }
+      { "indexed": true,  "internalType": "address", "name": "company",   "type": "address" },
+      { "indexed": false, "internalType": "uint256", "name": "requestId", "type": "uint256" },
+      { "indexed": false, "internalType": "uint256", "name": "somiUsd",   "type": "uint256" },
+      { "indexed": false, "internalType": "uint256", "name": "wethUsd",   "type": "uint256" }
     ],
     "name": "LLMDecisionRequested",
     "type": "event"
@@ -241,25 +227,6 @@ export const VAULT_ABI = [
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "requestId",
-        "type": "uint256"
-      }
-    ],
-    "name": "RateRequested",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "company",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
         "name": "amount",
         "type": "uint256"
       }
@@ -269,14 +236,15 @@ export const VAULT_ABI = [
   },
   {
     "inputs": [],
-    "name": "JSON_API_AGENT_ID",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
+    "name": "SOMI_ORACLE",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "WETH_ORACLE",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
     "stateMutability": "view",
     "type": "function"
   },
@@ -928,9 +896,16 @@ export const VAULT_ABI = [
         "type": "tuple"
       }
     ],
-    "name": "handleRateResponse",
-    "outputs": [],
-    "stateMutability": "nonpayable",
+    "name": "getSomiUsdPrice",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getWethUsdPrice",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -979,16 +954,6 @@ export const VAULT_ABI = [
         "internalType": "address",
         "name": "company",
         "type": "address"
-      },
-      {
-        "internalType": "enum LymitraVault.ReqType",
-        "name": "reqType",
-        "type": "uint8"
-      },
-      {
-        "internalType": "uint256",
-        "name": "fetchedRate",
-        "type": "uint256"
       }
     ],
     "stateMutability": "view",

@@ -294,6 +294,15 @@ export function useClaimReward() {
   };
 }
 
+// ─── Oracle price reads (DIA on-chain feeds) ──────────────────────────────────
+export function useSomiUsdPrice() {
+  return useReadContract({ ...VAULT_CONTRACT, functionName: "getSomiUsdPrice" });
+}
+
+export function useWethUsdPrice() {
+  return useReadContract({ ...VAULT_CONTRACT, functionName: "getWethUsdPrice" });
+}
+
 // ─── DEX reads ────────────────────────────────────────────────────────────────
 export function usePoolReserves() {
   return useReadContract({
