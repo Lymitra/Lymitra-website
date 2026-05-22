@@ -1,6 +1,10 @@
 export const VAULT_ABI = [
   {
-    "inputs": [{ "internalType": "address", "name": "_usdc", "type": "address" }],
+    "inputs": [
+      { "internalType": "address", "name": "_usdc", "type": "address" },
+      { "internalType": "address", "name": "_wstt", "type": "address" },
+      { "internalType": "address", "name": "_dexRouter", "type": "address" }
+    ],
     "stateMutability": "nonpayable",
     "type": "constructor"
   },
@@ -1382,5 +1386,109 @@ export const STAKING_ABI = [
   {
     "stateMutability": "payable",
     "type": "receive"
+  }
+] as const;
+
+export const ROUTER_ABI = [
+  {
+    "inputs": [
+      { "internalType": "address", "name": "tokenA", "type": "address" },
+      { "internalType": "address", "name": "tokenB", "type": "address" },
+      { "internalType": "uint256", "name": "amountADesired", "type": "uint256" },
+      { "internalType": "uint256", "name": "amountBDesired", "type": "uint256" },
+      { "internalType": "uint256", "name": "amountAMin", "type": "uint256" },
+      { "internalType": "uint256", "name": "amountBMin", "type": "uint256" },
+      { "internalType": "address", "name": "to", "type": "address" },
+      { "internalType": "uint256", "name": "deadline", "type": "uint256" }
+    ],
+    "name": "addLiquidity",
+    "outputs": [
+      { "internalType": "uint256", "name": "amountA", "type": "uint256" },
+      { "internalType": "uint256", "name": "amountB", "type": "uint256" },
+      { "internalType": "uint256", "name": "liquidity", "type": "uint256" }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "amountIn", "type": "uint256" },
+      { "internalType": "uint256", "name": "amountOutMin", "type": "uint256" },
+      { "internalType": "address[]", "name": "path", "type": "address[]" },
+      { "internalType": "address", "name": "to", "type": "address" },
+      { "internalType": "uint256", "name": "deadline", "type": "uint256" }
+    ],
+    "name": "swapExactTokensForTokens",
+    "outputs": [{ "internalType": "uint256[]", "name": "amounts", "type": "uint256[]" }],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "amountIn", "type": "uint256" },
+      { "internalType": "address[]", "name": "path", "type": "address[]" }
+    ],
+    "name": "getAmountsOut",
+    "outputs": [{ "internalType": "uint256[]", "name": "amounts", "type": "uint256[]" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "tokenA", "type": "address" },
+      { "internalType": "address", "name": "tokenB", "type": "address" }
+    ],
+    "name": "getPoolReserves",
+    "outputs": [
+      { "internalType": "uint256", "name": "reserveA", "type": "uint256" },
+      { "internalType": "uint256", "name": "reserveB", "type": "uint256" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "tokenA", "type": "address" },
+      { "internalType": "address", "name": "tokenB", "type": "address" }
+    ],
+    "name": "getPairAddress",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  }
+] as const;
+
+export const PAIR_ABI = [
+  {
+    "inputs": [],
+    "name": "getReserves",
+    "outputs": [
+      { "internalType": "uint112", "name": "_reserve0", "type": "uint112" },
+      { "internalType": "uint112", "name": "_reserve1", "type": "uint112" },
+      { "internalType": "uint32", "name": "_blockTimestampLast", "type": "uint32" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "token0",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view"  ,
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "token1",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "totalSupply",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
   }
 ] as const;

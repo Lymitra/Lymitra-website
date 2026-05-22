@@ -2,8 +2,8 @@
 
 import { useReadContract, useWriteContract } from "wagmi";
 import { parseUnits, formatUnits } from "viem";
-import { VAULT_CONTRACT, STAKING_CONTRACT } from "./contracts";
-import { USDC_ADDRESS, WETH_ADDRESS, activeChain } from "./chains";
+import { VAULT_CONTRACT, STAKING_CONTRACT, ROUTER_CONTRACT, PAIR_CONTRACT } from "./contracts";
+import { USDC_ADDRESS, WSTT_ADDRESS, activeChain } from "./chains";
 
 const CHAIN_ID = activeChain.id;
 
@@ -60,7 +60,7 @@ export function useUsdcBalance(address?: `0x${string}`) {
 
 export function useWethBalance(address?: `0x${string}`) {
   return useReadContract({
-    address: WETH_ADDRESS,
+    address: WSTT_ADDRESS,
     abi: ERC20_ABI,
     functionName: "balanceOf",
     args: address ? [address] : undefined,
@@ -256,6 +256,22 @@ export function useClaimReward() {
       writeContractAsync({ ...STAKING_CONTRACT, chainId: CHAIN_ID, functionName: "claimReward" }),
     isPending,
   };
+}
+
+// ─── DEX reads ────────────────────────────────────────────────────────────────
+export function usePoolReserves() {
+  return useReadContract({
+    ...ROUTER_CONTRACT,
+    functionName: "getPoolReserves",
+    args: [WSTT_ADDRESS, USDC_ADDRESS],
+  });
+}
+
+export function usePairTotalSupply() {
+  return useReadContract({
+    ...PAIR_CONTRACT,
+    functionName: "totalSupply",
+  });
 }
 
 // ─── Formatters ───────────────────────────────────────────────────────────────

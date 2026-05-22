@@ -42,8 +42,9 @@ export const somniaMainnet = defineChain({
 export const activeChain = somniaTestnet;
 
 // ─── Token addresses (testnet) ────────────────────────────────────────────────
-export const USDC_ADDRESS = "0x14De95396Ae213eD539f11c1E3c1576DBaCC5b93" as const;
-// MockUSDC on Somnia testnet — open mint via faucet(). Replace with bridged
-// USDC address (LayerZero OFT or Circle CCTP) when deploying to mainnet.
-export const WETH_ADDRESS = "0xdd8f41bf80d0E47132423339ca06bC6413da96b5" as const;
-export const LAYERZERO_ENDPOINT = "0x6F475642a6e85809B1c36Fa62763669b1b48DD5B" as const;
+// These are updated automatically by the deploy script.
+export const USDC_ADDRESS    = (process.env.NEXT_PUBLIC_USDC_ADDRESS    ?? "0x14De95396Ae213eD539f11c1E3c1576DBaCC5b93") as `0x${string}`;
+export const WSTT_ADDRESS    = (process.env.NEXT_PUBLIC_WSTT_ADDRESS    ?? "0x0000000000000000000000000000000000000000") as `0x${string}`;
+export const ROUTER_ADDRESS  = (process.env.NEXT_PUBLIC_ROUTER_ADDRESS  ?? "0x0000000000000000000000000000000000000000") as `0x${string}`;
+export const FACTORY_ADDRESS = (process.env.NEXT_PUBLIC_FACTORY_ADDRESS ?? "0x0000000000000000000000000000000000000000") as `0x${string}`;
+export const PAIR_ADDRESS    = (process.env.NEXT_PUBLIC_PAIR_ADDRESS    ?? "0x0000000000000000000000000000000000000000") as `0x${string}`;
