@@ -177,12 +177,8 @@ export function Dashboard({ onNav }: DashboardProps) {
               <Image src={TOKEN_LOGOS.somi} width={34} height={34} alt="SOMI" style={{ borderRadius: "50%", display: "block" }} />
             </div>
             <div className="ti-inf">
-              <div className="ti-n">Somnia (SOMI)</div>
-              <div className="ti-t">Native token · Testnet</div>
-            </div>
-            <div style={{ textAlign: "center", minWidth: 90 }}>
-              <div style={{ fontSize: 14, fontWeight: 600, color: "var(--accent)" }}>{somiPrice ? "$" + somiPrice.toFixed(4) : "—"}</div>
-              <div style={{ fontSize: 10, color: "var(--text3)", marginTop: 2 }}>price / token</div>
+              <div className="ti-n">SOMI</div>
+              <div className="ti-t">{somiPrice ? "$" + somiPrice.toFixed(4) : "—"}</div>
             </div>
             <div className="t-bal">
               <div className="t-usd">{sttUsd !== null ? usd(sttUsd) : "—"}</div>
@@ -195,12 +191,8 @@ export function Dashboard({ onNav }: DashboardProps) {
               <Image src={TOKEN_LOGOS.eth} width={34} height={34} alt="ETH" style={{ borderRadius: "50%", display: "block" }} />
             </div>
             <div className="ti-inf">
-              <div className="ti-n">Ethereum (WETH)</div>
-              <div className="ti-t">Wrapped ETH on Somnia</div>
-            </div>
-            <div style={{ textAlign: "center", minWidth: 90 }}>
-              <div style={{ fontSize: 14, fontWeight: 600, color: "var(--accent)" }}>{ethPrice ? "$" + Math.round(ethPrice).toLocaleString() : "—"}</div>
-              <div style={{ fontSize: 10, color: "var(--text3)", marginTop: 2 }}>price / token</div>
+              <div className="ti-n">ETH</div>
+              <div className="ti-t">{ethPrice ? "$" + Math.round(ethPrice).toLocaleString() : "—"}</div>
             </div>
             <div className="t-bal">
               <div className="t-usd">{wethUsd !== null ? usd(wethUsd) : "—"}</div>
@@ -213,12 +205,8 @@ export function Dashboard({ onNav }: DashboardProps) {
               <Image src={TOKEN_LOGOS.usdc} width={34} height={34} alt="USDC" style={{ borderRadius: "50%", display: "block" }} />
             </div>
             <div className="ti-inf">
-              <div className="ti-n">USD Coin (USDC)</div>
-              <div className="ti-t">Payroll reserve · Stable</div>
-            </div>
-            <div style={{ textAlign: "center", minWidth: 90 }}>
-              <div style={{ fontSize: 14, fontWeight: 600, color: "var(--accent)" }}>$1.00</div>
-              <div style={{ fontSize: 10, color: "var(--text3)", marginTop: 2 }}>price / token</div>
+              <div className="ti-n">USDC</div>
+              <div className="ti-t">$1.00</div>
             </div>
             <div className="t-bal">
               <div className="t-usd">{isConnected ? usd(usdcAmt) : "—"}</div>
