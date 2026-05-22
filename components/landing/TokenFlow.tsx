@@ -7,14 +7,16 @@ const W = 500;
 const H = 110;
 const HISTORY = 70;
 const AMOUNT = 10000; // STT to convert
+const FALLBACK_PRICE = 0.1686;
 
-function price(t: number) {
+function price(t: number, base: number) {
+  const a = base * 0.18;
   return (
-    0.045 +
-    0.011 * Math.sin(t * 0.07) +
-    0.005 * Math.sin(t * 0.19 + 1.4) +
-    0.003 * Math.sin(t * 0.43 + 0.7) +
-    0.0015 * Math.sin(t * 0.89 + 2.1)
+    base +
+    a * 0.50 * Math.sin(t * 0.07) +
+    a * 0.28 * Math.sin(t * 0.19 + 1.4) +
+    a * 0.14 * Math.sin(t * 0.43 + 0.7) +
+    a * 0.08 * Math.sin(t * 0.89 + 2.1)
   );
 }
 
@@ -59,39 +61,55 @@ export function TokenFlow() {
   const [userUsdc, setUserUsdc] = useState(0);
   const [aiUsdc, setAiUsdc] = useState(0);
   const [userPrice, setUserPrice] = useState(0);
+  const [basePrice, setBasePrice] = useState(FALLBACK_PRICE);
+  const [priceLoaded, setPriceLoaded] = useState(false);
   const tickRef = useRef(0);
   const ptsRef = useRef<number[]>([]);
   const timerRef = useRef<ReturnType<typeof setInterval> | undefined>(undefined);
+  const baseRef = useRef(FALLBACK_PRICE);
+
+  // Fetch real STT price from CoinGecko
+  useEffect(() => {
+    fetch("https://api.coingecko.com/api/v3/simple/price?ids=somnia&vs_currencies=usd")
+      .then((r) => r.json())
+      .then((data) => {
+        const p = data?.somnia?.usd;
+        if (p && typeof p === "number") {
+          setBasePrice(p);
+          baseRef.current = p;
+          setPriceLoaded(true);
+        }
+      })
+      .catch(() => { setPriceLoaded(true); });
+  }, []);
 
   const startLoop = useCallback((startTick: number) => {
     tickRef.current = startTick;
     timerRef.current = setInterval(() => {
       const t = tickRef.current++;
-      const p = price(t);
+      const p = price(t, baseRef.current);
       ptsRef.current = [...ptsRef.current.slice(-(HISTORY - 1)), p];
       setPts([...ptsRef.current]);
     }, 100);
   }, []);
 
   useEffect(() => {
+    if (!priceLoaded) return;
     const offset = Math.random() * 200;
-    ptsRef.current = Array.from({ length: HISTORY }, (_, i) => price(i + offset));
+    ptsRef.current = Array.from({ length: HISTORY }, (_, i) => price(i + offset, baseRef.current));
     setPts([...ptsRef.current]);
     tickRef.current = HISTORY + offset;
     startLoop(HISTORY + offset);
     return () => clearInterval(timerRef.current);
-  }, [startLoop]);
+  }, [priceLoaded, startLoop]);
 
   const handleConvert = useCallback(() => {
     if (phase !== "playing") return;
     clearInterval(timerRef.current);
     const cur = ptsRef.current[ptsRef.current.length - 1];
-
-    // AI scans ahead for the best rate in next 20 ticks
     let best = cur;
     const t0 = tickRef.current;
-    for (let i = 1; i <= 20; i++) best = Math.max(best, price(t0 + i));
-
+    for (let i = 1; i <= 20; i++) best = Math.max(best, price(t0 + i, baseRef.current));
     setUserPrice(cur);
     setUserUsdc(Math.round(AMOUNT * cur * 100) / 100);
     setAiUsdc(Math.round(AMOUNT * best * 100) / 100);
@@ -103,12 +121,12 @@ export function TokenFlow() {
     setUserUsdc(0);
     setAiUsdc(0);
     const offset = Math.random() * 300 + 50;
-    ptsRef.current = Array.from({ length: HISTORY }, (_, i) => price(i + offset));
+    ptsRef.current = Array.from({ length: HISTORY }, (_, i) => price(i + offset, baseRef.current));
     setPts([...ptsRef.current]);
     startLoop(HISTORY + offset);
   }, [startLoop]);
 
-  const cur = pts[pts.length - 1] ?? 0.045;
+  const cur = pts[pts.length - 1] ?? basePrice;
   const path = toPath(pts);
   const fillPath = path ? `${path}L${W},${H}L0,${H}Z` : "";
 
@@ -138,8 +156,16 @@ export function TokenFlow() {
               <Image src="/logos/somi-token-roundel-1.png" width={22} height={22} alt="STT" style={{ borderRadius: "50%" }} />
               <span className="tf-pair">STT / USDC</span>
             </div>
-            <div className={`tf-rate-val${phase === "playing" ? " tf-rate-live" : ""}`}>
-              ${phase === "playing" ? cur.toFixed(4) : userPrice.toFixed(4)}
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <div className={`tf-rate-val${phase === "playing" ? " tf-rate-live" : ""}`}>
+                ${phase === "playing" ? cur.toFixed(4) : userPrice.toFixed(4)}
+              </div>
+              {phase === "playing" && (
+                <span className="tf-live-badge">
+                  <span className="tf-ai-pulse" style={{ width: 6, height: 6 }} />
+                  Live
+                </span>
+              )}
             </div>
           </div>
 
