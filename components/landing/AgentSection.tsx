@@ -7,13 +7,13 @@ import { Lock, DollarSign, CalendarCheck, TrendingDown, TrendingUp } from "lucid
 const benefits = [
   {
     Icon: TrendingUp,
-    title: "Stake and earn",
-    desc: "Deposit STT or ETH into the vault and earn yield. Your tokens are never dumped — they grow long-term.",
+    title: "Deposit and earn yield",
+    desc: "Fund the vault with STT or ETH. Your tokens generate yield — and that yield pays your team in USDC.",
   },
   {
     Icon: DollarSign,
-    title: "Yield pays your team",
-    desc: "The AI converts your staking yield to USDC at the optimal moment. Employees get paid without you selling a thing.",
+    title: "Yield funds payroll",
+    desc: "The AI converts your vault yield to USDC at the right moment. Your team gets paid. Your tokens keep growing.",
   },
   {
     Icon: TrendingDown,

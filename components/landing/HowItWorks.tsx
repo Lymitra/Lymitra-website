@@ -7,15 +7,15 @@ const steps = [
   {
     n: "01",
     Icon: Wallet,
-    title: "Stake STT or ETH",
-    desc: "Lock tokens into your vault and start earning yield. They stay long-term — you never withdraw the same tokens.",
+    title: "Fund your vault",
+    desc: "Deposit STT or ETH into your vault. Your tokens generate yield — and that yield is what pays your team.",
     tag: "One-time setup",
   },
   {
     n: "02",
     Icon: Repeat,
-    title: "AI converts your yield",
-    desc: "Our on-chain AI watches rates and converts staking yield to USDC at the optimal moment — never at a loss.",
+    title: "AI converts the yield",
+    desc: "Our on-chain AI watches rates and converts vault yield to USDC at the optimal moment — your tokens stay put.",
     tag: "Running 24/7",
   },
   {

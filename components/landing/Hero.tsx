@@ -127,8 +127,8 @@ export function Hero({ onLaunchApp }: HeroProps) {
           </h1>
 
           <p className="h-sub">
-            Stake STT or ETH, earn yield, pay your team in USDC.
-            Your tokens stay in the vault and grow — the AI handles the rest.
+            Deposit STT or ETH. Earn yield. Your team gets paid in USDC
+            — automatically, every month. Your tokens never leave the vault.
           </p>
 
           <div className="cta-row" style={{ justifyContent: "flex-start" }}>
