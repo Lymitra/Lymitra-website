@@ -163,7 +163,7 @@ export function Dashboard({ onNav }: DashboardProps) {
           <div className="sc-s">CoinGecko · live</div>
         </div>
         <div className="sc">
-          <div className="sc-l">STT balance</div>
+          <div className="sc-l">SOMI balance</div>
           <div className="sc-v gold">{isConnected ? fmt(sttAmt, 3) : "—"}</div>
           <div className="sc-s">Somnia testnet</div>
         </div>
@@ -189,11 +189,11 @@ export function Dashboard({ onNav }: DashboardProps) {
             </div>
             <div className="ti-inf">
               <div className="ti-n">Somnia (SOMI)</div>
-              <div className="ti-t">Native token · Testnet STT</div>
+              <div className="ti-t">Native token · Testnet SOMI</div>
             </div>
             <div className="t-bal">
               <div className="t-usd">{sttUsd !== null ? usd(sttUsd) : "—"}</div>
-              <div className="t-amt">{fmt(sttAmt, 3)} STT</div>
+              <div className="t-amt">{fmt(sttAmt, 3)} SOMI</div>
               <div className="t-chg up">{somiPrice ? "$" + somiPrice.toFixed(4) : "—"}</div>
             </div>
           </div>

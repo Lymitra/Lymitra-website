@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { Play } from "lucide-react";
-import { useAccount } from "wagmi";
+import { useAccount, useWatchAsset } from "wagmi";
+import { USDC_ADDRESS } from "@/lib/chains";
 import {
   useCompany,
   useDeposit,
@@ -32,6 +33,7 @@ export function Vault({ onSuccess }: VaultProps) {
   const { approve, deposit, isPending: depositing } = useDeposit();
   const { execute, isPending: executing }           = useExecutePayrollManual();
   const { drip, isPending: dripping }               = useUsdcFaucet();
+  const { watchAsset, isPending: addingToken }      = useWatchAsset();
 
   const [amount, setAmount] = useState("");
   const [companyName, setCompanyName] = useState("");
@@ -161,18 +163,36 @@ export function Vault({ onSuccess }: VaultProps) {
             <div className="f-title">Get test USDC</div>
             <div className="f-sub">Somnia testnet · MockUSDC · No real value</div>
           </div>
-          <div className="f-body" style={{ display: "flex", gap: "0.75rem", alignItems: "flex-end" }}>
-            <div style={{ flex: 1, fontSize: 13, color: "var(--text2)", lineHeight: 1.6 }}>
-              Mint test USDC directly to your wallet to use in the vault.
+          <div className="f-body">
+            <div style={{ fontSize: 13, color: "var(--text2)", lineHeight: 1.6, marginBottom: "0.75rem" }}>
+              Mint test USDC to your wallet and add it to MetaMask so you can see your balance.
             </div>
-            <button
-              className="tb-btn green"
-              style={{ flexShrink: 0 }}
-              onClick={() => drip("1000")}
-              disabled={dripping}
-            >
-              {dripping ? "Minting…" : "+ 1,000 USDC"}
-            </button>
+            <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+              <button
+                className="tb-btn green"
+                onClick={() => drip("1000")}
+                disabled={dripping}
+              >
+                {dripping ? "Minting…" : "+ 1,000 USDC"}
+              </button>
+              <button
+                className="tb-btn"
+                onClick={() =>
+                  watchAsset({
+                    type: "ERC20",
+                    options: {
+                      address: USDC_ADDRESS,
+                      symbol: "USDC",
+                      decimals: 6,
+                      image: "https://assets.coingecko.com/coins/images/6319/small/usdc.png",
+                    },
+                  })
+                }
+                disabled={addingToken}
+              >
+                {addingToken ? "Adding…" : "Add USDC to wallet"}
+              </button>
+            </div>
           </div>
         </div>
 
