@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { Lock, DollarSign, CalendarCheck, TrendingDown, TrendingUp } from "lucide-react";
+import { DollarSign, CalendarCheck, TrendingDown, TrendingUp } from "lucide-react";
 
 
 const benefits = [
@@ -24,11 +24,6 @@ const benefits = [
     Icon: CalendarCheck,
     title: "Never miss a payday",
     desc: "Set your payday once. Payroll runs automatically every month without you.",
-  },
-  {
-    Icon: Lock,
-    title: "Non-custodial vault",
-    desc: "Your tokens sit on-chain. Only your wallet can authorise withdrawals.",
   },
 ];
 
