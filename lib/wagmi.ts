@@ -5,6 +5,7 @@ import {
   coinbaseWallet,
   rabbyWallet,
   injectedWallet,
+  braveWallet,
 } from "@rainbow-me/rainbowkit/wallets";
 import { createConfig, http } from "wagmi";
 import { somniaTestnet } from "./chains";
@@ -14,10 +15,8 @@ const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID ?? "lymitra-d
 const connectors = connectorsForWallets(
   [
     {
-      groupName: "Browser",
-      // metaMaskWallet first so it shows the MetaMask icon specifically;
-      // injectedWallet catches any other browser extension (Rabby, Brave, etc.)
-      wallets: [metaMaskWallet, injectedWallet, rabbyWallet],
+      groupName: "Browser Extension",
+      wallets: [metaMaskWallet, injectedWallet, rabbyWallet, braveWallet],
     },
     {
       groupName: "Mobile",

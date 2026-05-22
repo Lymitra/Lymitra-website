@@ -3,7 +3,7 @@
 import { useReadContract, useWriteContract } from "wagmi";
 import { parseUnits, formatUnits } from "viem";
 import { VAULT_CONTRACT, STAKING_CONTRACT } from "./contracts";
-import { USDC_ADDRESS } from "./chains";
+import { USDC_ADDRESS, WETH_ADDRESS } from "./chains";
 
 const ERC20_ABI = [
   { name: "approve",     type: "function", stateMutability: "nonpayable", inputs: [{ name: "spender", type: "address" }, { name: "amount", type: "uint256" }], outputs: [{ type: "bool" }] },
@@ -49,6 +49,16 @@ export function useVaultBalance() {
 export function useUsdcBalance(address?: `0x${string}`) {
   return useReadContract({
     address: USDC_ADDRESS,
+    abi: ERC20_ABI,
+    functionName: "balanceOf",
+    args: address ? [address] : undefined,
+    query: { enabled: !!address },
+  });
+}
+
+export function useWethBalance(address?: `0x${string}`) {
+  return useReadContract({
+    address: WETH_ADDRESS,
     abi: ERC20_ABI,
     functionName: "balanceOf",
     args: address ? [address] : undefined,
