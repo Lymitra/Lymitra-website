@@ -5,9 +5,8 @@ import Image from "next/image";
 import { useAccount, useBalance } from "wagmi";
 import { formatUnits } from "viem";
 import { TrendingUp, Users, BarChart2, Zap, Brain, CalendarCheck } from "lucide-react";
-import { useCompany } from "@/lib/hooks";
+import { useCompany, useEmployees, useMonthlyPayroll, useUsdcBalance, useWethBalance, fmtUsdc } from "@/lib/hooks";
 import { activeChain } from "@/lib/chains";
-import { useUsdcBalance, useWethBalance, fmtUsdc } from "@/lib/hooks";
 
 const TOKEN_LOGOS = {
   somi: "/logos/somi-token-roundel-1.png",
@@ -49,8 +48,17 @@ interface DashboardProps { onNav: (panel: Panel) => void }
 export function Dashboard({ onNav }: DashboardProps) {
   const { address, isConnected } = useAccount();
   const { somi: somiPrice, eth: ethPrice } = usePrices();
-  const { data: company } = useCompany(address);
+  const { data: company }      = useCompany(address);
+  const { data: employees }    = useEmployees(address);
+  const { data: monthlyTotal } = useMonthlyPayroll(address);
   const isSetUp = company?.owner === address;
+
+  const vaultUsdc   = company?.usdcBalance as bigint | undefined;
+  const empCount    = employees ? (employees as unknown[]).length : 0;
+  const runwayMonths =
+    vaultUsdc && monthlyTotal && (monthlyTotal as bigint) > 0n
+      ? (Number(vaultUsdc) / Number(monthlyTotal as bigint)).toFixed(1)
+      : null;
 
   const { data: sttRaw }  = useBalance({ address, chainId: activeChain.id });
   const { data: wethRaw } = useWethBalance(address);
@@ -131,33 +139,27 @@ export function Dashboard({ onNav }: DashboardProps) {
         </div>
       </div>
 
-      {/* Stat strip */}
+      {/* Payroll stat strip */}
       <div className="ss">
         <div className="sc">
-          <div className="sc-l" style={{ display: "flex", alignItems: "center", gap: 5 }}>
-            SOMI price
-            <span style={{ display: "inline-flex", alignItems: "center", gap: 3, background: "rgba(79,196,144,0.1)", borderRadius: 100, padding: "1px 6px", fontSize: 9, color: "#4FC490", fontWeight: 600 }}>
-              <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#4FC490", animation: "pulse 1.8s ease-in-out infinite", display: "inline-block" }} />
-              LIVE
-            </span>
-          </div>
-          <div className="sc-v accent">{somiPrice ? "$" + somiPrice.toFixed(4) : "—"}</div>
-          <div className="sc-s">Somnia mainnet</div>
+          <div className="sc-l">Vault balance</div>
+          <div className="sc-v accent">{isSetUp ? fmtUsdc(vaultUsdc) : "—"}</div>
+          <div className="sc-s">USDC in vault</div>
         </div>
         <div className="sc">
-          <div className="sc-l">ETH price</div>
-          <div className="sc-v">{ethPrice ? "$" + Math.round(ethPrice).toLocaleString() : "—"}</div>
-          <div className="sc-s">CoinGecko · live</div>
+          <div className="sc-l">Monthly payroll</div>
+          <div className="sc-v">{isSetUp ? fmtUsdc(monthlyTotal as bigint | undefined) : "—"}</div>
+          <div className="sc-s">total across team</div>
         </div>
         <div className="sc">
-          <div className="sc-l">SOMI balance</div>
-          <div className="sc-v gold">{isConnected ? fmt(sttAmt, 3) : "—"}</div>
-          <div className="sc-s">Somnia testnet</div>
+          <div className="sc-l">Employees</div>
+          <div className="sc-v gold">{isConnected ? empCount : "—"}</div>
+          <div className="sc-s">on payroll</div>
         </div>
         <div className="sc">
-          <div className="sc-l">USDC balance</div>
-          <div className="sc-v green">{isConnected ? fmtUsdc(usdcRaw as bigint | undefined) : "—"}</div>
-          <div className="sc-s">Payroll reserve</div>
+          <div className="sc-l">Runway</div>
+          <div className="sc-v green">{runwayMonths ? runwayMonths + " mo" : "—"}</div>
+          <div className="sc-s">months covered</div>
         </div>
       </div>
 
