@@ -1350,3 +1350,153 @@ body {
   background: linear-gradient(135deg, #3ED9B8, var(--accent)) !important;
   pointer-events: none;
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   MOBILE & RESPONSIVE  — max-width 768px
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Mobile bottom nav (hidden on desktop) ── */
+.mobile-nav {
+  display: none;
+}
+
+@media (max-width: 768px) {
+
+  /* ── Hide desktop sidebar ── */
+  .sb { display: none !important; }
+
+  /* ── Content area: full width, extra bottom padding for nav bar ── */
+  .content { padding: 1.1rem 0.9rem 5.75rem; }
+
+  /* ── Topbar ── */
+  .topbar { padding: 0 1rem; height: 52px; }
+  .tb-sub { display: none; }
+  .tb-page { font-size: 14px; }
+  .tb-bell { width: 32px; height: 32px; }
+
+  /* ── Landing nav: hide links, compact padding ── */
+  .l-nav { padding: 0 1.1rem; }
+  .l-links { display: none !important; }
+  .l-somnia-badge { display: none; }
+
+  /* ── Dashboard hero ── */
+  .dash-hero {
+    padding: 1.4rem 1.1rem 1.1rem;
+    border-radius: 14px;
+    margin-bottom: 1rem;
+  }
+  .dh-amt { font-size: clamp(1.9rem, 9vw, 2.6rem); }
+  .dh-prices {
+    gap: 0.85rem; flex-wrap: nowrap;
+    overflow-x: auto; padding-bottom: 2px;
+  }
+  .dh-price-item { flex-shrink: 0; }
+  .dh-acts { gap: 6px; flex-wrap: wrap; }
+  .dh-btn { height: 33px; padding: 0 11px; font-size: 11.5px; }
+
+  /* ── Stat strip: 2-col on mobile ── */
+  .ss {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.6rem;
+    margin-bottom: 0.9rem;
+  }
+  .sc { padding: 0.85rem 0.9rem; border-radius: 12px; }
+  .sc-v { font-size: 18px; }
+  .sc-l { font-size: 10px; }
+  .sc-s { font-size: 10.5px; }
+
+  /* ── Section headers ── */
+  .sec-hd {
+    flex-direction: column; align-items: flex-start;
+    gap: 0.6rem; margin-bottom: 0.9rem;
+  }
+  .sec-ht { font-size: 17px; }
+
+  /* ── 2-col grid already stacks at 960px — extra mobile gap fix ── */
+  .g2 { gap: 0.75rem; }
+
+  /* ── Cards ── */
+  .card { border-radius: 14px; }
+  .card-h { padding: 0.85rem 1rem; }
+
+  /* ── Token rows ── */
+  .tr { padding: 11px 1rem; gap: 9px; }
+  .db-logo { width: 32px; height: 32px; }
+  .t-usd { font-size: 13px; }
+  .t-amt { font-size: 10.5px; }
+  .ti-n { font-size: 12.5px; }
+  .ti-t { font-size: 10.5px; }
+
+  /* ── Agent panel items ── */
+  .ag-item { padding: 11px 1rem; gap: 10px; }
+
+  /* ── Agent setup banner: stack vertically ── */
+  .agent-setup-banner {
+    flex-direction: column; align-items: flex-start; gap: 10px;
+  }
+
+  /* ── Agent grid: single column ── */
+  .agent-grid { grid-template-columns: 1fr; }
+
+  /* ── Forms ── */
+  .f-card { border-radius: 14px; }
+  .f-head { padding: 1rem 1.1rem; }
+  .f-body { padding: 1.1rem; gap: 0.85rem; }
+
+  /* ── Payments / team table: horizontal scroll ── */
+  .t-table { overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 14px; }
+  .t-head, .t-row { min-width: 540px; }
+
+  /* ── Transaction history table: horizontal scroll ── */
+  .h-table { overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 14px; }
+  .h-row { min-width: 520px; }
+
+  /* ── KV rows ── */
+  .kv { padding: 8px 0; font-size: 12.5px; }
+  .kk { font-size: 12px; }
+
+  /* ── Topbar btn ── */
+  .tb-btn { height: 30px; padding: 0 10px; font-size: 12px; }
+
+  /* ── Empty states ── */
+  .empty-state { padding: 2.5rem 1.25rem; }
+
+  /* ── Mobile nav bar ── */
+  .mobile-nav {
+    display: flex;
+    position: fixed; bottom: 0; left: 0; right: 0; z-index: 200;
+    height: 60px;
+    background: var(--sb-bg);
+    border-top: 1px solid var(--border);
+    align-items: stretch;
+    overflow-x: auto; overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    backdrop-filter: blur(16px);
+  }
+  .mobile-nav::-webkit-scrollbar { display: none; }
+
+  .mn-item {
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 3px; flex: 1; min-width: 50px;
+    padding: 6px 2px;
+    cursor: pointer; color: var(--text3);
+    font-size: 9.5px; font-weight: 500; letter-spacing: 0.01em;
+    transition: color 0.15s;
+    border: none; background: transparent;
+    user-select: none; font-family: inherit;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .mn-item:active { opacity: 0.65; }
+  .mn-item.on { color: var(--accent); }
+  .mn-ic { opacity: 0.7; flex-shrink: 0; }
+  .mn-item.on .mn-ic { opacity: 1; }
+}
+
+/* ── Very small screens ── */
+@media (max-width: 380px) {
+  .dh-amt { font-size: 1.85rem; }
+  .sc-v { font-size: 15px; }
+  .dh-btn:nth-child(n+4) { display: none; }
+  .content { padding: 0.9rem 0.75rem 5.5rem; }
+}

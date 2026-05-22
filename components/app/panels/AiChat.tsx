@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Send, Sparkles, Bot } from "lucide-react";
+import { Send, Bot, Play, Zap, TrendingUp, UserPlus, Gauge, BarChart2 } from "lucide-react";
 
 interface Message {
   role: "user" | "agent";
@@ -14,12 +14,12 @@ const WELCOME: Message = {
 };
 
 const QUICK_CHIPS = [
-  { label: "How do I run my first payroll?",  icon: "🚀" },
-  { label: "How do agents activate?",          icon: "🤖" },
-  { label: "What is SOMI staking?",            icon: "💰" },
-  { label: "How do I add an employee?",        icon: "👤" },
-  { label: "Why is Somnia gas free?",          icon: "⛽" },
-  { label: "What is runway?",                  icon: "📊" },
+  { label: "How do I run my first payroll?", Icon: Play        },
+  { label: "How do agents activate?",         Icon: Zap         },
+  { label: "What is SOMI staking?",           Icon: TrendingUp  },
+  { label: "How do I add an employee?",       Icon: UserPlus    },
+  { label: "Why is Somnia gas free?",         Icon: Gauge       },
+  { label: "What is runway?",                 Icon: BarChart2   },
 ];
 
 export function AiChat() {
@@ -67,7 +67,7 @@ export function AiChat() {
   const showChips = messages.length === 1;
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "calc(100vh - 58px - 4rem)" }}>
+    <div style={{ display: "flex", flexDirection: "column", height: "calc(100dvh - 52px - 5.75rem)" }}>
 
       {/* Header */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1rem", flexShrink: 0 }}>
@@ -152,19 +152,19 @@ export function AiChat() {
       {/* Quick chips — only on first load */}
       {showChips && (
         <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: "0.65rem", flexShrink: 0 }}>
-          {QUICK_CHIPS.map((c) => (
+          {QUICK_CHIPS.map(({ label, Icon }) => (
             <button
-              key={c.label}
-              onClick={() => send(c.label)}
+              key={label}
+              onClick={() => send(label)}
               style={{
                 padding: "6px 12px", borderRadius: 9, border: "1px solid var(--border2)",
                 background: "var(--bg3)", color: "var(--text2)", fontSize: 12,
                 cursor: "pointer", fontFamily: "inherit",
-                display: "inline-flex", alignItems: "center", gap: 5,
+                display: "inline-flex", alignItems: "center", gap: 6,
               }}
             >
-              <Sparkles size={9} style={{ color: "var(--accent)", flexShrink: 0 }} />
-              {c.icon} {c.label}
+              <Icon size={11} style={{ color: "var(--accent)", flexShrink: 0 }} />
+              {label}
             </button>
           ))}
         </div>
