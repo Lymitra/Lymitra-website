@@ -1,120 +1,112 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useEffect, useRef } from "react";
+import { Check, ArrowRight } from "lucide-react";
 
-const EMPLOYEES = [
-  { name: "Alex",   salary: 500, avatar: "👩‍💻" },
-  { name: "Marcus", salary: 500, avatar: "👨‍🔧" },
-  { name: "Yuki",   salary: 500, avatar: "👩‍🎨" },
+const INCLUDED = [
+  "Unlimited employees",
+  "Automatic monthly execution",
+  "USDC stable payouts",
+  "On-chain audit trail forever",
+  "AI-optimized conversion timing",
+  "Real-time agent activity feed",
+  "Multi-company support",
 ];
-const TOTAL_SALARY = EMPLOYEES.reduce((s, e) => s + e.salary, 0);
-const CLICK_AMOUNT = 150;
 
-export function MiniGame() {
-  const [vault,   setVault]   = useState(0);
-  const [paid,    setPaid]    = useState<boolean[]>([false, false, false]);
-  const [runs,    setRuns]    = useState(0);
-  const [paying,  setPaying]  = useState(false);
-  const [ripples, setRipples] = useState<number[]>([]);
-  const rippleId = useRef(0);
+interface PricingProps {
+  onLaunchApp: () => void;
+}
 
-  function addFunds() {
-    if (paying) return;
-    const next = Math.min(vault + CLICK_AMOUNT, TOTAL_SALARY);
-    setVault(next);
+export function MiniGame({ onLaunchApp }: PricingProps) {
+  const ref = useRef<HTMLDivElement>(null);
 
-    const id = ++rippleId.current;
-    setRipples((r) => [...r, id]);
-    setTimeout(() => setRipples((r) => r.filter((x) => x !== id)), 600);
-
-    if (next >= TOTAL_SALARY) startPaying();
-  }
-
-  function startPaying() {
-    setPaying(true);
-    EMPLOYEES.forEach((_, i) => {
-      setTimeout(() => {
-        setPaid((p) => { const n = [...p]; n[i] = true; return n; });
-      }, i * 350);
-    });
-    setTimeout(() => {
-      setVault(0);
-      setPaid([false, false, false]);
-      setPaying(false);
-      setRuns((r) => r + 1);
-    }, 1800);
-  }
-
-  const pct = Math.round((vault / TOTAL_SALARY) * 100);
+  useEffect(() => {
+    const obs = new IntersectionObserver(
+      (entries) => entries.forEach((e) => { if (e.isIntersecting) e.target.classList.add("in"); }),
+      { threshold: 0.1 }
+    );
+    ref.current?.querySelectorAll(".reveal").forEach((el) => obs.observe(el));
+    return () => obs.disconnect();
+  }, []);
 
   return (
-    <section className="mg-section">
-      <div className="mg-eyebrow">Payroll Rush · Mini-game</div>
-      <h2 className="mg-heading">
-        See what we do —<br />
-        <span className="accent">in 10 seconds.</span>
-      </h2>
-      <p className="mg-subtext">
-        Tap the vault to fund it. Watch your team get paid automatically.
-        {runs > 0 && <span style={{ color: "var(--accent)", marginLeft: 6 }}>You&apos;ve run payroll {runs}× so far!</span>}
-      </p>
+    <section id="pricing" className="pricing-sec" ref={ref}>
+      <div className="reveal" style={{ textAlign: "center", marginBottom: "3rem" }}>
+        <div className="sec-eyebrow">Pricing</div>
+        <h2 className="sec-h">Simple. Honest. Pay as you grow.</h2>
+        <p className="sec-sub" style={{ margin: "1rem auto 0", maxWidth: 420 }}>
+          No monthly subscription. No hidden fees. You only pay when your team gets paid.
+        </p>
+      </div>
 
-      <div className="minigame">
-        <div className="mg-label">
-          Fund the vault
-          <span style={{ marginLeft: "auto", color: "var(--text3)", fontSize: 11 }}>
-            {runs > 0 ? `${runs} run${runs > 1 ? "s" : ""} · saving you hours every month` : "click the vault to add funds"}
-          </span>
-        </div>
-
-        <div className="mg-body">
-          {/* Vault button */}
-          <div className="mg-vault-wrap">
-            <button className="mg-vault" onClick={addFunds} disabled={paying}>
-              {paying ? "⚡" : "🏦"}
-              {ripples.map((id) => (
-                <span key={id} className="mg-ripple" />
-              ))}
-            </button>
-            <div className="mg-vault-lbl">+${CLICK_AMOUNT} / tap</div>
+      <div className="pricing-layout reveal">
+        {/* Main pricing card */}
+        <div className="price-card price-card-main">
+          <div className="price-badge">Only plan you need</div>
+          <div className="price-amount">
+            <span className="price-pct">1%</span>
+            <span className="price-per">per payroll run</span>
           </div>
+          <p className="price-desc">
+            Pay $1 for every $100 processed. Run payroll for a $10,000 team
+            and pay just <strong>$100</strong> — once a month.
+          </p>
 
-          {/* Progress */}
-          <div className="mg-progress-wrap">
-            <div className="mg-progress-track">
-              <div
-                className="mg-progress-fill"
-                style={{ width: `${pct}%`, transition: "width 0.3s ease" }}
-              />
-            </div>
-            <div className="mg-progress-labels">
-              <span>${vault.toLocaleString()}</span>
-              <span style={{ color: pct === 100 ? "var(--accent)" : "var(--text3)" }}>
-                {pct === 100 ? "✓ Funded!" : `$${TOTAL_SALARY.toLocaleString()} target`}
-              </span>
-            </div>
-            {paying && (
-              <div className="mg-paying-badge">
-                <span className="mg-pulse-dot" /> Paying team…
-              </div>
-            )}
-          </div>
+          <div className="price-divider" />
 
-          {/* Employees */}
-          <div className="mg-team">
-            {EMPLOYEES.map((e, i) => (
-              <div key={e.name} className={`mg-emp${paid[i] ? " mg-emp-paid" : ""}`}>
-                <div className="mg-avatar">{e.avatar}</div>
-                <div className="mg-emp-name">{e.name}</div>
-                <div className="mg-emp-sal">${e.salary}</div>
-                {paid[i] && <div className="mg-paid-badge">Paid ✓</div>}
-              </div>
+          <ul className="price-features">
+            {INCLUDED.map((f) => (
+              <li key={f} className="price-feature">
+                <Check size={14} className="price-check" />
+                {f}
+              </li>
             ))}
-          </div>
+          </ul>
+
+          <button className="btn-primary price-cta" onClick={onLaunchApp}>
+            Get started <ArrowRight size={15} />
+          </button>
+          <div className="price-note">No credit card · No monthly fees</div>
         </div>
 
-        <div className="mg-footer">
-          In real Lymitra — this happens automatically on payday. Zero clicks needed.
+        {/* Comparison card */}
+        <div className="price-card price-card-alt">
+          <div className="price-alt-title">Compare the alternative</div>
+          <div className="price-compare-rows">
+            <div className="pcr">
+              <span className="pcr-item">Finance contractor</span>
+              <span className="pcr-cost bad">$2,000 – $5,000/mo</span>
+            </div>
+            <div className="pcr">
+              <span className="pcr-item">Manual bank transfers</span>
+              <span className="pcr-cost bad">4 – 8 hrs/month</span>
+            </div>
+            <div className="pcr">
+              <span className="pcr-item">Crypto OTC desk</span>
+              <span className="pcr-cost bad">1 – 3% per swap</span>
+            </div>
+            <div className="pcr">
+              <span className="pcr-item">Payroll software</span>
+              <span className="pcr-cost bad">$50 – $300/mo flat</span>
+            </div>
+            <div className="pcr pcr-lymitra">
+              <span className="pcr-item">Lymitra</span>
+              <span className="pcr-cost good">1% · zero admin</span>
+            </div>
+          </div>
+
+          <div className="price-example">
+            <div className="pe-label">Example: team of 5, avg $3,000 salary</div>
+            <div className="pe-row">
+              <span>Monthly payroll</span><strong>$15,000</strong>
+            </div>
+            <div className="pe-row">
+              <span>Lymitra fee (1%)</span><strong style={{ color: "var(--accent)" }}>$150</strong>
+            </div>
+            <div className="pe-row">
+              <span>Your time saved</span><strong style={{ color: "#4FC490" }}>~6 hours</strong>
+            </div>
+          </div>
         </div>
       </div>
     </section>
