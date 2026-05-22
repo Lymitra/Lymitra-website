@@ -3,7 +3,11 @@
 import { useReadContract, useWriteContract } from "wagmi";
 import { parseUnits, formatUnits } from "viem";
 import { VAULT_CONTRACT, STAKING_CONTRACT, ROUTER_CONTRACT, PAIR_CONTRACT } from "./contracts";
-import { USDC_ADDRESS, WSTT_ADDRESS, WETH_ADDRESS, activeChain } from "./chains";
+import {
+  USDC_ADDRESS, USDT_ADDRESS, WSTT_ADDRESS,
+  WETH_ADDRESS, WBTC_ADDRESS, WBNB_ADDRESS,
+  activeChain,
+} from "./chains";
 
 const CHAIN_ID = activeChain.id;
 
@@ -294,6 +298,120 @@ export function useClaimReward() {
   };
 }
 
+// ─── WBTC hooks ───────────────────────────────────────────────────────────────
+export function useWbtcBalance(address?: `0x${string}`) {
+  return useReadContract({
+    address: WBTC_ADDRESS,
+    abi: ERC20_ABI,
+    functionName: "balanceOf",
+    args: address ? [address] : undefined,
+    query: { enabled: !!address },
+  });
+}
+
+export function useWbtcAllowance(owner?: `0x${string}`) {
+  return useReadContract({
+    address: WBTC_ADDRESS,
+    abi: ERC20_ABI,
+    functionName: "allowance",
+    args: owner ? [owner, VAULT_CONTRACT.address] : undefined,
+    query: { enabled: !!owner },
+  });
+}
+
+export function useDepositWbtc() {
+  const { writeContractAsync, isPending } = useWriteContract();
+  const approve = (amount: string) =>
+    writeContractAsync({
+      address: WBTC_ADDRESS, abi: ERC20_ABI, chainId: CHAIN_ID,
+      functionName: "approve",
+      args: [VAULT_CONTRACT.address, parseUnits(amount, 8)],
+    });
+  const depositWbtc = (amount: string) =>
+    writeContractAsync({
+      ...VAULT_CONTRACT, chainId: CHAIN_ID,
+      functionName: "depositWbtc",
+      args: [parseUnits(amount, 8)],
+    });
+  return { approve, depositWbtc, isPending };
+}
+
+// ─── WBNB hooks ───────────────────────────────────────────────────────────────
+export function useWbnbBalance(address?: `0x${string}`) {
+  return useReadContract({
+    address: WBNB_ADDRESS,
+    abi: ERC20_ABI,
+    functionName: "balanceOf",
+    args: address ? [address] : undefined,
+    query: { enabled: !!address },
+  });
+}
+
+export function useWbnbAllowance(owner?: `0x${string}`) {
+  return useReadContract({
+    address: WBNB_ADDRESS,
+    abi: ERC20_ABI,
+    functionName: "allowance",
+    args: owner ? [owner, VAULT_CONTRACT.address] : undefined,
+    query: { enabled: !!owner },
+  });
+}
+
+export function useDepositWbnb() {
+  const { writeContractAsync, isPending } = useWriteContract();
+  const approve = (amount: string) =>
+    writeContractAsync({
+      address: WBNB_ADDRESS, abi: ERC20_ABI, chainId: CHAIN_ID,
+      functionName: "approve",
+      args: [VAULT_CONTRACT.address, parseUnits(amount, 18)],
+    });
+  const depositWbnb = (amount: string) =>
+    writeContractAsync({
+      ...VAULT_CONTRACT, chainId: CHAIN_ID,
+      functionName: "depositWbnb",
+      args: [parseUnits(amount, 18)],
+    });
+  return { approve, depositWbnb, isPending };
+}
+
+// ─── USDT hooks ───────────────────────────────────────────────────────────────
+export function useUsdtBalance(address?: `0x${string}`) {
+  return useReadContract({
+    address: USDT_ADDRESS,
+    abi: ERC20_ABI,
+    functionName: "balanceOf",
+    args: address ? [address] : undefined,
+    query: { enabled: !!address },
+  });
+}
+
+export function useUsdtAllowance(owner?: `0x${string}`) {
+  return useReadContract({
+    address: USDT_ADDRESS,
+    abi: ERC20_ABI,
+    functionName: "allowance",
+    args: owner ? [owner, VAULT_CONTRACT.address] : undefined,
+    query: { enabled: !!owner },
+  });
+}
+
+export function useDepositUsdt() {
+  const { writeContractAsync, isPending } = useWriteContract();
+  const approve = (amount: string) =>
+    writeContractAsync({
+      address: USDT_ADDRESS, abi: ERC20_ABI, chainId: CHAIN_ID,
+      functionName: "approve",
+      args: [VAULT_CONTRACT.address, parseUnits(amount, 6)],
+    });
+  const depositUsdt = (amount: string) =>
+    writeContractAsync({
+      ...VAULT_CONTRACT, chainId: CHAIN_ID,
+      functionName: "depositUsdt",
+      args: [parseUnits(amount, 6)],
+    });
+  return { approve, depositUsdt, isPending };
+}
+
 // ─── Oracle price reads (DIA on-chain feeds) ──────────────────────────────────
 export function useSomiUsdPrice() {
   return useReadContract({ ...VAULT_CONTRACT, functionName: "getSomiUsdPrice" });
@@ -301,6 +419,10 @@ export function useSomiUsdPrice() {
 
 export function useWethUsdPrice() {
   return useReadContract({ ...VAULT_CONTRACT, functionName: "getWethUsdPrice" });
+}
+
+export function useWbtcUsdPrice() {
+  return useReadContract({ ...VAULT_CONTRACT, functionName: "getWbtcUsdPrice" });
 }
 
 // ─── DEX reads ────────────────────────────────────────────────────────────────

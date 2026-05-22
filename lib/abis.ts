@@ -1,9 +1,12 @@
 export const VAULT_ABI = [
   {
     "inputs": [
-      { "internalType": "address", "name": "_usdc", "type": "address" },
-      { "internalType": "address", "name": "_wstt", "type": "address" },
-      { "internalType": "address", "name": "_weth", "type": "address" },
+      { "internalType": "address", "name": "_usdc",      "type": "address" },
+      { "internalType": "address", "name": "_usdt",      "type": "address" },
+      { "internalType": "address", "name": "_wstt",      "type": "address" },
+      { "internalType": "address", "name": "_weth",      "type": "address" },
+      { "internalType": "address", "name": "_wbtc",      "type": "address" },
+      { "internalType": "address", "name": "_wbnb",      "type": "address" },
       { "internalType": "address", "name": "_dexRouter", "type": "address" }
     ],
     "stateMutability": "nonpayable",
@@ -418,6 +421,27 @@ export const VAULT_ABI = [
     "type": "function"
   },
   {
+    "inputs": [{ "internalType": "uint256", "name": "amount", "type": "uint256" }],
+    "name": "depositWbtc",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "uint256", "name": "amount", "type": "uint256" }],
+    "name": "depositWbnb",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "uint256", "name": "amount", "type": "uint256" }],
+    "name": "depositUsdt",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "uint256",
@@ -493,21 +517,12 @@ export const VAULT_ABI = [
             "name": "owner",
             "type": "address"
           },
-          {
-            "internalType": "uint256",
-            "name": "usdcBalance",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "somiBalance",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "wethBalance",
-            "type": "uint256"
-          },
+          { "internalType": "uint256", "name": "usdcBalance",  "type": "uint256" },
+          { "internalType": "uint256", "name": "usdtBalance",  "type": "uint256" },
+          { "internalType": "uint256", "name": "somiBalance",  "type": "uint256" },
+          { "internalType": "uint256", "name": "wethBalance",  "type": "uint256" },
+          { "internalType": "uint256", "name": "wbtcBalance",  "type": "uint256" },
+          { "internalType": "uint256", "name": "wbnbBalance",  "type": "uint256" },
           {
             "internalType": "uint256",
             "name": "nextPayrollMs",
@@ -904,6 +919,13 @@ export const VAULT_ABI = [
   {
     "inputs": [],
     "name": "getWethUsdPrice",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getWbtcUsdPrice",
     "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
     "stateMutability": "view",
     "type": "function"

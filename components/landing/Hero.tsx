@@ -122,13 +122,13 @@ export function Hero({ onLaunchApp }: HeroProps) {
           </div>
 
           <h1 className="hero-h">
-            Hold crypto.<br />
-            <span className="accent">Pay in stablecoins.</span>
+            Any crypto in.<br />
+            <span className="accent">Stablecoins out.</span>
           </h1>
 
           <p className="h-sub">
-            Deposit SOMI or ETH. Our AI converts at the right moment
-            and pays your team in USDC — every month, automatically.
+            Deposit SOMI, ETH, BTC, or BNB. Our AI converts at the right moment
+            and pays your team in USDC or USDT — every month, automatically.
           </p>
 
           <div className="cta-row" style={{ justifyContent: "flex-start" }}>
@@ -136,6 +136,26 @@ export function Hero({ onLaunchApp }: HeroProps) {
               Get started
             </button>
             <a className="btn-ghost" href="#how">How it works</a>
+          </div>
+
+          {/* Supported token strip */}
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: "1.25rem", flexWrap: "wrap" }}>
+            <span style={{ fontSize: 11, color: "var(--text3)", fontWeight: 500, marginRight: 4 }}>Deposit:</span>
+            {[
+              { label: "SOMI", color: "#9B7FFF" },
+              { label: "ETH",  color: "#627EEA" },
+              { label: "BTC",  color: "#F7931A" },
+              { label: "BNB",  color: "#F3BA2F" },
+              { label: "USDC", color: "#2775CA" },
+              { label: "USDT", color: "#26A17B" },
+            ].map(({ label, color }) => (
+              <div key={label} style={{ display: "flex", alignItems: "center", gap: 5, background: "var(--bg2)", borderRadius: 20, padding: "3px 10px 3px 5px" }}>
+                <div style={{ width: 18, height: 18, borderRadius: "50%", background: color, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 7, fontWeight: 800, color: "#fff" }}>
+                  {label.slice(0, 3)}
+                </div>
+                <span style={{ fontSize: 11, fontWeight: 600, color: "var(--text2)" }}>{label}</span>
+              </div>
+            ))}
           </div>
 
           <div className="hero-trust">

@@ -37,20 +37,23 @@ interface IAggregatorV3 {
 }
 
 /**
- * Lymitra Vault — autonomous payroll powered by Somnia agents + Lymitra DEX.
+ * Lymitra Vault — multi-token autonomous payroll on Somnia.
  *
- * Price data: DIA oracle adapters (on-chain, free, no async round-trip).
- *   SOMI/USD: DIA testnet adapter 0xaEAa92c38939775d3be39fFA832A92611f7D6aDe
- *   WETH/USD: DIA testnet adapter 0x786c7893F8c26b80d42088749562eDb50Ba9601E
+ * Volatile deposits (AI converts to USDC at best rate):
+ *   SOMI  — native Somnia token (wraps to WSTT → DEX swap)
+ *   WETH  — bridged Ethereum ERC-20
+ *   WBTC  — bridged Bitcoin ERC-20 (8 dec)
+ *   WBNB  — bridged BNB ERC-20
  *
- * Flow:
- *   1. Company registers
- *   2. Company deposits SOMI (native) or WETH (ERC-20)
- *   3. Company adds employees with USDC salaries
- *   4. Company schedules payroll → Reactivity registers callback
- *   5. At payroll time: oracle prices are read synchronously, LLM decides CONVERT or WAIT
- *   6. CONVERT → vault swaps all held tokens to USDC via DEX → pays employees
- *      WAIT    → re-schedules 24 h, waits for better rate
+ * Stable deposits (held as payroll reserve, no conversion):
+ *   USDC  — primary stablecoin
+ *   USDT  — secondary stablecoin (tracked alongside USDC)
+ *
+ * Oracles (DIA adapters — AggregatorV3Interface, Somnia Shannon Testnet):
+ *   SOMI  0xaEAa92c38939775d3be39fFA832A92611f7D6aDe
+ *   WETH  0x786c7893F8c26b80d42088749562eDb50Ba9601E
+ *   WBTC  0x4803db1ca3A1DA49c3DB991e1c390321c20e1f21
+ *   WBNB  (no testnet oracle — oracle read returns 0 safely)
  */
 contract LymitraVault {
     // ─── Somnia infrastructure ──────────────────────────────────────────────
@@ -62,10 +65,15 @@ contract LymitraVault {
     // ─── DIA oracle adapters (Somnia Shannon Testnet) ───────────────────────
     address public constant SOMI_ORACLE = 0xaEAa92c38939775d3be39fFA832A92611f7D6aDe;
     address public constant WETH_ORACLE = 0x786c7893F8c26b80d42088749562eDb50Ba9601E;
+    address public constant WBTC_ORACLE = 0x4803db1ca3A1DA49c3DB991e1c390321c20e1f21;
+    // WBNB: no testnet oracle — _readOracle returns 0 gracefully
 
     address public immutable USDC;
+    address public immutable USDT;
     address public immutable WSTT;
     address public immutable WETH;
+    address public immutable WBTC;
+    address public immutable WBNB;
     address public immutable DEX_ROUTER;
 
     uint256 public constant LLM_AGENT_ID   = 12847293847561029384;
@@ -81,9 +89,14 @@ contract LymitraVault {
 
     struct Company {
         address owner;
-        uint256 usdcBalance;   // USDC ready for payroll (6 dec)
-        uint256 somiBalance;   // Native STT/SOMI wrapped as WSTT (18 dec)
-        uint256 wethBalance;   // Bridged WETH deposited (18 dec)
+        // Stable reserves (payroll-ready, 6 dec)
+        uint256 usdcBalance;
+        uint256 usdtBalance;
+        // Volatile holdings (AI converts to USDC, native dec)
+        uint256 somiBalance;   // 18 dec
+        uint256 wethBalance;   // 18 dec
+        uint256 wbtcBalance;   // 8 dec
+        uint256 wbnbBalance;   // 18 dec
         uint256 nextPayrollMs;
         bool    agentsEnabled;
         string  name;
@@ -105,8 +118,11 @@ contract LymitraVault {
     event CompanyRegistered(address indexed company, string name);
     event SomiDeposited(address indexed company, uint256 amount);
     event WethDeposited(address indexed company, uint256 amount);
+    event WbtcDeposited(address indexed company, uint256 amount);
+    event WbnbDeposited(address indexed company, uint256 amount);
+    event UsdcDeposited(address indexed company, uint256 amount);
+    event UsdtDeposited(address indexed company, uint256 amount);
     event TokensSwapped(address indexed company, address token, uint256 amountIn, uint256 usdcOut);
-    event Deposited(address indexed company, uint256 amount);
     event Withdrawn(address indexed company, uint256 amount);
     event EmployeeAdded(address indexed company, address indexed wallet, uint256 salary);
     event EmployeeRemoved(address indexed company, uint256 index);
@@ -121,11 +137,24 @@ contract LymitraVault {
     modifier onlyPlatform()  { require(msg.sender == address(PLATFORM), "not platform"); _; }
 
     // ─── Constructor ─────────────────────────────────────────────────────────
-    constructor(address _usdc, address _wstt, address _weth, address _dexRouter) {
-        require(_usdc != address(0) && _wstt != address(0) && _weth != address(0) && _dexRouter != address(0), "zero addr");
+    constructor(
+        address _usdc, address _usdt,
+        address _wstt, address _weth, address _wbtc, address _wbnb,
+        address _dexRouter
+    ) {
+        require(
+            _usdc != address(0) && _usdt != address(0) &&
+            _wstt != address(0) && _weth != address(0) &&
+            _wbtc != address(0) && _wbnb != address(0) &&
+            _dexRouter != address(0),
+            "zero addr"
+        );
         USDC       = _usdc;
+        USDT       = _usdt;
         WSTT       = _wstt;
         WETH       = _weth;
+        WBTC       = _wbtc;
+        WBNB       = _wbnb;
         DEX_ROUTER = _dexRouter;
         owner      = msg.sender;
     }
@@ -134,13 +163,16 @@ contract LymitraVault {
     function registerCompany(string calldata companyName) external {
         require(companies[msg.sender].owner == address(0), "already registered");
         companies[msg.sender] = Company({
-            owner: msg.sender, usdcBalance: 0, somiBalance: 0, wethBalance: 0,
+            owner: msg.sender,
+            usdcBalance: 0, usdtBalance: 0,
+            somiBalance: 0, wethBalance: 0, wbtcBalance: 0, wbnbBalance: 0,
             nextPayrollMs: 0, agentsEnabled: false, name: companyName
         });
         emit CompanyRegistered(msg.sender, companyName);
     }
 
-    // ─── Deposit: native SOMI/STT ─────────────────────────────────────────────
+    // ─── Volatile deposits ────────────────────────────────────────────────────
+
     function depositSomi() external payable onlyRegistered {
         require(msg.value > 0, "send SOMI");
         IWSTT(WSTT).deposit{value: msg.value}();
@@ -148,24 +180,44 @@ contract LymitraVault {
         emit SomiDeposited(msg.sender, msg.value);
     }
 
-    // ─── Deposit: WETH (bridged Ethereum) ────────────────────────────────────
     function depositWeth(uint256 amount) external onlyRegistered {
-        require(amount > 0, "zero amount");
+        require(amount > 0, "zero");
         require(IERC20Minimal(WETH).transferFrom(msg.sender, address(this), amount), "transfer failed");
         companies[msg.sender].wethBalance += amount;
         emit WethDeposited(msg.sender, amount);
     }
 
-    // ─── Deposit: direct USDC (legacy/testing) ────────────────────────────────
+    function depositWbtc(uint256 amount) external onlyRegistered {
+        require(amount > 0, "zero");
+        require(IERC20Minimal(WBTC).transferFrom(msg.sender, address(this), amount), "transfer failed");
+        companies[msg.sender].wbtcBalance += amount;
+        emit WbtcDeposited(msg.sender, amount);
+    }
+
+    function depositWbnb(uint256 amount) external onlyRegistered {
+        require(amount > 0, "zero");
+        require(IERC20Minimal(WBNB).transferFrom(msg.sender, address(this), amount), "transfer failed");
+        companies[msg.sender].wbnbBalance += amount;
+        emit WbnbDeposited(msg.sender, amount);
+    }
+
+    // ─── Stable deposits (payroll-ready, no conversion needed) ───────────────
+
     function deposit(uint256 amount) external onlyRegistered {
         require(IERC20Minimal(USDC).transferFrom(msg.sender, address(this), amount), "transfer failed");
         companies[msg.sender].usdcBalance += amount;
-        emit Deposited(msg.sender, amount);
+        emit UsdcDeposited(msg.sender, amount);
+    }
+
+    function depositUsdt(uint256 amount) external onlyRegistered {
+        require(IERC20Minimal(USDT).transferFrom(msg.sender, address(this), amount), "transfer failed");
+        companies[msg.sender].usdtBalance += amount;
+        emit UsdtDeposited(msg.sender, amount);
     }
 
     function withdraw(uint256 amount) external onlyRegistered {
         Company storage co = companies[msg.sender];
-        require(co.usdcBalance >= amount, "insufficient balance");
+        require(co.usdcBalance >= amount, "insufficient");
         co.usdcBalance -= amount;
         require(IERC20Minimal(USDC).transfer(msg.sender, amount), "transfer failed");
         emit Withdrawn(msg.sender, amount);
@@ -205,15 +257,14 @@ contract LymitraVault {
         _startPayrollSequence(abi.decode(data, (address)));
     }
 
-    // ─── Oracle read helpers ──────────────────────────────────────────────────
-    // Returns price in 6-decimal USD (e.g. $0.031 → 31000, $2500 → 2500000000)
+    // ─── Oracle read helper ────────────────────────────────────────────────────
+    // Returns price in 6-decimal USD (e.g. $0.031 → 31000, $95000 → 95000000000)
     function _readOracle(address oracle) internal view returns (uint256 usdPrice6) {
         try IAggregatorV3(oracle).latestRoundData() returns (
             uint80, int256 answer, uint256, uint256, uint80
         ) {
             if (answer <= 0) return 0;
             uint8 dec = IAggregatorV3(oracle).decimals();
-            // Normalize to 6 decimal places
             if (dec >= 6) {
                 usdPrice6 = uint256(answer) / (10 ** uint256(dec - 6));
             } else {
@@ -229,12 +280,9 @@ contract LymitraVault {
         if (!companies[company].agentsEnabled) return;
         require(address(this).balance >= REQUEST_DEPOSIT, "low STT");
 
-        // Read both oracle prices synchronously — no async round-trip needed
-        uint256 somiUsd = _readOracle(SOMI_ORACLE); // e.g. 31000 = $0.031000
-        uint256 wethUsd = _readOracle(WETH_ORACLE); // e.g. 2500000000 = $2500.000000
-
-        string memory somiStr = _fmtPrice6(somiUsd);
-        string memory wethStr = _fmtPrice6(wethUsd);
+        uint256 somiUsd = _readOracle(SOMI_ORACLE);
+        uint256 wethUsd = _readOracle(WETH_ORACLE);
+        uint256 wbtcUsd = _readOracle(WBTC_ORACLE);
 
         string[] memory allowed = new string[](2);
         allowed[0] = "CONVERT"; allowed[1] = "WAIT";
@@ -242,9 +290,11 @@ contract LymitraVault {
         bytes memory payload = abi.encodeWithSelector(
             ILLMAgent.inferString.selector,
             string(abi.encodePacked(
-                "SOMI/USD $", somiStr, ", ETH/USD $", wethStr,
-                ". Should Lymitra swap all SOMI and ETH holdings to USDC and pay employees now? ",
-                "Convert when rates are stable or rising. Wait 24h if dropping fast."
+                "Live rates: SOMI/USD $", _fmtPrice6(somiUsd),
+                ", ETH/USD $", _fmtPrice6(wethUsd),
+                ", BTC/USD $", _fmtPrice6(wbtcUsd),
+                ". Should Lymitra swap all volatile holdings (SOMI, ETH, BTC, BNB) to USDC and run payroll? ",
+                "Convert when rates are stable or rising. Wait 24h if market is dropping fast."
             )),
             "You are an on-chain DeFi payroll optimizer for Lymitra. Output exactly one of the allowed values.",
             false, allowed
@@ -284,37 +334,36 @@ contract LymitraVault {
         }
     }
 
-    // ─── Convert all token holdings → USDC via Lymitra DEX ──────────────────
+    // ─── Convert all volatile holdings → USDC via Lymitra DEX ───────────────
     function _convertAllToUsdc(address company) internal {
         Company storage co = companies[company];
 
-        // Swap WSTT → USDC
-        if (co.somiBalance > 0) {
-            uint256 wsttAmt = co.somiBalance;
-            co.somiBalance = 0;
-            IWSTT(WSTT).approve(DEX_ROUTER, wsttAmt);
-            address[] memory path = new address[](2);
-            path[0] = WSTT; path[1] = USDC;
-            uint256[] memory out = IDEXRouter(DEX_ROUTER).swapExactTokensForTokens(
-                wsttAmt, 0, path, address(this), block.timestamp + 5 minutes
-            );
-            co.usdcBalance += out[out.length - 1];
-            emit TokensSwapped(company, WSTT, wsttAmt, out[out.length - 1]);
-        }
+        _swapToUsdc(co.somiBalance, WSTT,    company, true);   co.somiBalance = 0;
+        _swapToUsdc(co.wethBalance, WETH,    company, false);  co.wethBalance = 0;
+        _swapToUsdc(co.wbtcBalance, WBTC,    company, false);  co.wbtcBalance = 0;
+        _swapToUsdc(co.wbnbBalance, WBNB,    company, false);  co.wbnbBalance = 0;
 
-        // Swap WETH → USDC
-        if (co.wethBalance > 0) {
-            uint256 wethAmt = co.wethBalance;
-            co.wethBalance = 0;
-            IERC20Minimal(WETH).approve(DEX_ROUTER, wethAmt);
-            address[] memory path = new address[](2);
-            path[0] = WETH; path[1] = USDC;
-            uint256[] memory out = IDEXRouter(DEX_ROUTER).swapExactTokensForTokens(
-                wethAmt, 0, path, address(this), block.timestamp + 5 minutes
-            );
-            co.usdcBalance += out[out.length - 1];
-            emit TokensSwapped(company, WETH, wethAmt, out[out.length - 1]);
+        // Merge USDT reserve into USDC reserve (1:1 on testnet; in prod swap via DEX)
+        if (co.usdtBalance > 0) {
+            co.usdcBalance += co.usdtBalance;
+            co.usdtBalance = 0;
         }
+    }
+
+    function _swapToUsdc(uint256 amount, address token, address company, bool isWstt) internal {
+        if (amount == 0) return;
+        if (isWstt) {
+            IWSTT(token).approve(DEX_ROUTER, amount);
+        } else {
+            IERC20Minimal(token).approve(DEX_ROUTER, amount);
+        }
+        address[] memory path = new address[](2);
+        path[0] = token; path[1] = USDC;
+        uint256[] memory out = IDEXRouter(DEX_ROUTER).swapExactTokensForTokens(
+            amount, 0, path, address(this), block.timestamp + 5 minutes
+        );
+        companies[company].usdcBalance += out[out.length - 1];
+        emit TokensSwapped(company, token, amount, out[out.length - 1]);
     }
 
     // ─── Pay employees ────────────────────────────────────────────────────────
@@ -333,7 +382,6 @@ contract LymitraVault {
         emit PayrollExecuted(company, total, decision);
     }
 
-    // Manual trigger: convert + pay immediately (no AI)
     function executePayrollManual() external onlyRegistered {
         _convertAllToUsdc(msg.sender);
         _executePayroll(msg.sender, "MANUAL");
@@ -341,12 +389,12 @@ contract LymitraVault {
 
     // ─── Views ────────────────────────────────────────────────────────────────
     function getEmployees(address company) external view returns (Employee[] memory) { return employees[company]; }
-    function getCompany(address company) external view returns (Company memory) { return companies[company]; }
+    function getCompany(address company)   external view returns (Company memory)    { return companies[company]; }
     function vaultBalance() external view returns (uint256) { return IERC20Minimal(USDC).balanceOf(address(this)); }
 
-    // Read current oracle prices (useful for UI / testing)
     function getSomiUsdPrice() external view returns (uint256) { return _readOracle(SOMI_ORACLE); }
     function getWethUsdPrice() external view returns (uint256) { return _readOracle(WETH_ORACLE); }
+    function getWbtcUsdPrice() external view returns (uint256) { return _readOracle(WBTC_ORACLE); }
 
     receive() external payable {}
     function withdrawSTT(uint256 amount) external onlyOwner {
@@ -355,7 +403,6 @@ contract LymitraVault {
     }
 
     // ─── Price formatting helpers ─────────────────────────────────────────────
-    // Format a 6-decimal USD price as "X.YYYYYY" string
     function _fmtPrice6(uint256 v) internal pure returns (string memory) {
         uint256 whole = v / 1e6;
         uint256 frac  = v % 1e6;

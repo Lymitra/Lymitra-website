@@ -7,8 +7,8 @@ const steps = [
   {
     n: "01",
     Icon: Wallet,
-    title: "Deposit SOMI or ETH",
-    desc: "Connect your wallet and deposit tokens into your vault. Set your team and payday date.",
+    title: "Deposit any big token",
+    desc: "Deposit SOMI, ETH, BTC, BNB, USDC, or USDT into your vault. Add your team and pick a payday.",
     tag: "5 min setup",
   },
   {
