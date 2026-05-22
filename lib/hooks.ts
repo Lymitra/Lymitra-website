@@ -3,7 +3,9 @@
 import { useReadContract, useWriteContract } from "wagmi";
 import { parseUnits, formatUnits } from "viem";
 import { VAULT_CONTRACT, STAKING_CONTRACT } from "./contracts";
-import { USDC_ADDRESS, WETH_ADDRESS } from "./chains";
+import { USDC_ADDRESS, WETH_ADDRESS, somniaTestnet } from "./chains";
+
+const CHAIN_ID = somniaTestnet.id;
 
 const ERC20_ABI = [
   { name: "approve",     type: "function", stateMutability: "nonpayable", inputs: [{ name: "spender", type: "address" }, { name: "amount", type: "uint256" }], outputs: [{ type: "bool" }] },
@@ -116,7 +118,7 @@ export function useRegisterCompany() {
   const { writeContractAsync, isPending } = useWriteContract();
   return {
     register: (name: string) =>
-      writeContractAsync({ ...VAULT_CONTRACT, functionName: "registerCompany", args: [name] }),
+      writeContractAsync({ ...VAULT_CONTRACT, chainId: CHAIN_ID, functionName: "registerCompany", args: [name] }),
     isPending,
   };
 }
@@ -129,6 +131,7 @@ export function useDeposit() {
     writeContractAsync({
       address: USDC_ADDRESS,
       abi: ERC20_ABI,
+      chainId: CHAIN_ID,
       functionName: "approve",
       args: [VAULT_CONTRACT.address, parseUnits(amount, 6)],
     });
@@ -136,6 +139,7 @@ export function useDeposit() {
   const deposit = (amount: string) =>
     writeContractAsync({
       ...VAULT_CONTRACT,
+      chainId: CHAIN_ID,
       functionName: "deposit",
       args: [parseUnits(amount, 6)],
     });
@@ -149,6 +153,7 @@ export function useAddEmployee() {
     addEmployee: (wallet: `0x${string}`, salaryUsdc: string, name: string) =>
       writeContractAsync({
         ...VAULT_CONTRACT,
+        chainId: CHAIN_ID,
         functionName: "addEmployee",
         args: [wallet, parseUnits(salaryUsdc, 6), name],
       }),
@@ -162,6 +167,7 @@ export function useSchedulePayroll() {
     schedule: (dateMs: bigint) =>
       writeContractAsync({
         ...VAULT_CONTRACT,
+        chainId: CHAIN_ID,
         functionName: "schedulePayroll",
         args: [dateMs],
       }),
@@ -173,7 +179,7 @@ export function useExecutePayrollManual() {
   const { writeContractAsync, isPending } = useWriteContract();
   return {
     execute: () =>
-      writeContractAsync({ ...VAULT_CONTRACT, functionName: "executePayrollManual" }),
+      writeContractAsync({ ...VAULT_CONTRACT, chainId: CHAIN_ID, functionName: "executePayrollManual" }),
     isPending,
   };
 }
@@ -185,6 +191,7 @@ export function useStake() {
     stake: (sttAmount: string) =>
       writeContractAsync({
         ...STAKING_CONTRACT,
+        chainId: CHAIN_ID,
         functionName: "stake",
         value: parseUnits(sttAmount, 18),
       }),
@@ -198,6 +205,7 @@ export function useUnstake() {
     unstake: (amount: string) =>
       writeContractAsync({
         ...STAKING_CONTRACT,
+        chainId: CHAIN_ID,
         functionName: "unstake",
         args: [parseUnits(amount, 18)],
       }),
@@ -209,7 +217,7 @@ export function useClaimReward() {
   const { writeContractAsync, isPending } = useWriteContract();
   return {
     claim: () =>
-      writeContractAsync({ ...STAKING_CONTRACT, functionName: "claimReward" }),
+      writeContractAsync({ ...STAKING_CONTRACT, chainId: CHAIN_ID, functionName: "claimReward" }),
     isPending,
   };
 }
