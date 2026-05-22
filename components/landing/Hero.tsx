@@ -133,7 +133,7 @@ export function Hero({ onLaunchApp }: HeroProps) {
 
           <div className="cta-row" style={{ justifyContent: "flex-start" }}>
             <button className="btn-primary" onClick={onLaunchApp}>
-              Get started free
+              Get started
             </button>
             <a className="btn-ghost" href="#how">How it works</a>
           </div>
