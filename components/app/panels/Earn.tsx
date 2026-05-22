@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { CheckCircle } from "lucide-react";
 import { useAccount, useBalance } from "wagmi";
-import { somniaTestnet } from "@/lib/chains";
+import { activeChain } from "@/lib/chains";
 import {
   useStakeOf,
   usePendingReward,
@@ -18,7 +18,7 @@ import {
 
 export function Earn() {
   const { address, isConnected } = useAccount();
-  const { data: sttBalance } = useBalance({ address, chainId: somniaTestnet.id });
+  const { data: sttBalance } = useBalance({ address, chainId: activeChain.id });
 
   const { data: staked,   refetch: refetchStaked }   = useStakeOf(address);
   const { data: reward,   refetch: refetchReward }   = usePendingReward(address);

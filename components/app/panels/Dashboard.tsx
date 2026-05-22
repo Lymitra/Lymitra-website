@@ -6,7 +6,7 @@ import { useAccount, useBalance } from "wagmi";
 import { formatUnits } from "viem";
 import { TrendingUp, Users, BarChart2, Zap, Brain, CalendarCheck } from "lucide-react";
 import { useCompany } from "@/lib/hooks";
-import { somniaTestnet } from "@/lib/chains";
+import { activeChain } from "@/lib/chains";
 import { useUsdcBalance, useWethBalance, fmtUsdc } from "@/lib/hooks";
 
 function EthLogo({ size = 34 }: { size?: number }) {
@@ -65,7 +65,7 @@ export function Dashboard({ onNav }: DashboardProps) {
   const { data: company } = useCompany(address);
   const isSetUp = company?.owner === address;
 
-  const { data: sttRaw }  = useBalance({ address, chainId: somniaTestnet.id });
+  const { data: sttRaw }  = useBalance({ address, chainId: activeChain.id });
   const { data: wethRaw } = useWethBalance(address);
   const { data: usdcRaw } = useUsdcBalance(address);
 

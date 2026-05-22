@@ -8,7 +8,7 @@ import {
   braveWallet,
 } from "@rainbow-me/rainbowkit/wallets";
 import { createConfig, http } from "wagmi";
-import { somniaTestnet } from "./chains";
+import { activeChain } from "./chains";
 
 const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID ?? "lymitra-dev";
 
@@ -28,11 +28,10 @@ const connectors = connectorsForWallets(
 
 export const wagmiConfig = createConfig({
   connectors,
-  chains: [somniaTestnet],
+  chains: [activeChain],
   transports: {
-    [somniaTestnet.id]: http("https://dream-rpc.somnia.network"),
+    [activeChain.id]: http(activeChain.rpcUrls.default.http[0]),
   },
-  // Prevents duplicate connectors when MetaMask is both injected and detected
   multiInjectedProviderDiscovery: false,
   ssr: true,
 });

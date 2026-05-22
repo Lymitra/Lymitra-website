@@ -3,9 +3,9 @@
 import { useReadContract, useWriteContract } from "wagmi";
 import { parseUnits, formatUnits } from "viem";
 import { VAULT_CONTRACT, STAKING_CONTRACT } from "./contracts";
-import { USDC_ADDRESS, WETH_ADDRESS, somniaTestnet } from "./chains";
+import { USDC_ADDRESS, WETH_ADDRESS, activeChain } from "./chains";
 
-const CHAIN_ID = somniaTestnet.id;
+const CHAIN_ID = activeChain.id;
 
 const ERC20_ABI = [
   { name: "approve",     type: "function", stateMutability: "nonpayable", inputs: [{ name: "spender", type: "address" }, { name: "amount", type: "uint256" }], outputs: [{ type: "bool" }] },
