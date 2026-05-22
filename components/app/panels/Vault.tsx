@@ -11,6 +11,7 @@ import {
   useUsdcBalance,
   useUsdcAllowance,
   useMonthlyPayroll,
+  useUsdcFaucet,
   fmtUsdc,
 } from "@/lib/hooks";
 import { parseUnits } from "viem";
@@ -27,9 +28,10 @@ export function Vault({ onSuccess }: VaultProps) {
   const { data: allowance }  = useUsdcAllowance(address);
   const { data: payrollAmt } = useMonthlyPayroll(address);
 
-  const { register, isPending: registering }   = useRegisterCompany();
+  const { register, isPending: registering }        = useRegisterCompany();
   const { approve, deposit, isPending: depositing } = useDeposit();
-  const { execute, isPending: executing }      = useExecutePayrollManual();
+  const { execute, isPending: executing }           = useExecutePayrollManual();
+  const { drip, isPending: dripping }               = useUsdcFaucet();
 
   const [amount, setAmount] = useState("");
   const [companyName, setCompanyName] = useState("");
@@ -153,7 +155,28 @@ export function Vault({ onSuccess }: VaultProps) {
           </div>
         )}
 
-        {/* Deposit form */}
+        {/* Testnet USDC faucet */}
+        <div className="f-card" style={{ marginBottom: "1rem" }}>
+          <div className="f-head">
+            <div className="f-title">Get test USDC</div>
+            <div className="f-sub">Somnia testnet · MockUSDC · No real value</div>
+          </div>
+          <div className="f-body" style={{ display: "flex", gap: "0.75rem", alignItems: "flex-end" }}>
+            <div style={{ flex: 1, fontSize: 13, color: "var(--text2)", lineHeight: 1.6 }}>
+              Mint test USDC directly to your wallet to use in the vault.
+            </div>
+            <button
+              className="tb-btn green"
+              style={{ flexShrink: 0 }}
+              onClick={() => drip("1000")}
+              disabled={dripping}
+            >
+              {dripping ? "Minting…" : "+ 1,000 USDC"}
+            </button>
+          </div>
+        </div>
+
+      {/* Deposit form */}
         <div className="f-card">
           <div className="f-head">
             <div className="f-title">Deposit USDC</div>

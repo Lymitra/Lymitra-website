@@ -24,7 +24,7 @@ contract LymitraVault {
         IAgentRequester(0x037Bb9C718F3f7fe5eCBDB0b600D607b52706776);
 
     address public constant REACTIVITY = 0x0000000000000000000000000000000000000100;
-    address public constant USDC       = 0x28BEc7E30E6faee657a03e19Bf1128AaD7632A00;
+    address public immutable USDC;
 
     // Agent IDs — from https://agents.testnet.somnia.network
     uint256 public constant JSON_API_AGENT_ID = 13174292974160097713;
@@ -95,7 +95,9 @@ contract LymitraVault {
     }
 
     // ─── Constructor ─────────────────────────────────────────────────────────
-    constructor() {
+    constructor(address _usdc) {
+        require(_usdc != address(0), "zero usdc");
+        USDC  = _usdc;
         owner = msg.sender;
     }
 

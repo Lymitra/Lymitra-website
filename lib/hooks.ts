@@ -113,6 +113,27 @@ export function useUnlockTime(address?: `0x${string}`) {
   });
 }
 
+// ─── MockUSDC faucet ─────────────────────────────────────────────────────────
+const MOCK_USDC_ABI = [
+  { name: "faucet", type: "function", stateMutability: "nonpayable", inputs: [{ name: "amount", type: "uint256" }], outputs: [] },
+] as const;
+
+export function useUsdcFaucet() {
+  const { writeContractAsync, isPending } = useWriteContract();
+  return {
+    // Mints `usdcAmount` (human units, e.g. "1000") to the caller
+    drip: (usdcAmount: string) =>
+      writeContractAsync({
+        address: USDC_ADDRESS,
+        abi: MOCK_USDC_ABI,
+        chainId: CHAIN_ID,
+        functionName: "faucet",
+        args: [parseUnits(usdcAmount, 6)],
+      }),
+    isPending,
+  };
+}
+
 // ─── Write hooks ──────────────────────────────────────────────────────────────
 export function useRegisterCompany() {
   const { writeContractAsync, isPending } = useWriteContract();

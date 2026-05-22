@@ -1,6 +1,6 @@
 export const VAULT_ABI = [
   {
-    "inputs": [],
+    "inputs": [{ "internalType": "address", "name": "_usdc", "type": "address" }],
     "stateMutability": "nonpayable",
     "type": "constructor"
   },
