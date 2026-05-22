@@ -66,14 +66,21 @@ export async function POST(req: NextRequest) {
   try {
     const { messages } = await req.json();
 
+    // Anthropic requires conversation to start with a user message —
+    // strip any leading assistant messages (e.g. the welcome bubble)
+    const mapped = messages
+      .map((m: { role: string; text: string }) => ({
+        role: m.role === "user" ? "user" : "assistant",
+        content: m.text,
+      }));
+    const firstUser = mapped.findIndex((m: { role: string }) => m.role === "user");
+    const apiMessages = firstUser >= 0 ? mapped.slice(firstUser) : mapped;
+
     const response = await client.messages.create({
       model: "claude-haiku-4-5-20251001",
       max_tokens: 500,
       system: SYSTEM_PROMPT,
-      messages: messages.map((m: { role: string; text: string }) => ({
-        role: m.role === "user" ? "user" : "assistant",
-        content: m.text,
-      })),
+      messages: apiMessages,
     });
 
     const text = response.content[0].type === "text" ? response.content[0].text : "";

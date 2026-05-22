@@ -49,8 +49,10 @@ export function AiChat() {
         body:    JSON.stringify({ messages: next }),
       });
       const data = await res.json();
-      setMessages((m) => [...m, { role: "agent", text: data.text }]);
-    } catch {
+      const reply = data.text || "No response — please try again.";
+      setMessages((m) => [...m, { role: "agent", text: reply }]);
+    } catch (err) {
+      console.error("Chat fetch error:", err);
       setMessages((m) => [...m, { role: "agent", text: "Connection issue — please try again." }]);
     } finally {
       setThinking(false);
