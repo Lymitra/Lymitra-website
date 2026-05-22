@@ -124,8 +124,8 @@ export function TokenFlow() {
 
         {/* Header */}
         <div className="tf-head">
-          <div className="tf-eyebrow">Live demo</div>
-          <h3 className="tf-title">Can you time the market?</h3>
+          <div className="tf-eyebrow">Mini Game Converter</div>
+          <h3 className="tf-title">Can you beat the AI?</h3>
           <p className="tf-desc">Click Convert when you think the rate peaks. The AI does this automatically — on every single payroll run.</p>
         </div>
 
