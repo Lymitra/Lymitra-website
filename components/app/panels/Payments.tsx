@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Clock, Circle } from "lucide-react";
+import { Clock, Circle, Users } from "lucide-react";
 import { useAccount } from "wagmi";
 import {
   useEmployees,
@@ -181,7 +181,7 @@ export function Payments() {
               <div className="td">USDC</div>
               <div className="td">{nextPayDate}</div>
               <div>
-                <span className={`pill ${e.active ? "p-active" : "p-pending"}`} style={{display:"inline-flex",alignItems:"center",gap:4}}>
+                <span className={`pill ${e.active ? "p-active" : "p-pending"}`} style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
                   {e.active
                     ? <><Circle size={5} fill="currentColor" stroke="none" />Active</>
                     : <><Circle size={5} />Inactive</>
@@ -191,8 +191,18 @@ export function Payments() {
             </div>
           ))
         ) : (
-          <div style={{ padding: "2rem", textAlign: "center", color: "var(--text3)" }}>
-            {isRegistered ? "No employees yet — add your first employee above." : "Register your company in the Vault tab first."}
+          <div className="empty-state">
+            <div className="empty-state-icon">
+              <Users size={20} />
+            </div>
+            <div className="empty-state-title">
+              {isRegistered ? "No employees yet" : "Company not registered"}
+            </div>
+            <div className="empty-state-sub">
+              {isRegistered
+                ? "Add your first employee and schedule a payroll run."
+                : "Register your company in the Vault tab to get started."}
+            </div>
           </div>
         )}
       </div>

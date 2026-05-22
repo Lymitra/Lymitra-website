@@ -1,9 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { ReactNode } from "react";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { Zap, Check, Calendar } from "lucide-react";
 
 type Panel = "dashboard" | "aichat" | "myagent" | "vault" | "payments" | "earn" | "analytics";
 
@@ -12,7 +10,7 @@ const meta: Record<Panel, [string, string]> = {
   aichat:    ["AI Chat",    "Powered by Somnia on-chain LLM"],
   myagent:   ["My Agent",   "Autonomous agents · On-chain reactivity"],
   vault:     ["Vault",      "Non-custodial treasury · Somnia Shannon"],
-  payments:  ["Payments",   "6 employees · Agent-executed"],
+  payments:  ["Payments",   "Agent-executed payroll · USDC"],
   earn:      ["Earn",       "SOMI staking · Protocol rewards"],
   analytics: ["Analytics",  "Transaction history · All activity"],
 };
@@ -21,11 +19,7 @@ interface TopbarProps {
   active: Panel;
 }
 
-const notifications: { icon: ReactNode; text: string; time: string }[] = [
-  { icon: <Zap size={11} />, text: "Rate Watch: ETH/USDC optimal · conversion queued", time: "2m" },
-  { icon: <Check size={11} />, text: "Staking yield harvested · +420 SOMI → treasury", time: "3h" },
-  { icon: <Calendar size={11} />, text: "Next payroll in 11 days · Jun 1 00:00 UTC", time: "1d" },
-];
+const notifications: { text: string; time: string }[] = [];
 
 export function Topbar({ active }: TopbarProps) {
   const [page, sub] = meta[active];
@@ -56,16 +50,19 @@ export function Topbar({ active }: TopbarProps) {
           {bellOpen && (
             <div className="notif-dropdown">
               <div className="notif-head">Notifications</div>
-              {notifications.map((n, i) => (
+              {notifications.length === 0 ? (
+                <div style={{ padding: "2rem", textAlign: "center" }}>
+                  <div style={{ fontSize: 13, color: "var(--text3)", marginBottom: 4 }}>All caught up</div>
+                  <div style={{ fontSize: 12, color: "var(--text3)", opacity: 0.7 }}>Agent events will appear here</div>
+                </div>
+              ) : notifications.map((n, i) => (
                 <div className="notif-row" key={i}>
-                  <div className="notif-ic">{n.icon}</div>
                   <div className="notif-body">
                     <div className="notif-text">{n.text}</div>
                     <div className="notif-time">{n.time} ago</div>
                   </div>
                 </div>
               ))}
-              <div className="notif-foot">View all</div>
             </div>
           )}
         </div>

@@ -40,11 +40,14 @@ export function Analytics() {
           <div className="th">Status</div>
         </div>
 
-        <div style={{ padding: "3rem", textAlign: "center" }}>
-          <div style={{ fontSize: "13px", color: "var(--text3)", marginBottom: 6 }}>
+        <div className="empty-state">
+          <div className="empty-state-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 9h18M9 21V9"/></svg>
+          </div>
+          <div className="empty-state-title">
             {isConnected ? "No transactions yet" : "Connect your wallet to see activity"}
           </div>
-          <div style={{ fontSize: "12px", color: "var(--text3)", opacity: 0.7 }}>
+          <div className="empty-state-sub">
             Payroll runs, token conversions, and deposits will appear here once you set up your vault.
           </div>
         </div>

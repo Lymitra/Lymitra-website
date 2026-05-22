@@ -9,7 +9,6 @@ import { useCompany } from "@/lib/hooks";
 import { somniaTestnet } from "@/lib/chains";
 import { useUsdcBalance, useWethBalance, fmtUsdc } from "@/lib/hooks";
 
-// ── Inline token logos ──────────────────────────────────────────────────────
 function EthLogo({ size = 34 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 44 44" fill="none">
@@ -29,7 +28,6 @@ function UsdcLogo({ size = 34 }: { size?: number }) {
   );
 }
 
-// ── Live price fetch ────────────────────────────────────────────────────────
 function usePrices() {
   const [somi, setSomi] = useState<number | null>(null);
   const [eth,  setEth]  = useState<number | null>(null);
@@ -39,7 +37,7 @@ function usePrices() {
       fetch("https://api.coingecko.com/api/v3/simple/price?ids=somnia,ethereum&vs_currencies=usd")
         .then((r) => r.json())
         .then((d) => {
-          if (d?.somnia?.usd)  setSomi(d.somnia.usd);
+          if (d?.somnia?.usd)   setSomi(d.somnia.usd);
           if (d?.ethereum?.usd) setEth(d.ethereum.usd);
         })
         .catch(() => {});
@@ -51,7 +49,6 @@ function usePrices() {
   return { somi, eth };
 }
 
-// ── Helpers ─────────────────────────────────────────────────────────────────
 function fmt(n: number, decimals = 4) {
   return n.toLocaleString("en-US", { maximumFractionDigits: decimals });
 }
@@ -62,33 +59,26 @@ function usd(n: number) {
 type Panel = "dashboard" | "aichat" | "myagent" | "vault" | "payments" | "earn" | "analytics";
 interface DashboardProps { onNav: (panel: Panel) => void }
 
-// ── Component ────────────────────────────────────────────────────────────────
 export function Dashboard({ onNav }: DashboardProps) {
   const { address, isConnected } = useAccount();
   const { somi: somiPrice, eth: ethPrice } = usePrices();
   const { data: company } = useCompany(address);
   const isSetUp = company?.owner === address;
 
-  // Native STT balance on Somnia
-  const { data: sttRaw } = useBalance({ address, chainId: somniaTestnet.id });
-  // WETH ERC-20 balance
+  const { data: sttRaw }  = useBalance({ address, chainId: somniaTestnet.id });
   const { data: wethRaw } = useWethBalance(address);
-  // USDC ERC-20 balance
   const { data: usdcRaw } = useUsdcBalance(address);
 
-  // Numeric values
-  const sttAmt  = sttRaw  ? Number(sttRaw.formatted)               : 0;
+  const sttAmt  = sttRaw  ? Number(sttRaw.formatted)                   : 0;
   const wethAmt = wethRaw ? Number(formatUnits(wethRaw as bigint, 18)) : 0;
   const usdcAmt = usdcRaw ? Number(formatUnits(usdcRaw as bigint, 6))  : 0;
 
-  // USD values
-  const sttUsd  = somiPrice ? sttAmt  * somiPrice : null;
-  const wethUsd = ethPrice  ? wethAmt * ethPrice  : null;
+  const sttUsd   = somiPrice ? sttAmt  * somiPrice : null;
+  const wethUsd  = ethPrice  ? wethAmt * ethPrice  : null;
   const totalUsd = sttUsd !== null && wethUsd !== null
     ? sttUsd + wethUsd + usdcAmt
     : null;
 
-  // Animate total counter
   const counterRef = useRef<HTMLDivElement>(null);
   const prevTotal  = useRef(0);
   useEffect(() => {
@@ -110,35 +100,47 @@ export function Dashboard({ onNav }: DashboardProps) {
 
   return (
     <div>
-      {/* Network strip */}
-      <div className="app-cs">
-        <div className="acs-l">Network</div>
-        <div className="acs-ps">
-          <div className="acp live">
-            <div className="acp-dot acp-a" />Somnia Shannon
-            <span style={{ fontSize: "8.5px", color: "#3ED9B8", letterSpacing: ".05em", fontWeight: 500, marginLeft: 4 }}>TESTNET</span>
-          </div>
-        </div>
-        <div style={{ marginLeft: "auto", fontSize: "10px", color: "var(--text3)", letterSpacing: ".02em" }}>AI runs on Somnia</div>
-      </div>
-
       {/* Hero */}
       <div className="dash-hero">
         <div className="dh-glow" />
-        <div className="dh-lbl">Total portfolio value</div>
+        <div className="dh-top">
+          <div className="dh-lbl">Total portfolio value</div>
+          <div className="dh-ai-badge">
+            <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#3ED9B8", animation: "pulse 1.8s ease-in-out infinite", display: "inline-block", flexShrink: 0 }} />
+            {isSetUp ? "Agents active" : "AI ready"}
+          </div>
+        </div>
         <div className="dh-amt" ref={counterRef}>
           {totalUsd !== null ? usd(totalUsd) : isConnected ? "Loading…" : "—"}
         </div>
-        <div className="dh-chg">
-          {somiPrice
-            ? <>SOMI&nbsp;<span style={{ fontWeight: 600 }}>${somiPrice.toFixed(4)}</span>&nbsp;·&nbsp;ETH&nbsp;<span style={{ fontWeight: 600 }}>{ethPrice ? "$" + Math.round(ethPrice).toLocaleString() : "—"}</span></>
-            : "Fetching live prices…"}
+        <div className="dh-prices">
+          <div className="dh-price-item">
+            <div className="dh-price-logo" style={{ background: "#5B7FFF" }} />
+            <span className="dh-price-lbl">SOMI</span>
+            <span className="dh-price-val">{somiPrice ? "$" + somiPrice.toFixed(4) : "—"}</span>
+          </div>
+          <div className="dh-price-item">
+            <div className="dh-price-logo" style={{ background: "#627EEA" }} />
+            <span className="dh-price-lbl">ETH</span>
+            <span className="dh-price-val">{ethPrice ? "$" + Math.round(ethPrice).toLocaleString() : "—"}</span>
+          </div>
+          <div className="dh-price-item">
+            <div className="dh-price-logo" style={{ background: "#2775CA" }} />
+            <span className="dh-price-lbl">USDC</span>
+            <span className="dh-price-val">$1.00</span>
+          </div>
         </div>
         <div className="dh-acts">
           <button className="dh-btn p" onClick={() => onNav("vault")}>+ Deposit</button>
-          <button className="dh-btn" onClick={() => onNav("payments")}><Users size={12} style={{ display: "inline", verticalAlign: "middle", marginRight: 4 }} />Team</button>
-          <button className="dh-btn" onClick={() => onNav("earn")}><TrendingUp size={12} style={{ display: "inline", verticalAlign: "middle", marginRight: 4 }} />Stake</button>
-          <button className="dh-btn" onClick={() => onNav("analytics")}><BarChart2 size={12} style={{ display: "inline", verticalAlign: "middle", marginRight: 4 }} />History</button>
+          <button className="dh-btn" onClick={() => onNav("payments")}>
+            <Users size={12} />Team
+          </button>
+          <button className="dh-btn" onClick={() => onNav("earn")}>
+            <TrendingUp size={12} />Stake
+          </button>
+          <button className="dh-btn" onClick={() => onNav("analytics")}>
+            <BarChart2 size={12} />History
+          </button>
         </div>
       </div>
 
@@ -181,7 +183,6 @@ export function Dashboard({ onNav }: DashboardProps) {
             <button className="card-a" onClick={() => onNav("vault")}>Manage →</button>
           </div>
 
-          {/* STT / SOMI row */}
           <div className="tr">
             <div className="db-logo">
               <Image src="/logos/somi-token-roundel-1.png" width={34} height={34} alt="SOMI" style={{ borderRadius: "50%", display: "block" }} />
@@ -197,7 +198,6 @@ export function Dashboard({ onNav }: DashboardProps) {
             </div>
           </div>
 
-          {/* WETH row */}
           <div className="tr">
             <div className="db-logo"><EthLogo size={34} /></div>
             <div className="ti-inf">
@@ -211,7 +211,6 @@ export function Dashboard({ onNav }: DashboardProps) {
             </div>
           </div>
 
-          {/* USDC row */}
           <div className="tr">
             <div className="db-logo"><UsdcLogo size={34} /></div>
             <div className="ti-inf">
@@ -229,14 +228,17 @@ export function Dashboard({ onNav }: DashboardProps) {
         {/* Agent status */}
         <div className="agp">
           <div className="agp-h">
-            <div className="agp-hl"><div className="ag-led" /><div className="agp-ht">Agents</div></div>
+            <div className="agp-hl">
+              <div className="ag-led" />
+              <div className="agp-ht">Agents</div>
+            </div>
             <button className="card-a" onClick={() => onNav("myagent")}>View all →</button>
           </div>
           <div className="agp-feed">
             {[
-              { Icon: Zap,          label: "Rate Watch",        sub: "Monitors SOMI & ETH rates 24/7" },
-              { Icon: Brain,        label: "LLM Decision",      sub: "Finds optimal conversion window" },
-              { Icon: CalendarCheck,label: "Payroll Execution", sub: "Fires transfers on payday" },
+              { Icon: Zap,           label: "Rate Watch",        sub: "Monitors SOMI & ETH rates 24/7" },
+              { Icon: Brain,         label: "LLM Decision",      sub: "Finds optimal conversion window" },
+              { Icon: CalendarCheck, label: "Payroll Execution", sub: "Fires transfers on payday" },
             ].map(({ Icon, label, sub }) => (
               <div className="ag-item" key={label}>
                 <div className="ai-ic"><Icon size={11} /></div>
@@ -244,7 +246,7 @@ export function Dashboard({ onNav }: DashboardProps) {
                   <div className="ai-title">{label}</div>
                   <div className="ai-sub">{sub}</div>
                 </div>
-                <div className="ai-time" style={{ color: isSetUp ? "#4FC490" : "var(--text3)", fontSize: 10, fontWeight: 500 }}>
+                <div className="ai-time" style={{ color: isSetUp ? "#4FC490" : "var(--text3)" }}>
                   {isSetUp ? "Active" : "Waiting"}
                 </div>
               </div>
@@ -256,7 +258,7 @@ export function Dashboard({ onNav }: DashboardProps) {
             )}
             {isConnected && !isSetUp && (
               <div style={{ padding: "1rem 1.25rem", fontSize: "12px", color: "var(--text3)" }}>
-                Set up your vault and payroll to activate agents.
+                Set up your vault to activate agents.
               </div>
             )}
           </div>
