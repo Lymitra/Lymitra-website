@@ -13,7 +13,8 @@ export function MyAgent({ onNav }: MyAgentProps) {
   const { data: employees } = useEmployees(address);
 
   const isRegistered   = company?.owner === address;
-  const hasDeposit     = isRegistered && company != null && (company.usdcBalance as bigint) > 0n;
+  const hasDeposit     = isRegistered && company != null &&
+    ((company.usdcBalance as bigint) > 0n || (company.somiBalance as bigint) > 0n);
   const hasEmployees   = employees ? (employees as unknown[]).length > 0 : false;
   const agentsEnabled  = isRegistered && !!(company?.agentsEnabled);
   const hasSchedule    = isRegistered && company != null && (company.nextPayrollMs as bigint) > 0n;
@@ -37,8 +38,8 @@ export function MyAgent({ onNav }: MyAgentProps) {
     },
     {
       n: 2,
-      label: "Deposit USDC",
-      sub: "Fund your payroll vault",
+      label: "Deposit SOMI",
+      sub: "Fund vault — AI converts to USDC at the best rate",
       done: hasDeposit,
       panel: "vault" as Panel,
     },
@@ -64,8 +65,8 @@ export function MyAgent({ onNav }: MyAgentProps) {
     {
       Icon: Zap,
       name: "Rate Watch",
-      desc: "Monitors SOMI and ETH rates every 60 seconds using Somnia's JSON API Agent — fully on-chain, no server.",
-      activeAfter: "Step 2 — deposit USDC",
+      desc: "Monitors SOMI/USDC rate every 60 seconds using Somnia's JSON API Agent — fully on-chain, no server.",
+      activeAfter: "Step 2 — deposit SOMI",
       live: hasDeposit,
     },
     {

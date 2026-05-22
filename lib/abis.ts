@@ -52,6 +52,56 @@ export const VAULT_ABI = [
         "type": "address"
       },
       {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "somiAmount",
+        "type": "uint256"
+      }
+    ],
+    "name": "SomiDeposited",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "company",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "somiAmount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "usdcMinted",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "rate",
+        "type": "uint256"
+      }
+    ],
+    "name": "SomiConverted",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "company",
+        "type": "address"
+      },
+      {
         "indexed": true,
         "internalType": "address",
         "name": "wallet",
@@ -358,6 +408,11 @@ export const VAULT_ABI = [
       },
       {
         "internalType": "uint256",
+        "name": "somiBalance",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
         "name": "nextPayrollMs",
         "type": "uint256"
       },
@@ -373,6 +428,13 @@ export const VAULT_ABI = [
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "depositSomi",
+    "outputs": [],
+    "stateMutability": "payable",
     "type": "function"
   },
   {
@@ -454,6 +516,11 @@ export const VAULT_ABI = [
           {
             "internalType": "uint256",
             "name": "usdcBalance",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "somiBalance",
             "type": "uint256"
           },
           {

@@ -42,7 +42,7 @@ export const somniaMainnet = defineChain({
 export const activeChain = somniaTestnet;
 
 // ─── Token addresses (testnet) ────────────────────────────────────────────────
-export const USDC_ADDRESS = "0x112e52B2664e0cCC7a9290e364cFd841Ec8F6748" as const;
+export const USDC_ADDRESS = "0x14De95396Ae213eD539f11c1E3c1576DBaCC5b93" as const;
 // MockUSDC on Somnia testnet — open mint via faucet(). Replace with bridged
 // USDC address (LayerZero OFT or Circle CCTP) when deploying to mainnet.
 export const WETH_ADDRESS = "0xdd8f41bf80d0E47132423339ca06bC6413da96b5" as const;

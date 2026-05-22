@@ -144,6 +144,21 @@ export function useRegisterCompany() {
   };
 }
 
+// Primary deposit: send native SOMI directly to vault (no approve needed)
+export function useDepositSomi() {
+  const { writeContractAsync, isPending } = useWriteContract();
+  return {
+    depositSomi: (somiAmount: string) =>
+      writeContractAsync({
+        ...VAULT_CONTRACT,
+        chainId: CHAIN_ID,
+        functionName: "depositSomi",
+        value: parseUnits(somiAmount, 18),
+      }),
+    isPending,
+  };
+}
+
 // Two-step deposit: approve USDC → deposit into vault
 export function useDeposit() {
   const { writeContractAsync, isPending } = useWriteContract();

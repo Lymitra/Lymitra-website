@@ -2,20 +2,16 @@
 
 import { useState } from "react";
 import { Play } from "lucide-react";
-import { useAccount, useWatchAsset } from "wagmi";
-import { USDC_ADDRESS } from "@/lib/chains";
+import { useAccount } from "wagmi";
 import {
   useCompany,
-  useDeposit,
+  useDepositSomi,
   useRegisterCompany,
   useExecutePayrollManual,
-  useUsdcBalance,
-  useUsdcAllowance,
   useMonthlyPayroll,
-  useUsdcFaucet,
   fmtUsdc,
+  fmtStt,
 } from "@/lib/hooks";
-import { parseUnits } from "viem";
 
 interface VaultProps {
   onSuccess: () => void;
@@ -25,24 +21,19 @@ export function Vault({ onSuccess }: VaultProps) {
   const { address, isConnected } = useAccount();
 
   const { data: company, refetch: refetchCompany } = useCompany(address);
-  const { data: usdcBal }    = useUsdcBalance(address);
-  const { data: allowance }  = useUsdcAllowance(address);
   const { data: payrollAmt } = useMonthlyPayroll(address);
 
-  const { register, isPending: registering }        = useRegisterCompany();
-  const { approve, deposit, isPending: depositing } = useDeposit();
-  const { execute, isPending: executing }           = useExecutePayrollManual();
-  const { drip, isPending: dripping }               = useUsdcFaucet();
-  const { watchAsset, isPending: addingToken }      = useWatchAsset();
+  const { register, isPending: registering }          = useRegisterCompany();
+  const { depositSomi, isPending: depositing }        = useDepositSomi();
+  const { execute, isPending: executing }             = useExecutePayrollManual();
 
   const [amount, setAmount] = useState("");
   const [companyName, setCompanyName] = useState("");
-  const [step, setStep] = useState<"idle" | "approve" | "deposit">("idle");
   const [txError, setTxError] = useState("");
 
   const isRegistered = company?.owner === address;
   const vaultUsdc    = company?.usdcBalance;
-  const needsApprove = !allowance || allowance < parseUnits(amount || "0", 6);
+  const vaultSomi    = company?.somiBalance;
 
   async function handleRegister() {
     if (!companyName.trim()) return;
@@ -54,22 +45,15 @@ export function Vault({ onSuccess }: VaultProps) {
     }
   }
 
-  async function handleDeposit() {
+  async function handleDepositSomi() {
     if (!amount || Number(amount) <= 0) return;
     setTxError("");
     try {
-      if (needsApprove) {
-        setStep("approve");
-        await approve(amount);
-      }
-      setStep("deposit");
-      await deposit(amount);
+      await depositSomi(amount);
       setAmount("");
-      setStep("idle");
       refetchCompany();
       onSuccess();
     } catch (e: unknown) {
-      setStep("idle");
       setTxError(e instanceof Error ? e.message : "Transaction failed");
     }
   }
@@ -113,19 +97,19 @@ export function Vault({ onSuccess }: VaultProps) {
       {/* Stats */}
       <div className="ss" style={{ marginBottom: "1.5rem" }}>
         <div className="sc">
-          <div className="sc-l">Vault USDC</div>
-          <div className="sc-v accent">{fmtUsdc(vaultUsdc)}</div>
+          <div className="sc-l">SOMI deposited</div>
+          <div className="sc-v accent">{fmtStt(vaultSomi as bigint | undefined)} SOMI</div>
+          <div className="sc-s">pending conversion</div>
+        </div>
+        <div className="sc">
+          <div className="sc-l">Converted USDC</div>
+          <div className="sc-v">{fmtUsdc(vaultUsdc)}</div>
           <div className="sc-s">payroll reserve</div>
         </div>
         <div className="sc">
           <div className="sc-l">Monthly payroll</div>
           <div className="sc-v">{fmtUsdc(payrollAmt)}</div>
           <div className="sc-s">all employees</div>
-        </div>
-        <div className="sc">
-          <div className="sc-l">Your USDC</div>
-          <div className="sc-v">{fmtUsdc(usdcBal)}</div>
-          <div className="sc-s">wallet balance</div>
         </div>
         <div className="sc">
           <div className="sc-l">Agent gas</div>
@@ -157,53 +141,14 @@ export function Vault({ onSuccess }: VaultProps) {
           </div>
         )}
 
-        {/* Testnet USDC faucet */}
-        <div className="f-card" style={{ marginBottom: "1rem" }}>
-          <div className="f-head">
-            <div className="f-title">Get test USDC</div>
-            <div className="f-sub">Somnia testnet · MockUSDC · No real value</div>
-          </div>
-          <div className="f-body">
-            <div style={{ fontSize: 13, color: "var(--text2)", lineHeight: 1.6, marginBottom: "0.75rem" }}>
-              Mint test USDC to your wallet and add it to MetaMask so you can see your balance.
-            </div>
-            <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
-              <button
-                className="tb-btn green"
-                onClick={() => drip("1000")}
-                disabled={dripping}
-              >
-                {dripping ? "Minting…" : "+ 1,000 USDC"}
-              </button>
-              <button
-                className="tb-btn"
-                onClick={() =>
-                  watchAsset({
-                    type: "ERC20",
-                    options: {
-                      address: USDC_ADDRESS,
-                      symbol: "USDC",
-                      decimals: 6,
-                      image: "https://assets.coingecko.com/coins/images/6319/small/usdc.png",
-                    },
-                  })
-                }
-                disabled={addingToken}
-              >
-                {addingToken ? "Adding…" : "Add USDC to wallet"}
-              </button>
-            </div>
-          </div>
-        </div>
-
-      {/* Deposit form */}
+        {/* SOMI deposit form */}
         <div className="f-card">
           <div className="f-head">
-            <div className="f-title">Deposit USDC</div>
-            <div className="f-sub">Funds go directly to your on-chain vault · Non-custodial</div>
+            <div className="f-title">Deposit SOMI</div>
+            <div className="f-sub">Send your SOMI — AI converts to USDC at the best rate · Non-custodial</div>
           </div>
           <div className="f-body">
-            <label className="f-lbl">Amount (USDC)</label>
+            <label className="f-lbl">Amount (SOMI)</label>
             <input
               className="f-inp"
               type="number"
@@ -214,13 +159,19 @@ export function Vault({ onSuccess }: VaultProps) {
             />
 
             <div className="ag-box">
-              <div className="ab-l"><div className="ab-d" />Agents activate on deposit</div>
-              <div className="ab-t">Rate Watch starts immediately</div>
+              <div className="ab-l"><div className="ab-d" />How it works</div>
+              <div className="ab-t">Deposit SOMI → AI watches rate → converts to USDC → pays employees</div>
               <div className="ab-b">
-                JSON API Agent monitors ETH/USDC rates. LLM Agent decides optimal conversion before each payroll.
-                Reactivity fires payroll automatically on payday.
+                The JSON API Agent monitors SOMI/USDC rates. The LLM Agent decides when to convert.
+                On payday, Reactivity fires automatically and your team receives USDC in one block.
               </div>
             </div>
+
+            {!isRegistered && (
+              <div style={{ fontSize: 12, color: "var(--text3)", marginBottom: "0.5rem" }}>
+                Register your company above before depositing.
+              </div>
+            )}
 
             {txError && (
               <div style={{ color: "#ff6b6b", fontSize: "12px", marginBottom: "0.5rem", wordBreak: "break-all" }}>
@@ -228,29 +179,14 @@ export function Vault({ onSuccess }: VaultProps) {
               </div>
             )}
 
-            {step === "approve" && (
-              <div style={{ color: "var(--text2)", fontSize: "12px", marginBottom: "0.5rem" }}>
-                Step 1/2: Approve USDC spend…
-              </div>
-            )}
-            {step === "deposit" && (
-              <div style={{ color: "var(--text2)", fontSize: "12px", marginBottom: "0.5rem" }}>
-                Step 2/2: Depositing to vault…
-              </div>
-            )}
-
             <button
               className="sub-btn"
-              onClick={handleDeposit}
+              onClick={handleDepositSomi}
               disabled={!isRegistered || depositing || !amount}
             >
-              {depositing
-                ? step === "approve" ? "Approving USDC…" : "Depositing…"
-                : needsApprove && amount
-                  ? "Approve & deposit USDC"
-                  : "Deposit USDC"}
+              {depositing ? "Depositing…" : "Deposit SOMI"}
             </button>
-            <div className="f-note">Somnia testnet · SOMI tokens · No real value</div>
+            <div className="f-note">Somnia testnet · Native SOMI · No real value</div>
           </div>
         </div>
       </div>

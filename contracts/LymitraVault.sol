@@ -5,18 +5,27 @@ import "./interfaces/IAgentPlatform.sol";
 import "./interfaces/IReactivity.sol";
 import "./interfaces/IERC20Minimal.sol";
 
+interface IMintable {
+    function mint(address to, uint256 amount) external;
+}
+
 /**
- * Lymitra Vault — autonomous payroll in USDC, powered by Somnia agents.
+ * Lymitra Vault — autonomous payroll powered by Somnia agents.
+ *
+ * Business model:
+ *   Employers deposit native SOMI tokens. The AI watches the SOMI/USDC rate
+ *   and converts at the optimal moment. Employees receive USDC automatically.
  *
  * Flow:
- *   1. Company registers + deposits USDC
- *   2. Company adds employees with monthly salary (USDC, 6 dec)
- *   3. Company calls schedulePayroll(timestampMs) → Reactivity registers callback
- *   4. At payroll time, Reactivity fires _onScheduledPayroll
- *   5. Contract requests ETH/USDC rate via JSON API agent
- *   6. Rate callback → requests LLM decision (CONVERT | WAIT)
- *   7. If CONVERT → transfers USDC to all active employees
- *      If WAIT    → re-schedules 24 h later
+ *   1. Company registers (free, one-time)
+ *   2. Company deposits SOMI (native token) — vault holds it
+ *   3. Company adds employees with monthly salary (in USDC, 6 dec)
+ *   4. Company calls schedulePayroll(timestampMs) → Reactivity registers callback
+ *   5. At payroll time, Reactivity fires _onScheduledPayroll
+ *   6. Contract requests SOMI/USDC rate via JSON API agent
+ *   7. Rate callback → requests LLM decision (CONVERT | WAIT)
+ *   8. If CONVERT → mints USDC equivalent of somiBalance, pays all employees
+ *      If WAIT    → re-schedules 24 h later (waits for better SOMI rate)
  */
 contract LymitraVault {
     // ─── Somnia infrastructure ──────────────────────────────────────────────
@@ -43,8 +52,9 @@ contract LymitraVault {
 
     struct Company {
         address owner;
-        uint256 usdcBalance;
-        uint256 nextPayrollMs; // unix milliseconds
+        uint256 usdcBalance;    // USDC held in vault (6 decimals)
+        uint256 somiBalance;    // Native SOMI deposited by employer (18 decimals)
+        uint256 nextPayrollMs;  // unix milliseconds
         bool    agentsEnabled;
         string  name;
     }
@@ -68,6 +78,8 @@ contract LymitraVault {
 
     // ─── Events ──────────────────────────────────────────────────────────────
     event CompanyRegistered(address indexed company, string name);
+    event SomiDeposited(address indexed company, uint256 somiAmount);
+    event SomiConverted(address indexed company, uint256 somiAmount, uint256 usdcMinted, uint256 rate);
     event Deposited(address indexed company, uint256 amount);
     event Withdrawn(address indexed company, uint256 amount);
     event EmployeeAdded(address indexed company, address indexed wallet, uint256 salary);
@@ -107,6 +119,7 @@ contract LymitraVault {
         companies[msg.sender] = Company({
             owner:         msg.sender,
             usdcBalance:   0,
+            somiBalance:   0,
             nextPayrollMs: 0,
             agentsEnabled: false,
             name:          companyName
@@ -114,6 +127,14 @@ contract LymitraVault {
         emit CompanyRegistered(msg.sender, companyName);
     }
 
+    // ─── Primary deposit: employer sends native SOMI ─────────────────────────
+    function depositSomi() external payable onlyRegistered {
+        require(msg.value > 0, "send SOMI");
+        companies[msg.sender].somiBalance += msg.value;
+        emit SomiDeposited(msg.sender, msg.value);
+    }
+
+    // ─── Legacy USDC deposit (kept for testing/flexibility) ──────────────────
     function deposit(uint256 amount) external onlyRegistered {
         require(
             IERC20Minimal(USDC).transferFrom(msg.sender, address(this), amount),
@@ -192,12 +213,12 @@ contract LymitraVault {
 
         require(address(this).balance >= REQUEST_DEPOSIT, "low STT balance");
 
-        // Fetch ETH/USDC spot price via JSON API agent
+        // Fetch SOMI/USDC spot price via JSON API agent (CoinGecko, 6-decimal precision)
         bytes memory payload = abi.encodeWithSelector(
             IJsonApiAgent.fetchUint.selector,
-            "https://api.binance.com/api/v3/ticker/price?symbol=ETHUSDC",
-            "$.price",
-            uint8(2)
+            "https://api.coingecko.com/api/v3/simple/price?ids=somnia&vs_currencies=usd",
+            "$.somnia.usd",
+            uint8(6)
         );
 
         uint256 reqId = PLATFORM.createRequest{value: REQUEST_DEPOSIT}(
@@ -230,7 +251,7 @@ contract LymitraVault {
         delete pendingRequests[requestId];
 
         if (status != ResponseStatus.Success || responses.length == 0) {
-            // Fallback: execute directly on agent failure
+            // Fallback: convert at zero rate skipped, execute directly from USDC balance
             _executePayroll(company, "FALLBACK");
             return;
         }
@@ -239,8 +260,13 @@ contract LymitraVault {
 
         require(address(this).balance >= REQUEST_DEPOSIT, "low STT balance");
 
+        // rate has 6-decimal precision: e.g. $0.031 → rate = 31000
         string memory rateStr = string(
-            abi.encodePacked(_uint2str(rate / 100), ".", _uint2str(rate % 100))
+            abi.encodePacked(
+                "0.",
+                _uint2str(rate / 10000),  // first 2 digits after decimal
+                _padded(rate % 10000)     // last 4 digits
+            )
         );
 
         string[] memory allowed = new string[](2);
@@ -250,9 +276,9 @@ contract LymitraVault {
         bytes memory payload = abi.encodeWithSelector(
             ILLMAgent.inferString.selector,
             string(abi.encodePacked(
-                "ETH/USDC rate is $", rateStr,
-                ". Should Lymitra execute payroll now and convert holdings to USDC? ",
-                "Consider: stable rate = good time, high volatility = wait."
+                "SOMI/USDC rate is $", rateStr,
+                ". Should Lymitra convert SOMI to USDC and execute payroll now? ",
+                "Higher rate means more USDC per SOMI. Convert when rate is stable or rising."
             )),
             "You are an on-chain DeFi payroll optimizer for Lymitra. Output exactly one of the allowed values.",
             false,
@@ -285,7 +311,8 @@ contract LymitraVault {
         PendingRequest storage req = pendingRequests[requestId];
         require(req.company != address(0), "unknown request");
 
-        address company = req.company;
+        address company  = req.company;
+        uint256 rate     = req.fetchedRate;
         delete pendingRequests[requestId];
 
         string memory decision = "CONVERT";
@@ -295,9 +322,11 @@ contract LymitraVault {
         }
 
         if (keccak256(bytes(decision)) == keccak256(bytes("CONVERT"))) {
+            // Convert employer's SOMI to USDC, then pay employees
+            _convertSomiToUsdc(company, rate);
             _executePayroll(company, decision);
         } else {
-            // Defer 24 h — re-schedule via Reactivity
+            // Defer 24 h — wait for better SOMI rate
             uint64 retryMs = uint64((block.timestamp + 1 days) * 1000);
             companies[company].nextPayrollMs = retryMs;
 
@@ -309,6 +338,26 @@ contract LymitraVault {
 
             emit PayrollDeferred(company, retryMs);
         }
+    }
+
+    // ─── Internal: convert somiBalance → USDC via MockUSDC.mint() ────────────
+    function _convertSomiToUsdc(address company, uint256 rate) internal {
+        Company storage co = companies[company];
+        if (co.somiBalance == 0) return;
+
+        // rate is SOMI price with 6-decimal precision (e.g., $0.031 → 31000)
+        // usdcAmount (6 dec) = somiBalance (18 dec) * rate / 1e18
+        uint256 usdcAmount = (co.somiBalance * rate) / 1e18;
+
+        uint256 somiConverted = co.somiBalance;
+        co.somiBalance = 0;
+
+        if (usdcAmount > 0) {
+            IMintable(USDC).mint(address(this), usdcAmount);
+            co.usdcBalance += usdcAmount;
+        }
+
+        emit SomiConverted(company, somiConverted, usdcAmount, rate);
     }
 
     // ─── Payroll execution ───────────────────────────────────────────────────
@@ -334,7 +383,7 @@ contract LymitraVault {
         emit PayrollExecuted(company, total, decision);
     }
 
-    // Manual trigger — company owner can force-run payroll
+    // Manual trigger — executes from existing USDC balance (bypasses AI)
     function executePayrollManual() external onlyRegistered {
         _executePayroll(msg.sender, "MANUAL");
     }
@@ -370,6 +419,16 @@ contract LymitraVault {
         while (v != 0) {
             digits--;
             buf[digits] = bytes1(uint8(48 + v % 10));
+            v /= 10;
+        }
+        return string(buf);
+    }
+
+    // Zero-pad to 4 digits for rate display
+    function _padded(uint256 v) internal pure returns (string memory) {
+        bytes memory buf = new bytes(4);
+        for (uint256 i = 4; i > 0; i--) {
+            buf[i - 1] = bytes1(uint8(48 + v % 10));
             v /= 10;
         }
         return string(buf);
