@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { Lock, DollarSign, CalendarCheck, TrendingDown } from "lucide-react";
+import { Lock, DollarSign, CalendarCheck, TrendingDown, TrendingUp } from "lucide-react";
 
 
 const benefits = [
@@ -24,6 +24,11 @@ const benefits = [
     Icon: Lock,
     title: "Your funds, on-chain",
     desc: "Your USDC sits in a smart contract on Somnia. Only your wallet can withdraw it.",
+  },
+  {
+    Icon: TrendingUp,
+    title: "Your crypto keeps growing",
+    desc: "Deposited STT and ETH stay in the vault and appreciate. We never dump at a bad rate — the AI holds until the price is right.",
   },
 ];
 

@@ -3,11 +3,11 @@
 import { useEffect, useRef, useState } from "react";
 
 const LOG_ENTRIES = [
-  { tag: "RATE_WATCH", cls: "al-blue", msg: "STT/USDC → $0.038 · below target threshold" },
-  { tag: "LLM_AGENT",  cls: "al-blue", msg: "Decision: WAIT · rate unfavorable, monitoring" },
-  { tag: "RATE_WATCH", cls: "al-blue", msg: "STT/USDC → $0.051 · upward trend confirmed" },
-  { tag: "LLM_AGENT",  cls: "al-blue", msg: "Decision: CONVERT NOW · optimal window open" },
-  { tag: "CONVERT",    cls: "al-blue", msg: "363,000 STT → 18,500 USDC · slippage 0.02%" },
+  { tag: "RATE_WATCH", cls: "al-blue",  msg: "STT/USDC → $0.031 · below threshold · holding" },
+  { tag: "HOLDING",    cls: "al-dim",   msg: "Tokens held in vault · still appreciating · no sale" },
+  { tag: "RATE_WATCH", cls: "al-blue",  msg: "STT/USDC → $0.051 · upward trend confirmed" },
+  { tag: "LLM_AGENT",  cls: "al-blue",  msg: "Decision: CONVERT NOW · optimal window open" },
+  { tag: "CONVERT",    cls: "al-blue",  msg: "363,000 STT → 18,500 USDC · slippage 0.02%" },
   { tag: "PAYROLL",    cls: "al-green", msg: "Disbursed to 6 employees · 18,500 USDC · 0.8s" },
 ];
 
