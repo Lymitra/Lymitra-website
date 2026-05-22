@@ -3,12 +3,12 @@
 import { useEffect, useRef, useState } from "react";
 
 const LOG_ENTRIES = [
-  { tag: "RATE_WATCH", cls: "al-blue",  msg: "STT/USDC → $0.031 · below threshold · holding" },
-  { tag: "HOLDING",    cls: "al-dim",   msg: "Tokens held in vault · still appreciating · no sale" },
-  { tag: "RATE_WATCH", cls: "al-blue",  msg: "STT/USDC → $0.051 · upward trend confirmed" },
-  { tag: "LLM_AGENT",  cls: "al-blue",  msg: "Decision: CONVERT NOW · optimal window open" },
-  { tag: "CONVERT",    cls: "al-blue",  msg: "363,000 STT → 18,500 USDC · slippage 0.02%" },
-  { tag: "PAYROLL",    cls: "al-green", msg: "Disbursed to 6 employees · 18,500 USDC · 0.8s" },
+  { tag: "WATCHING",   cls: "al-blue",  msg: "STT rate at $0.031 · too low · waiting for better price" },
+  { tag: "HOLDING",    cls: "al-dim",   msg: "Your tokens are safe in the vault · not selling yet" },
+  { tag: "WATCHING",   cls: "al-blue",  msg: "STT rate up to $0.051 · looking good" },
+  { tag: "AI",         cls: "al-blue",  msg: "Best moment found · converting to USDC now" },
+  { tag: "CONVERTED",  cls: "al-blue",  msg: "Tokens → 18,500 USDC · best rate secured" },
+  { tag: "PAID",       cls: "al-green", msg: "6 employees paid · 18,500 USDC · 0.8s" },
 ];
 
 export function AiSection() {
