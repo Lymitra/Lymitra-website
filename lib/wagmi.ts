@@ -1,10 +1,10 @@
 import { connectorsForWallets } from "@rainbow-me/rainbowkit";
 import {
-  injectedWallet,
   metaMaskWallet,
   walletConnectWallet,
   coinbaseWallet,
   rabbyWallet,
+  injectedWallet,
 } from "@rainbow-me/rainbowkit/wallets";
 import { createConfig, http } from "wagmi";
 import { somniaTestnet } from "./chains";
@@ -15,7 +15,9 @@ const connectors = connectorsForWallets(
   [
     {
       groupName: "Browser",
-      wallets: [injectedWallet, metaMaskWallet, rabbyWallet],
+      // metaMaskWallet first so it shows the MetaMask icon specifically;
+      // injectedWallet catches any other browser extension (Rabby, Brave, etc.)
+      wallets: [metaMaskWallet, injectedWallet, rabbyWallet],
     },
     {
       groupName: "Mobile",
@@ -31,5 +33,7 @@ export const wagmiConfig = createConfig({
   transports: {
     [somniaTestnet.id]: http("https://dream-rpc.somnia.network"),
   },
+  // Prevents duplicate connectors when MetaMask is both injected and detected
+  multiInjectedProviderDiscovery: false,
   ssr: true,
 });
