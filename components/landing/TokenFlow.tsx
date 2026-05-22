@@ -6,7 +6,7 @@ import Image from "next/image";
 const W = 500;
 const H = 110;
 const HISTORY = 70;
-const AMOUNT = 10000; // STT to convert
+const AMOUNT = 10000; // SOMI to convert
 const FALLBACK_PRICE = 0.1686;
 
 function price(t: number, base: number) {
@@ -68,7 +68,7 @@ export function TokenFlow() {
   const timerRef = useRef<ReturnType<typeof setInterval> | undefined>(undefined);
   const baseRef = useRef(FALLBACK_PRICE);
 
-  // Fetch real STT price from CoinGecko
+  // Fetch real SOMI price from CoinGecko
   useEffect(() => {
     fetch("https://api.coingecko.com/api/v3/simple/price?ids=somnia&vs_currencies=usd")
       .then((r) => r.json())
@@ -153,8 +153,8 @@ export function TokenFlow() {
           {/* Rate header */}
           <div className="tf-rate-row">
             <div className="tf-rate-left">
-              <Image src="/logos/somi-token-roundel-1.png" width={22} height={22} alt="STT" style={{ borderRadius: "50%" }} />
-              <span className="tf-pair">STT / USDC</span>
+              <Image src="/logos/somi-token-roundel-1.png" width={22} height={22} alt="SOMI" style={{ borderRadius: "50%" }} />
+              <span className="tf-pair">SOMI / USDC</span>
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <div className={`tf-rate-val${phase === "playing" ? " tf-rate-live" : ""}`}>
@@ -223,8 +223,8 @@ export function TokenFlow() {
         {/* Token flow logos */}
         <div className="tf-logos">
           <div className="tf-logo-pill tf-logo-stt">
-            <Image src="/logos/somi-token-roundel-1.png" width={26} height={26} alt="STT" style={{ borderRadius: "50%" }} />
-            <span>STT</span>
+            <Image src="/logos/somi-token-roundel-1.png" width={26} height={26} alt="SOMI" style={{ borderRadius: "50%" }} />
+            <span>SOMI</span>
             <span className="tf-logo-tag">Growing</span>
           </div>
           <div className="tf-logo-or">or</div>

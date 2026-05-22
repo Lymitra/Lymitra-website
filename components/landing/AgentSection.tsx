@@ -18,7 +18,7 @@ const benefits = [
   {
     Icon: TrendingUp,
     title: "Your tokens keep growing",
-    desc: "Deposited STT and ETH sit in the vault and appreciate. The AI only converts what's needed for payroll.",
+    desc: "Deposited SOMI and ETH sit in the vault and appreciate. The AI only converts what's needed for payroll.",
   },
   {
     Icon: CalendarCheck,

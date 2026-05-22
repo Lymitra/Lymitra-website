@@ -3,9 +3,9 @@
 import { useEffect, useRef, useState } from "react";
 
 const LOG_ENTRIES = [
-  { tag: "WATCHING",   cls: "al-blue",  msg: "STT rate at $0.031 · too low · waiting for better price" },
+  { tag: "WATCHING",   cls: "al-blue",  msg: "SOMI rate at $0.031 · too low · waiting for better price" },
   { tag: "HOLDING",    cls: "al-dim",   msg: "Your tokens are safe in the vault · not selling yet" },
-  { tag: "WATCHING",   cls: "al-blue",  msg: "STT rate up to $0.051 · looking good" },
+  { tag: "WATCHING",   cls: "al-blue",  msg: "SOMI rate up to $0.051 · looking good" },
   { tag: "AI",         cls: "al-blue",  msg: "Best moment found · converting to USDC now" },
   { tag: "CONVERTED",  cls: "al-blue",  msg: "Tokens → 18,500 USDC · best rate secured" },
   { tag: "PAID",       cls: "al-green", msg: "6 employees paid · 18,500 USDC · 0.8s" },

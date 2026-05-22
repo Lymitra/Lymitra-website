@@ -63,7 +63,7 @@ export function Deposit({ onSuccess }: DepositProps) {
           </div>
 
           <button className="sub-btn" onClick={onSuccess}>Deposit &amp; activate agents</button>
-          <div className="f-note">Somnia testnet · STT tokens · No real value</div>
+          <div className="f-note">Somnia testnet · SOMI tokens · No real value</div>
         </div>
       </div>
     </div>

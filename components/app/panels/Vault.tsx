@@ -125,7 +125,7 @@ export function Vault({ onSuccess }: VaultProps) {
         </div>
         <div className="sc">
           <div className="sc-l">Agent gas</div>
-          <div className="sc-v gold">2 STT</div>
+          <div className="sc-v gold">2 SOMI</div>
           <div className="sc-s">seeded</div>
         </div>
       </div>
@@ -207,7 +207,7 @@ export function Vault({ onSuccess }: VaultProps) {
                   ? "Approve & deposit USDC"
                   : "Deposit USDC"}
             </button>
-            <div className="f-note">Somnia testnet · STT tokens · No real value</div>
+            <div className="f-note">Somnia testnet · SOMI tokens · No real value</div>
           </div>
         </div>
       </div>

@@ -77,7 +77,7 @@ export function Earn() {
       <div>
         <div className="sec-hd"><div><div className="sec-ht">Earn</div><div className="sec-hs">Connect wallet to stake</div></div></div>
         <div className="f-card" style={{ textAlign: "center", padding: "2rem" }}>
-          <p style={{ color: "var(--text2)" }}>Connect your wallet to stake STT and earn USDC yield.</p>
+          <p style={{ color: "var(--text2)" }}>Connect your wallet to stake SOMI and earn USDC yield.</p>
         </div>
       </div>
     );
@@ -88,7 +88,7 @@ export function Earn() {
       <div className="sec-hd">
         <div>
           <div className="sec-ht">Earn</div>
-          <div className="sec-hs">Stake STT · Earn USDC yield from payroll fees · 7-day lock</div>
+          <div className="sec-hs">Stake SOMI · Earn USDC yield from payroll fees · 7-day lock</div>
         </div>
         {(reward ?? 0n) > 0n && (
           <button className="tb-btn green" onClick={handleClaim} disabled={claiming}>
@@ -101,7 +101,7 @@ export function Earn() {
       <div className="ss" style={{ marginBottom: "1.25rem" }}>
         <div className="sc">
           <div className="sc-l">Your stake</div>
-          <div className="sc-v gold">{fmtStt(staked)} STT</div>
+          <div className="sc-v gold">{fmtStt(staked)} SOMI</div>
           <div className="sc-s">active position</div>
         </div>
         <div className="sc">
@@ -111,11 +111,11 @@ export function Earn() {
         </div>
         <div className="sc">
           <div className="sc-l">Total staked</div>
-          <div className="sc-v">{fmtStt(total)} STT</div>
+          <div className="sc-v">{fmtStt(total)} SOMI</div>
           <div className="sc-s">protocol-wide</div>
         </div>
         <div className="sc">
-          <div className="sc-l">Your STT</div>
+          <div className="sc-l">Your SOMI</div>
           <div className="sc-v">{sttBalance ? Number(sttBalance.formatted).toFixed(3) : "—"}</div>
           <div className="sc-s">wallet balance</div>
         </div>
@@ -131,14 +131,14 @@ export function Earn() {
         {/* Stake */}
         <div className="card">
           <div className="card-h">
-            <div className="card-t">Stake STT</div>
+            <div className="card-t">Stake SOMI</div>
           </div>
           <div style={{ padding: "1.1rem" }}>
             <div className="kv"><span className="kk">Lock period</span><span className="kv-v">7 days</span></div>
             <div className="kv"><span className="kk">Yield source</span><span className="kv-v">Payroll fees (USDC)</span></div>
-            <div className="kv"><span className="kk">Your balance</span><span className="kv-v gold">{sttBalance ? Number(sttBalance.formatted).toFixed(3) : "—"} STT</span></div>
+            <div className="kv"><span className="kk">Your balance</span><span className="kv-v gold">{sttBalance ? Number(sttBalance.formatted).toFixed(3) : "—"} SOMI</span></div>
 
-            <label className="f-lbl" style={{ marginTop: "1rem" }}>Amount (STT)</label>
+            <label className="f-lbl" style={{ marginTop: "1rem" }}>Amount (SOMI)</label>
             <input
               className="f-inp"
               type="number"
@@ -147,7 +147,7 @@ export function Earn() {
               onChange={(e) => setStakeAmt(e.target.value)}
             />
             <button className="sub-btn" onClick={handleStake} disabled={staking || !stakeAmt} style={{ marginTop: "0.75rem" }}>
-              {staking ? "Staking…" : "Stake STT"}
+              {staking ? "Staking…" : "Stake SOMI"}
             </button>
           </div>
         </div>
@@ -163,14 +163,14 @@ export function Earn() {
             )}
           </div>
           <div style={{ padding: "1.1rem" }}>
-            <div className="kv"><span className="kk">STT staked</span><span className="kv-v gold">{fmtStt(staked)} STT</span></div>
+            <div className="kv"><span className="kk">SOMI staked</span><span className="kv-v gold">{fmtStt(staked)} SOMI</span></div>
             <div className="kv"><span className="kk">Lock status</span><span className="kv-v" style={{display:"inline-flex",alignItems:"center",gap:4}}>{isLocked ? `Locked until ${unlockDate}` : staked && staked > 0n ? <><CheckCircle size={12} color="#4FC490" />Unlocked</> : "—"}</span></div>
             <div className="kv"><span className="kk">Pending USDC</span><span className="kv-v accent">{fmtUsdc(reward)}</span></div>
             <div className="kv"><span className="kk">Yield source</span><span className="kv-v">Protocol payroll fees</span></div>
 
             {staked && staked > 0n && !isLocked && (
               <>
-                <label className="f-lbl" style={{ marginTop: "1rem" }}>Unstake amount (STT)</label>
+                <label className="f-lbl" style={{ marginTop: "1rem" }}>Unstake amount (SOMI)</label>
                 <input
                   className="f-inp"
                   type="number"

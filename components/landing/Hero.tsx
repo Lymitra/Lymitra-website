@@ -127,7 +127,7 @@ export function Hero({ onLaunchApp }: HeroProps) {
           </h1>
 
           <p className="h-sub">
-            Deposit STT or ETH. Our AI converts at the right moment
+            Deposit SOMI or ETH. Our AI converts at the right moment
             and pays your team in USDC — every month, automatically.
           </p>
 
