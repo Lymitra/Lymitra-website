@@ -43,8 +43,10 @@ export const activeChain = somniaTestnet;
 
 // ─── Token addresses (testnet) ────────────────────────────────────────────────
 // These are updated automatically by the deploy script.
-export const USDC_ADDRESS    = (process.env.NEXT_PUBLIC_USDC_ADDRESS    ?? "0x14De95396Ae213eD539f11c1E3c1576DBaCC5b93") as `0x${string}`;
-export const WSTT_ADDRESS    = (process.env.NEXT_PUBLIC_WSTT_ADDRESS    ?? "0x0000000000000000000000000000000000000000") as `0x${string}`;
-export const ROUTER_ADDRESS  = (process.env.NEXT_PUBLIC_ROUTER_ADDRESS  ?? "0x0000000000000000000000000000000000000000") as `0x${string}`;
-export const FACTORY_ADDRESS = (process.env.NEXT_PUBLIC_FACTORY_ADDRESS ?? "0x0000000000000000000000000000000000000000") as `0x${string}`;
-export const PAIR_ADDRESS    = (process.env.NEXT_PUBLIC_PAIR_ADDRESS    ?? "0x0000000000000000000000000000000000000000") as `0x${string}`;
+export const USDC_ADDRESS      = (process.env.NEXT_PUBLIC_USDC_ADDRESS      ?? "0x0000000000000000000000000000000000000000") as `0x${string}`;
+export const WSTT_ADDRESS      = (process.env.NEXT_PUBLIC_WSTT_ADDRESS      ?? "0x0000000000000000000000000000000000000000") as `0x${string}`;
+export const WETH_ADDRESS      = (process.env.NEXT_PUBLIC_WETH_ADDRESS      ?? "0x0000000000000000000000000000000000000000") as `0x${string}`;
+export const ROUTER_ADDRESS    = (process.env.NEXT_PUBLIC_ROUTER_ADDRESS    ?? "0x0000000000000000000000000000000000000000") as `0x${string}`;
+export const FACTORY_ADDRESS   = (process.env.NEXT_PUBLIC_FACTORY_ADDRESS   ?? "0x0000000000000000000000000000000000000000") as `0x${string}`;
+export const PAIR_ADDRESS      = (process.env.NEXT_PUBLIC_PAIR_ADDRESS      ?? "0x0000000000000000000000000000000000000000") as `0x${string}`;
+export const WETH_PAIR_ADDRESS = (process.env.NEXT_PUBLIC_WETH_PAIR_ADDRESS ?? "0x0000000000000000000000000000000000000000") as `0x${string}`;

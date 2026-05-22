@@ -6,34 +6,50 @@ import { useAccount } from "wagmi";
 import {
   useCompany,
   useDepositSomi,
+  useDepositWeth,
+  useWethBalance,
+  useWethAllowance,
   useRegisterCompany,
   useExecutePayrollManual,
   useMonthlyPayroll,
   fmtUsdc,
   fmtStt,
 } from "@/lib/hooks";
+import { parseUnits } from "viem";
 
 interface VaultProps {
   onSuccess: () => void;
 }
+
+type DepositTab = "somi" | "eth";
 
 export function Vault({ onSuccess }: VaultProps) {
   const { address, isConnected } = useAccount();
 
   const { data: company, refetch: refetchCompany } = useCompany(address);
   const { data: payrollAmt } = useMonthlyPayroll(address);
+  const { data: wethBalance } = useWethBalance(address);
+  const { data: wethAllowance, refetch: refetchAllowance } = useWethAllowance(address);
 
   const { register, isPending: registering }          = useRegisterCompany();
-  const { depositSomi, isPending: depositing }        = useDepositSomi();
+  const { depositSomi, isPending: depositingSomi }    = useDepositSomi();
+  const { approve, depositWeth, isPending: depositingWeth } = useDepositWeth();
   const { execute, isPending: executing }             = useExecutePayrollManual();
 
-  const [amount, setAmount] = useState("");
+  const [tab, setTab]               = useState<DepositTab>("somi");
+  const [somiAmount, setSomiAmount] = useState("");
+  const [wethAmount, setWethAmount] = useState("");
   const [companyName, setCompanyName] = useState("");
-  const [txError, setTxError] = useState("");
+  const [txError, setTxError]       = useState("");
+  const [approving, setApproving]   = useState(false);
 
   const isRegistered = company?.owner === address;
   const vaultUsdc    = company?.usdcBalance;
   const vaultSomi    = company?.somiBalance;
+  const vaultWeth    = company?.wethBalance;
+
+  const wethAmountParsed = wethAmount ? parseUnits(wethAmount, 18) : 0n;
+  const needsApproval    = (wethAllowance ?? 0n) < wethAmountParsed && wethAmountParsed > 0n;
 
   async function handleRegister() {
     if (!companyName.trim()) return;
@@ -46,12 +62,40 @@ export function Vault({ onSuccess }: VaultProps) {
   }
 
   async function handleDepositSomi() {
-    if (!amount || Number(amount) <= 0) return;
+    if (!somiAmount || Number(somiAmount) <= 0) return;
     setTxError("");
     try {
-      await depositSomi(amount);
-      setAmount("");
+      await depositSomi(somiAmount);
+      setSomiAmount("");
       refetchCompany();
+      onSuccess();
+    } catch (e: unknown) {
+      setTxError(e instanceof Error ? e.message : "Transaction failed");
+    }
+  }
+
+  async function handleApproveWeth() {
+    if (!wethAmount || Number(wethAmount) <= 0) return;
+    setTxError("");
+    setApproving(true);
+    try {
+      await approve(wethAmount);
+      refetchAllowance();
+    } catch (e: unknown) {
+      setTxError(e instanceof Error ? e.message : "Approval failed");
+    } finally {
+      setApproving(false);
+    }
+  }
+
+  async function handleDepositWeth() {
+    if (!wethAmount || Number(wethAmount) <= 0) return;
+    setTxError("");
+    try {
+      await depositWeth(wethAmount);
+      setWethAmount("");
+      refetchCompany();
+      refetchAllowance();
       onSuccess();
     } catch (e: unknown) {
       setTxError(e instanceof Error ? e.message : "Transaction failed");
@@ -102,6 +146,11 @@ export function Vault({ onSuccess }: VaultProps) {
           <div className="sc-s">pending conversion</div>
         </div>
         <div className="sc">
+          <div className="sc-l">ETH deposited</div>
+          <div className="sc-v accent">{fmtStt(vaultWeth as bigint | undefined)} ETH</div>
+          <div className="sc-s">pending conversion</div>
+        </div>
+        <div className="sc">
           <div className="sc-l">Converted USDC</div>
           <div className="sc-v">{fmtUsdc(vaultUsdc)}</div>
           <div className="sc-s">payroll reserve</div>
@@ -110,11 +159,6 @@ export function Vault({ onSuccess }: VaultProps) {
           <div className="sc-l">Monthly payroll</div>
           <div className="sc-v">{fmtUsdc(payrollAmt)}</div>
           <div className="sc-s">all employees</div>
-        </div>
-        <div className="sc">
-          <div className="sc-l">Agent gas</div>
-          <div className="sc-v gold">2 SOMI</div>
-          <div className="sc-s">seeded</div>
         </div>
       </div>
 
@@ -141,52 +185,149 @@ export function Vault({ onSuccess }: VaultProps) {
           </div>
         )}
 
-        {/* SOMI deposit form */}
+        {/* Deposit card with tabs */}
         <div className="f-card">
           <div className="f-head">
-            <div className="f-title">Deposit SOMI</div>
-            <div className="f-sub">Send your SOMI — AI converts to USDC at the best rate · Non-custodial</div>
+            <div className="f-title">Deposit tokens</div>
+            <div className="f-sub">AI converts to USDC at the best rate · Non-custodial</div>
           </div>
-          <div className="f-body">
-            <label className="f-lbl">Amount (SOMI)</label>
-            <input
-              className="f-inp"
-              type="number"
-              placeholder="0.00"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              disabled={!isRegistered}
-            />
 
-            <div className="ag-box">
-              <div className="ab-l"><div className="ab-d" />How it works</div>
-              <div className="ab-t">Deposit SOMI → AI watches rate → converts to USDC → pays employees</div>
-              <div className="ab-b">
-                The JSON API Agent monitors SOMI/USDC rates. The LLM Agent decides when to convert.
-                On payday, Reactivity fires automatically and your team receives USDC in one block.
-              </div>
-            </div>
-
-            {!isRegistered && (
-              <div style={{ fontSize: 12, color: "var(--text3)", marginBottom: "0.5rem" }}>
-                Register your company above before depositing.
-              </div>
-            )}
-
-            {txError && (
-              <div style={{ color: "#ff6b6b", fontSize: "12px", marginBottom: "0.5rem", wordBreak: "break-all" }}>
-                {txError.slice(0, 180)}
-              </div>
-            )}
-
+          {/* Tab switcher */}
+          <div style={{ display: "flex", gap: 6, padding: "0 1.25rem", marginBottom: 0 }}>
             <button
-              className="sub-btn"
-              onClick={handleDepositSomi}
-              disabled={!isRegistered || depositing || !amount}
+              onClick={() => { setTab("somi"); setTxError(""); }}
+              style={{
+                padding: "6px 16px",
+                borderRadius: 8,
+                border: "none",
+                cursor: "pointer",
+                fontFamily: "inherit",
+                fontSize: 13,
+                fontWeight: 600,
+                background: tab === "somi" ? "var(--accent)" : "var(--bg2)",
+                color: tab === "somi" ? "#fff" : "var(--text2)",
+                transition: "all 0.15s",
+              }}
             >
-              {depositing ? "Depositing…" : "Deposit SOMI"}
+              SOMI
             </button>
-            <div className="f-note">Somnia testnet · Native SOMI · No real value</div>
+            <button
+              onClick={() => { setTab("eth"); setTxError(""); }}
+              style={{
+                padding: "6px 16px",
+                borderRadius: 8,
+                border: "none",
+                cursor: "pointer",
+                fontFamily: "inherit",
+                fontSize: 13,
+                fontWeight: 600,
+                background: tab === "eth" ? "var(--accent)" : "var(--bg2)",
+                color: tab === "eth" ? "#fff" : "var(--text2)",
+                transition: "all 0.15s",
+              }}
+            >
+              ETH
+            </button>
+          </div>
+
+          <div className="f-body" style={{ paddingTop: "1rem" }}>
+            {tab === "somi" ? (
+              <>
+                <label className="f-lbl">Amount (SOMI)</label>
+                <input
+                  className="f-inp"
+                  type="number"
+                  placeholder="0.00"
+                  value={somiAmount}
+                  onChange={(e) => setSomiAmount(e.target.value)}
+                  disabled={!isRegistered}
+                />
+
+                <div className="ag-box">
+                  <div className="ab-l"><div className="ab-d" />How it works</div>
+                  <div className="ab-t">Deposit SOMI → AI watches rate → converts to USDC → pays employees</div>
+                  <div className="ab-b">
+                    The JSON API Agent monitors SOMI/USDC rates. The LLM Agent decides when to convert.
+                    On payday, Reactivity fires automatically and your team receives USDC in one block.
+                  </div>
+                </div>
+
+                {!isRegistered && (
+                  <div style={{ fontSize: 12, color: "var(--text3)", marginBottom: "0.5rem" }}>
+                    Register your company above before depositing.
+                  </div>
+                )}
+                {txError && (
+                  <div style={{ color: "#ff6b6b", fontSize: "12px", marginBottom: "0.5rem", wordBreak: "break-all" }}>
+                    {txError.slice(0, 180)}
+                  </div>
+                )}
+                <button
+                  className="sub-btn"
+                  onClick={handleDepositSomi}
+                  disabled={!isRegistered || depositingSomi || !somiAmount}
+                >
+                  {depositingSomi ? "Depositing…" : "Deposit SOMI"}
+                </button>
+                <div className="f-note">Native token · No approve step needed</div>
+              </>
+            ) : (
+              <>
+                <label className="f-lbl">Amount (ETH)</label>
+                <input
+                  className="f-inp"
+                  type="number"
+                  placeholder="0.00"
+                  value={wethAmount}
+                  onChange={(e) => setWethAmount(e.target.value)}
+                  disabled={!isRegistered}
+                />
+                {wethBalance !== undefined && (
+                  <div style={{ fontSize: 11, color: "var(--text3)", marginBottom: "0.5rem" }}>
+                    Wallet balance: {fmtStt(wethBalance)} ETH
+                  </div>
+                )}
+
+                <div className="ag-box">
+                  <div className="ab-l"><div className="ab-d" />How it works</div>
+                  <div className="ab-t">Deposit ETH → AI watches ETH/USDC rate → converts → pays employees</div>
+                  <div className="ab-b">
+                    Bridged WETH on Somnia. Two steps: approve the vault to spend your ETH, then deposit.
+                    The Lymitra DEX handles the WETH→USDC swap at payroll time.
+                  </div>
+                </div>
+
+                {!isRegistered && (
+                  <div style={{ fontSize: 12, color: "var(--text3)", marginBottom: "0.5rem" }}>
+                    Register your company above before depositing.
+                  </div>
+                )}
+                {txError && (
+                  <div style={{ color: "#ff6b6b", fontSize: "12px", marginBottom: "0.5rem", wordBreak: "break-all" }}>
+                    {txError.slice(0, 180)}
+                  </div>
+                )}
+
+                {needsApproval ? (
+                  <button
+                    className="sub-btn"
+                    onClick={handleApproveWeth}
+                    disabled={!isRegistered || approving || !wethAmount}
+                  >
+                    {approving ? "Approving…" : "Approve ETH"}
+                  </button>
+                ) : (
+                  <button
+                    className="sub-btn"
+                    onClick={handleDepositWeth}
+                    disabled={!isRegistered || depositingWeth || !wethAmount}
+                  >
+                    {depositingWeth ? "Depositing…" : "Deposit ETH"}
+                  </button>
+                )}
+                <div className="f-note">ERC-20 WETH on Somnia · Step 1: approve · Step 2: deposit</div>
+              </>
+            )}
           </div>
         </div>
       </div>

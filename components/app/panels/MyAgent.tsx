@@ -2,6 +2,7 @@
 
 import { useAccount } from "wagmi";
 import { useCompany, useEmployees, fmtUsdc } from "@/lib/hooks";
+// fmtUsdc kept for potential future use
 import { Zap, Brain, CalendarCheck, CheckCircle, Circle, ArrowRight } from "lucide-react";
 
 type Panel = "vault" | "payments" | "dashboard" | "aichat" | "myagent" | "earn" | "analytics";
@@ -14,7 +15,7 @@ export function MyAgent({ onNav }: MyAgentProps) {
 
   const isRegistered   = company?.owner === address;
   const hasDeposit     = isRegistered && company != null &&
-    ((company.usdcBalance as bigint) > 0n || (company.somiBalance as bigint) > 0n);
+    ((company.usdcBalance as bigint) > 0n || (company.somiBalance as bigint) > 0n || (company.wethBalance as bigint) > 0n);
   const hasEmployees   = employees ? (employees as unknown[]).length > 0 : false;
   const agentsEnabled  = isRegistered && !!(company?.agentsEnabled);
   const hasSchedule    = isRegistered && company != null && (company.nextPayrollMs as bigint) > 0n;
@@ -38,7 +39,7 @@ export function MyAgent({ onNav }: MyAgentProps) {
     },
     {
       n: 2,
-      label: "Deposit SOMI",
+      label: "Deposit SOMI or ETH",
       sub: "Fund vault — AI converts to USDC at the best rate",
       done: hasDeposit,
       panel: "vault" as Panel,
@@ -65,8 +66,8 @@ export function MyAgent({ onNav }: MyAgentProps) {
     {
       Icon: Zap,
       name: "Rate Watch",
-      desc: "Monitors SOMI/USDC rate every 60 seconds using Somnia's JSON API Agent — fully on-chain, no server.",
-      activeAfter: "Step 2 — deposit SOMI",
+      desc: "Monitors SOMI and ETH/USDC rates using Somnia's JSON API Agent — fully on-chain, no server.",
+      activeAfter: "Step 2 — deposit SOMI or ETH",
       live: hasDeposit,
     },
     {

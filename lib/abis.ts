@@ -3,6 +3,7 @@ export const VAULT_ABI = [
     "inputs": [
       { "internalType": "address", "name": "_usdc", "type": "address" },
       { "internalType": "address", "name": "_wstt", "type": "address" },
+      { "internalType": "address", "name": "_weth", "type": "address" },
       { "internalType": "address", "name": "_dexRouter", "type": "address" }
     ],
     "stateMutability": "nonpayable",
@@ -442,6 +443,13 @@ export const VAULT_ABI = [
     "type": "function"
   },
   {
+    "inputs": [{ "internalType": "uint256", "name": "amount", "type": "uint256" }],
+    "name": "depositWeth",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "uint256",
@@ -525,6 +533,11 @@ export const VAULT_ABI = [
           {
             "internalType": "uint256",
             "name": "somiBalance",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "wethBalance",
             "type": "uint256"
           },
           {

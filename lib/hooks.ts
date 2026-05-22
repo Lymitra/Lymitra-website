@@ -3,7 +3,7 @@
 import { useReadContract, useWriteContract } from "wagmi";
 import { parseUnits, formatUnits } from "viem";
 import { VAULT_CONTRACT, STAKING_CONTRACT, ROUTER_CONTRACT, PAIR_CONTRACT } from "./contracts";
-import { USDC_ADDRESS, WSTT_ADDRESS, activeChain } from "./chains";
+import { USDC_ADDRESS, WSTT_ADDRESS, WETH_ADDRESS, activeChain } from "./chains";
 
 const CHAIN_ID = activeChain.id;
 
@@ -58,15 +58,6 @@ export function useUsdcBalance(address?: `0x${string}`) {
   });
 }
 
-export function useWethBalance(address?: `0x${string}`) {
-  return useReadContract({
-    address: WSTT_ADDRESS,
-    abi: ERC20_ABI,
-    functionName: "balanceOf",
-    args: address ? [address] : undefined,
-    query: { enabled: !!address },
-  });
-}
 
 export function useUsdcAllowance(owner?: `0x${string}`) {
   return useReadContract({
@@ -144,6 +135,27 @@ export function useRegisterCompany() {
   };
 }
 
+// WETH balance in user's wallet
+export function useWethBalance(address?: `0x${string}`) {
+  return useReadContract({
+    address: WETH_ADDRESS,
+    abi: ERC20_ABI,
+    functionName: "balanceOf",
+    args: address ? [address] : undefined,
+    query: { enabled: !!address },
+  });
+}
+
+export function useWethAllowance(owner?: `0x${string}`) {
+  return useReadContract({
+    address: WETH_ADDRESS,
+    abi: ERC20_ABI,
+    functionName: "allowance",
+    args: owner ? [owner, VAULT_CONTRACT.address] : undefined,
+    query: { enabled: !!owner },
+  });
+}
+
 // Primary deposit: send native SOMI directly to vault (no approve needed)
 export function useDepositSomi() {
   const { writeContractAsync, isPending } = useWriteContract();
@@ -157,6 +169,30 @@ export function useDepositSomi() {
       }),
     isPending,
   };
+}
+
+// Two-step deposit: approve WETH → deposit into vault
+export function useDepositWeth() {
+  const { writeContractAsync, isPending } = useWriteContract();
+
+  const approve = (amount: string) =>
+    writeContractAsync({
+      address: WETH_ADDRESS,
+      abi: ERC20_ABI,
+      chainId: CHAIN_ID,
+      functionName: "approve",
+      args: [VAULT_CONTRACT.address, parseUnits(amount, 18)],
+    });
+
+  const depositWeth = (amount: string) =>
+    writeContractAsync({
+      ...VAULT_CONTRACT,
+      chainId: CHAIN_ID,
+      functionName: "depositWeth",
+      args: [parseUnits(amount, 18)],
+    });
+
+  return { approve, depositWeth, isPending };
 }
 
 // Two-step deposit: approve USDC → deposit into vault
