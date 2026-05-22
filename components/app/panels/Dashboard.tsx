@@ -9,24 +9,11 @@ import { useCompany } from "@/lib/hooks";
 import { activeChain } from "@/lib/chains";
 import { useUsdcBalance, useWethBalance, fmtUsdc } from "@/lib/hooks";
 
-function EthLogo({ size = 34 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 44 44" fill="none">
-      <circle cx="22" cy="22" r="22" fill="#627EEA" />
-      <polygon points="22,9 13,23 22,28 31,23" fill="white" fillOpacity="0.95" />
-      <polygon points="22,28 13,23 22,35 31,23" fill="white" fillOpacity="0.55" />
-    </svg>
-  );
-}
-function UsdcLogo({ size = 34 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 44 44" fill="none">
-      <circle cx="22" cy="22" r="22" fill="#2775CA" />
-      <circle cx="22" cy="22" r="15" stroke="white" strokeWidth="1.6" fill="none" />
-      <text x="22" y="27" textAnchor="middle" fill="white" fontSize="13" fontWeight="700" fontFamily="system-ui,sans-serif">$</text>
-    </svg>
-  );
-}
+const TOKEN_LOGOS = {
+  somi: "/logos/somi-token-roundel-1.png",
+  eth:  "https://assets.coingecko.com/coins/images/279/small/ethereum.png",
+  usdc: "https://assets.coingecko.com/coins/images/6319/small/usdc.png",
+};
 
 function usePrices() {
   const [somi, setSomi] = useState<number | null>(null);
@@ -115,17 +102,17 @@ export function Dashboard({ onNav }: DashboardProps) {
         </div>
         <div className="dh-prices">
           <div className="dh-price-item">
-            <div className="dh-price-logo" style={{ background: "#5B7FFF" }} />
+            <Image src={TOKEN_LOGOS.somi} width={18} height={18} alt="SOMI" style={{ borderRadius: "50%", display: "block" }} />
             <span className="dh-price-lbl">SOMI</span>
             <span className="dh-price-val">{somiPrice ? "$" + somiPrice.toFixed(4) : "—"}</span>
           </div>
           <div className="dh-price-item">
-            <div className="dh-price-logo" style={{ background: "#627EEA" }} />
+            <Image src={TOKEN_LOGOS.eth} width={18} height={18} alt="ETH" style={{ borderRadius: "50%", display: "block" }} />
             <span className="dh-price-lbl">ETH</span>
             <span className="dh-price-val">{ethPrice ? "$" + Math.round(ethPrice).toLocaleString() : "—"}</span>
           </div>
           <div className="dh-price-item">
-            <div className="dh-price-logo" style={{ background: "#2775CA" }} />
+            <Image src={TOKEN_LOGOS.usdc} width={18} height={18} alt="USDC" style={{ borderRadius: "50%", display: "block" }} />
             <span className="dh-price-lbl">USDC</span>
             <span className="dh-price-val">$1.00</span>
           </div>
@@ -185,7 +172,7 @@ export function Dashboard({ onNav }: DashboardProps) {
 
           <div className="tr">
             <div className="db-logo">
-              <Image src="/logos/somi-token-roundel-1.png" width={34} height={34} alt="SOMI" style={{ borderRadius: "50%", display: "block" }} />
+              <Image src={TOKEN_LOGOS.somi} width={34} height={34} alt="SOMI" style={{ borderRadius: "50%", display: "block" }} />
             </div>
             <div className="ti-inf">
               <div className="ti-n">Somnia (SOMI)</div>
@@ -199,7 +186,9 @@ export function Dashboard({ onNav }: DashboardProps) {
           </div>
 
           <div className="tr">
-            <div className="db-logo"><EthLogo size={34} /></div>
+            <div className="db-logo">
+              <Image src={TOKEN_LOGOS.eth} width={34} height={34} alt="ETH" style={{ borderRadius: "50%", display: "block" }} />
+            </div>
             <div className="ti-inf">
               <div className="ti-n">Ethereum (WETH)</div>
               <div className="ti-t">Wrapped ETH on Somnia</div>
@@ -212,7 +201,9 @@ export function Dashboard({ onNav }: DashboardProps) {
           </div>
 
           <div className="tr">
-            <div className="db-logo"><UsdcLogo size={34} /></div>
+            <div className="db-logo">
+              <Image src={TOKEN_LOGOS.usdc} width={34} height={34} alt="USDC" style={{ borderRadius: "50%", display: "block" }} />
+            </div>
             <div className="ti-inf">
               <div className="ti-n">USD Coin (USDC)</div>
               <div className="ti-t">Payroll reserve · Stable</div>
