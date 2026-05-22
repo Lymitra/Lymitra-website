@@ -127,8 +127,8 @@ export function Hero({ onLaunchApp }: HeroProps) {
           </h1>
 
           <p className="h-sub">
-            Deposit STT or ETH. Earn yield. Your team gets paid in USDC
-            — automatically, every month. Your tokens never leave the vault.
+            Deposit STT or ETH. Our AI converts at the right moment
+            and pays your team in USDC — every month, automatically.
           </p>
 
           <div className="cta-row" style={{ justifyContent: "flex-start" }}>

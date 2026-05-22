@@ -126,7 +126,7 @@ export function TokenFlow() {
         <div className="tf-head">
           <div className="tf-eyebrow">Mini Game Converter</div>
           <h3 className="tf-title">Can you beat the AI?</h3>
-          <p className="tf-desc">Tokens grow in the vault. AI converts yield at the peak — never before.</p>
+          <p className="tf-desc">Click Convert when you think the rate peaks. The AI does this every payroll run.</p>
         </div>
 
         {/* Game card */}

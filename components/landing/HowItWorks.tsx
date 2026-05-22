@@ -7,23 +7,23 @@ const steps = [
   {
     n: "01",
     Icon: Wallet,
-    title: "Fund your vault",
-    desc: "Deposit STT or ETH into your vault. Your tokens generate yield — and that yield is what pays your team.",
-    tag: "One-time setup",
+    title: "Deposit STT or ETH",
+    desc: "Connect your wallet and deposit tokens into your vault. Set your team and payday date.",
+    tag: "5 min setup",
   },
   {
     n: "02",
     Icon: Repeat,
-    title: "AI converts the yield",
-    desc: "Our on-chain AI watches rates and converts vault yield to USDC at the optimal moment — your tokens stay put.",
+    title: "AI picks the moment",
+    desc: "Our on-chain AI monitors the rate 24/7 and converts to USDC at the optimal window before payday.",
     tag: "Running 24/7",
   },
   {
     n: "03",
     Icon: Users,
-    title: "Team receives USDC",
-    desc: "On payday, every employee gets their exact agreed salary in stable USDC. You do nothing.",
-    tag: "Every month, forever",
+    title: "Team gets paid in USDC",
+    desc: "Every employee receives their exact salary in stable USDC on payday. You do nothing.",
+    tag: "Every month",
   },
 ];
 

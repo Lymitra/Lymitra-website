@@ -6,29 +6,29 @@ import { Lock, DollarSign, CalendarCheck, TrendingDown, TrendingUp } from "lucid
 
 const benefits = [
   {
-    Icon: TrendingUp,
-    title: "Deposit and earn yield",
-    desc: "Fund the vault with STT or ETH. Your tokens generate yield — and that yield pays your team in USDC.",
+    Icon: TrendingDown,
+    title: "AI times the conversion",
+    desc: "Monitors rates 24/7 and converts your tokens to USDC only at the optimal window — never at a bad rate.",
   },
   {
     Icon: DollarSign,
-    title: "Yield funds payroll",
-    desc: "The AI converts your vault yield to USDC at the right moment. Your team gets paid. Your tokens keep growing.",
+    title: "Stable USDC, always",
+    desc: "Employees receive their exact agreed salary in USDC every month, regardless of market conditions.",
   },
   {
-    Icon: TrendingDown,
-    title: "AI times every conversion",
-    desc: "Our on-chain agent monitors rates and converts only when the price is right — never at a loss.",
+    Icon: TrendingUp,
+    title: "Your tokens keep growing",
+    desc: "Deposited STT and ETH sit in the vault and appreciate. The AI only converts what's needed for payroll.",
   },
   {
     Icon: CalendarCheck,
     title: "Never miss a payday",
-    desc: "Payroll runs on the date you set, every month, automatically.",
+    desc: "Set your payday once. Payroll runs automatically every month without you.",
   },
   {
     Icon: Lock,
     title: "Non-custodial vault",
-    desc: "Your tokens are locked on-chain. Only your wallet controls the vault.",
+    desc: "Your tokens sit on-chain. Only your wallet can authorise withdrawals.",
   },
 ];
 
