@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Play } from "lucide-react";
-import { useAccount } from "wagmi";
-import { parseUnits } from "viem";
+import Image from "next/image";
+import { Play, ArrowDown } from "lucide-react";
+import { useAccount, useBalance } from "wagmi";
+import { formatUnits, parseUnits } from "viem";
 import {
   useCompany, useRegisterCompany, useExecutePayrollManual, useMonthlyPayroll,
   useDepositSomi,
@@ -12,12 +13,199 @@ import {
   useDepositWbnb,  useWbnbBalance,  useWbnbAllowance,
   useDeposit,      useUsdcBalance,  useUsdcAllowance,
   useDepositUsdt,  useUsdtBalance,  useUsdtAllowance,
+  useGetAmountsOut, useRouterAllowance, useSwapTokens,
+  useWsttBalance, useWrapStt,
   fmtUsdc, fmtStt,
 } from "@/lib/hooks";
+import { WETH_ADDRESS, WBTC_ADDRESS, WBNB_ADDRESS, WSTT_ADDRESS, USDC_ADDRESS } from "@/lib/chains";
+import { activeChain } from "@/lib/chains";
+
+type SwapTokenId = "somi" | "eth" | "btc" | "bnb";
+
+const SWAP_TOKENS: { id: SwapTokenId; label: string; color: string; address: `0x${string}`; decimals: number }[] = [
+  { id: "somi", label: "SOMI", color: "#9B7FFF", address: WSTT_ADDRESS, decimals: 18 },
+  { id: "eth",  label: "ETH",  color: "#627EEA", address: WETH_ADDRESS, decimals: 18 },
+  { id: "btc",  label: "BTC",  color: "#F7931A", address: WBTC_ADDRESS, decimals: 8  },
+  { id: "bnb",  label: "BNB",  color: "#F3BA2F", address: WBNB_ADDRESS, decimals: 18 },
+];
+
+function SwapCard({ address }: { address?: `0x${string}` }) {
+  const [swapToken, setSwapToken] = useState<SwapTokenId>("somi");
+  const [swapAmt, setSwapAmt]     = useState("");
+  const [swapError, setSwapError] = useState("");
+  const [approving, setApproving] = useState(false);
+  const [swapping, setSwapping]   = useState(false);
+  const [wrapping, setWrapping]   = useState(false);
+  const [txDone, setTxDone]       = useState("");
+
+  const cfg = SWAP_TOKENS.find(t => t.id === swapToken)!;
+  const isSomi = swapToken === "somi";
+
+  const amountIn: bigint = (() => {
+    try { return swapAmt ? parseUnits(swapAmt, cfg.decimals) : 0n; } catch { return 0n; }
+  })();
+
+  const { data: amountsOut }  = useGetAmountsOut(amountIn, [cfg.address, USDC_ADDRESS]);
+  const { data: allowanceRaw, refetch: refetchAllowance } = useRouterAllowance(cfg.address, address);
+  const { approveRouter, swap } = useSwapTokens();
+  const { wrap, isPending: wrapPending } = useWrapStt();
+
+  const { data: sttRaw }  = useBalance({ address, chainId: activeChain.id });
+  const { data: wsttBal, refetch: refetchWstt } = useWsttBalance(address);
+  const { data: wethBal } = useWethBalance(address);
+  const { data: wbtcBal } = useWbtcBalance(address);
+  const { data: wbnbBal } = useWbnbBalance(address);
+
+  const sttAmt   = sttRaw  ? Number(sttRaw.formatted).toFixed(4)                   : "0";
+  const wsttAmt  = wsttBal ? Number(formatUnits(wsttBal as bigint, 18)).toFixed(4)  : "0";
+
+  const walletBal = (() => {
+    if (isSomi)            return `${wsttAmt} WSTT (${sttAmt} STT available to wrap)`;
+    if (swapToken === "eth") return wethBal ? Number(formatUnits(wethBal as bigint, 18)).toFixed(4) + " ETH" : "0 ETH";
+    if (swapToken === "btc") return wbtcBal ? (Number(wbtcBal) / 1e8).toFixed(6) + " BTC" : "0 BTC";
+    if (swapToken === "bnb") return wbnbBal ? Number(formatUnits(wbnbBal as bigint, 18)).toFixed(4) + " BNB" : "0 BNB";
+  })();
+
+  const wsttBalance = wsttBal as bigint | undefined ?? 0n;
+  const needsWrap   = isSomi && amountIn > 0n && wsttBalance < amountIn;
+  const estUsdc     = amountsOut ? Number(formatUnits((amountsOut as bigint[])[1], 6)).toFixed(2) : "—";
+  const needsApprove = !needsWrap && (allowanceRaw as bigint | undefined ?? 0n) < amountIn && amountIn > 0n;
+
+  async function handleWrap() {
+    setSwapError(""); setWrapping(true);
+    try {
+      await wrap(amountIn);
+      await refetchWstt();
+      setTxDone(`Wrapped ${swapAmt} STT → WSTT. Now approve and swap.`);
+    } catch (e: unknown) { setSwapError(e instanceof Error ? e.message.slice(0, 120) : "Wrap failed"); }
+    finally { setWrapping(false); }
+  }
+
+  async function handleApprove() {
+    setSwapError(""); setApproving(true);
+    try {
+      await approveRouter(cfg.address, amountIn);
+      await refetchAllowance();
+    } catch (e: unknown) { setSwapError(e instanceof Error ? e.message.slice(0, 120) : "Approve failed"); }
+    finally { setApproving(false); }
+  }
+
+  async function handleSwap() {
+    setSwapError(""); setSwapping(true); setTxDone("");
+    try {
+      const minOut = amountsOut ? (amountsOut as bigint[])[1] * 95n / 100n : 0n;
+      await swap(amountIn, minOut, [cfg.address, USDC_ADDRESS], address!);
+      setTxDone(`Swapped ${swapAmt} ${cfg.label} → ${estUsdc} USDC`);
+      setSwapAmt("");
+    } catch (e: unknown) { setSwapError(e instanceof Error ? e.message.slice(0, 120) : "Swap failed"); }
+    finally { setSwapping(false); }
+  }
+
+  return (
+    <div className="f-card" style={{ marginTop: "1rem" }}>
+      <div className="f-head">
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div style={{ width: 36, height: 36, borderRadius: "50%", background: "rgba(62,217,184,0.1)", border: "1px solid rgba(62,217,184,0.2)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <ArrowDown size={16} color="#3ED9B8" />
+          </div>
+          <div>
+            <div className="f-title">Swap to USDC</div>
+            <div className="f-sub">Convert volatile tokens at live DEX rate</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Token tabs */}
+      <div style={{ display: "flex", gap: 5, padding: "0 1.25rem 0.75rem", flexWrap: "wrap" }}>
+        {SWAP_TOKENS.map(t => (
+          <button key={t.id} onClick={() => { setSwapToken(t.id); setSwapAmt(""); setSwapError(""); setTxDone(""); }}
+            style={{
+              padding: "5px 12px 5px 8px", borderRadius: 8, cursor: "pointer",
+              fontFamily: "inherit", fontSize: 12, fontWeight: 700,
+              display: "inline-flex", alignItems: "center", gap: 5,
+              border: swapToken === t.id ? `1.5px solid ${t.color}` : "1.5px solid transparent",
+              background: swapToken === t.id ? `${t.color}18` : "var(--bg2)",
+              color: swapToken === t.id ? t.color : "var(--text2)",
+              transition: "all 0.15s",
+            }}>
+            <Image src={LOGOS[t.id]} width={16} height={16} alt={t.label} unoptimized style={{ borderRadius: "50%" }} />
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      <div className="f-body" style={{ paddingTop: "0.25rem" }}>
+        {/* Input */}
+        <label className="f-lbl">
+          You pay
+          <span style={{ float: "right", fontSize: 11, color: "var(--text3)", fontWeight: 400 }}>Wallet: {walletBal}</span>
+        </label>
+        <input className="f-inp" type="number" placeholder="0.00" value={swapAmt}
+          onChange={e => { setSwapAmt(e.target.value); setTxDone(""); }} />
+
+        {/* Arrow */}
+        <div style={{ display: "flex", justifyContent: "center", margin: "6px 0" }}>
+          <ArrowDown size={14} color="var(--text3)" />
+        </div>
+
+        {/* Output estimate */}
+        <label className="f-lbl">You receive (estimated)</label>
+        <div style={{
+          padding: "10px 12px", borderRadius: 10, background: "var(--bg3)",
+          border: "1px solid var(--border)", fontSize: 15, fontWeight: 700,
+          color: estUsdc === "—" ? "var(--text3)" : "#4FC490",
+          display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.75rem",
+        }}>
+          <span>{estUsdc} USDC</span>
+          <Image src={LOGOS["usdc"]} width={20} height={20} alt="USDC" unoptimized style={{ borderRadius: "50%" }} />
+        </div>
+
+        <div style={{ fontSize: 11, color: "var(--text3)", marginBottom: "0.75rem" }}>
+          5% max slippage · Rate updates every 5s · Lymitra DEX
+        </div>
+
+        {isSomi && (
+          <div style={{ fontSize: 11, color: "var(--text3)", marginBottom: "0.5rem", padding: "6px 10px", background: "rgba(155,127,255,0.06)", borderRadius: 8, border: "1px solid rgba(155,127,255,0.15)" }}>
+            SOMI swap: STT must be wrapped to WSTT first, then swapped via DEX.
+          </div>
+        )}
+
+        {swapError && <div style={{ color: "#ff6b6b", fontSize: 12, marginBottom: "0.5rem", wordBreak: "break-all" }}>{swapError}</div>}
+        {txDone    && <div style={{ color: "#4FC490", fontSize: 12, marginBottom: "0.5rem" }}>{txDone}</div>}
+
+        {needsWrap ? (
+          <button className="sub-btn" onClick={handleWrap} disabled={wrapping || wrapPending || !swapAmt || !address}>
+            {wrapping || wrapPending ? "Wrapping…" : `Wrap ${swapAmt} STT → WSTT`}
+          </button>
+        ) : needsApprove ? (
+          <button className="sub-btn" onClick={handleApprove} disabled={approving || !swapAmt || !address}>
+            {approving ? "Approving…" : `Approve ${cfg.label}`}
+          </button>
+        ) : (
+          <button className="sub-btn" onClick={handleSwap} disabled={swapping || !swapAmt || !address || amountIn === 0n}>
+            {swapping ? "Swapping…" : `Swap ${cfg.label} → USDC`}
+          </button>
+        )}
+        <div className="f-note">
+          {isSomi ? "SOMI: Step 1: wrap STT → WSTT · Step 2: approve · Step 3: swap" : "ERC-20 · Step 1: approve router · Step 2: swap"}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 interface VaultProps { onSuccess: () => void }
 
 type Tab = "somi" | "eth" | "btc" | "bnb" | "usdc" | "usdt";
+
+const LOGOS: Record<Tab, string> = {
+  somi: "/logos/somi-token-roundel-1.png",
+  eth:  "/logos/eth.png",
+  btc:  "/logos/btc.png",
+  bnb:  "/logos/bnb.png",
+  usdc: "/logos/usdc.png",
+  usdt: "/logos/usdt.png",
+};
 
 const TABS: { id: Tab; label: string; color: string; desc: string }[] = [
   { id: "somi", label: "SOMI", color: "#9B7FFF", desc: "Native Somnia token" },
@@ -28,17 +216,8 @@ const TABS: { id: Tab; label: string; color: string; desc: string }[] = [
   { id: "usdt", label: "USDT", color: "#26A17B", desc: "Tether stablecoin" },
 ];
 
-function TokenBadge({ symbol, color }: { symbol: string; color: string }) {
-  return (
-    <div style={{
-      width: 32, height: 32, borderRadius: "50%", background: color,
-      display: "flex", alignItems: "center", justifyContent: "center",
-      fontSize: 10, fontWeight: 800, color: "#fff", flexShrink: 0,
-      letterSpacing: "-0.5px",
-    }}>
-      {symbol.slice(0, 3)}
-    </div>
-  );
+function TokenImg({ id, size = 32 }: { id: Tab; size?: number }) {
+  return <Image src={LOGOS[id]} width={size} height={size} alt={id} unoptimized style={{ borderRadius: "50%", display: "block", flexShrink: 0 }} />;
 }
 
 export function Vault({ onSuccess }: VaultProps) {
@@ -244,7 +423,7 @@ export function Vault({ onSuccess }: VaultProps) {
         <div className="f-card">
           <div className="f-head">
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <TokenBadge symbol={currentTab.label} color={currentTab.color} />
+              <TokenImg id={tab} size={36} />
               <div>
                 <div className="f-title">Deposit {currentTab.label}</div>
                 <div className="f-sub">{currentTab.desc}</div>
@@ -259,13 +438,16 @@ export function Vault({ onSuccess }: VaultProps) {
                 key={t.id}
                 onClick={() => { setTab(t.id); setAmount(""); setTxError(""); }}
                 style={{
-                  padding: "5px 13px", borderRadius: 8, border: "none", cursor: "pointer",
+                  padding: "5px 12px 5px 8px", borderRadius: 8, cursor: "pointer",
                   fontFamily: "inherit", fontSize: 12, fontWeight: 700,
-                  background: tab === t.id ? t.color : "var(--bg2)",
-                  color: tab === t.id ? "#fff" : "var(--text2)",
+                  display: "inline-flex", alignItems: "center", gap: 5,
+                  border: tab === t.id ? `1.5px solid ${t.color}` : "1.5px solid transparent",
+                  background: tab === t.id ? `${t.color}18` : "var(--bg2)",
+                  color: tab === t.id ? t.color : "var(--text2)",
                   transition: "all 0.15s",
                 }}
               >
+                <TokenImg id={t.id} size={16} />
                 {t.label}
               </button>
             ))}
@@ -332,6 +514,8 @@ export function Vault({ onSuccess }: VaultProps) {
           </div>
         </div>
       </div>
+
+      <SwapCard address={address} />
     </div>
   );
 }

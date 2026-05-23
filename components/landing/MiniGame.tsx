@@ -1,21 +1,17 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { Check, ArrowRight } from "lucide-react";
-
-const INCLUDED = [
-  "Unlimited employees",
-  "Automatic monthly execution",
-  "USDC stable payouts",
-  "On-chain audit trail forever",
-  "AI-optimized conversion timing",
-  "Real-time agent activity feed",
-  "Multi-company support",
-];
+import { ArrowRight } from "lucide-react";
 
 interface PricingProps {
   onLaunchApp: () => void;
 }
+
+const TIERS = [
+  { payroll: "$5,000",   fee: "$50",    saved: "$1,950+/mo" },
+  { payroll: "$20,000",  fee: "$200",   saved: "$7,800+/mo" },
+  { payroll: "$100,000", fee: "$1,000", saved: "$44,000+/yr" },
+];
 
 export function MiniGame({ onLaunchApp }: PricingProps) {
   const ref = useRef<HTMLDivElement>(null);
@@ -31,84 +27,85 @@ export function MiniGame({ onLaunchApp }: PricingProps) {
 
   return (
     <section id="pricing" className="pricing-sec" ref={ref}>
+
+      {/* Eyebrow + headline */}
       <div className="reveal" style={{ textAlign: "center", marginBottom: "3rem" }}>
         <div className="sec-eyebrow">Pricing</div>
-        <h2 className="sec-h">Simple. Honest. Pay as you grow.</h2>
-        <p className="sec-sub" style={{ margin: "1rem auto 0", maxWidth: 420 }}>
-          No monthly subscription. No hidden fees. You only pay when your team gets paid.
+        <h2 className="sec-h">We only win <span className="accent">when you do.</span></h2>
+        <p className="sec-sub" style={{ margin: "0.75rem auto 0", maxWidth: 360 }}>
+          One flat rate. No monthly fee. No contract. You pay when payroll runs — nothing else.
         </p>
       </div>
 
-      <div className="pricing-layout reveal">
-        {/* Main pricing card */}
-        <div className="price-card price-card-main">
-          <div className="price-badge">Only plan you need</div>
-          <div className="price-amount">
-            <span className="price-pct">1%</span>
-            <span className="price-per">per payroll run</span>
+      {/* Hero number */}
+      <div className="reveal" style={{ textAlign: "center", marginBottom: "3rem" }}>
+        <div style={{
+          display: "inline-flex", flexDirection: "column", alignItems: "center",
+          padding: "2rem 3rem", borderRadius: 24,
+          background: "var(--accent-dim)", border: "1px solid var(--accent-b)",
+        }}>
+          <div style={{ fontSize: "clamp(4rem, 12vw, 6rem)", fontWeight: 800, lineHeight: 1, letterSpacing: "-0.05em", color: "var(--accent)" }}>
+            1%
           </div>
-          <p className="price-desc">
-            Pay $1 for every $100 processed. Run payroll for a $10,000 team
-            and pay just <strong>$100</strong> — once a month.
-          </p>
-
-          <div className="price-divider" />
-
-          <ul className="price-features">
-            {INCLUDED.map((f) => (
-              <li key={f} className="price-feature">
-                <Check size={14} className="price-check" />
-                {f}
-              </li>
-            ))}
-          </ul>
-
-          <button className="btn-primary price-cta" onClick={onLaunchApp}>
-            Get started <ArrowRight size={15} />
-          </button>
-          <div className="price-note">No credit card · No monthly fees</div>
-        </div>
-
-        {/* Comparison card */}
-        <div className="price-card price-card-alt">
-          <div className="price-alt-title">Compare the alternative</div>
-          <div className="price-compare-rows">
-            <div className="pcr">
-              <span className="pcr-item">Finance contractor</span>
-              <span className="pcr-cost bad">$2,000 – $5,000/mo</span>
-            </div>
-            <div className="pcr">
-              <span className="pcr-item">Manual bank transfers</span>
-              <span className="pcr-cost bad">4 – 8 hrs/month</span>
-            </div>
-            <div className="pcr">
-              <span className="pcr-item">Crypto OTC desk</span>
-              <span className="pcr-cost bad">1 – 3% per swap</span>
-            </div>
-            <div className="pcr">
-              <span className="pcr-item">Payroll software</span>
-              <span className="pcr-cost bad">$50 – $300/mo flat</span>
-            </div>
-            <div className="pcr pcr-lymitra">
-              <span className="pcr-item">Lymitra</span>
-              <span className="pcr-cost good">1% · zero admin</span>
-            </div>
-          </div>
-
-          <div className="price-example">
-            <div className="pe-label">Example: team of 5, avg $3,000 salary</div>
-            <div className="pe-row">
-              <span>Monthly payroll</span><strong>$15,000</strong>
-            </div>
-            <div className="pe-row">
-              <span>Lymitra fee (1%)</span><strong style={{ color: "var(--accent)" }}>$150</strong>
-            </div>
-            <div className="pe-row">
-              <span>Your time saved</span><strong style={{ color: "#4FC490" }}>~6 hours</strong>
-            </div>
-          </div>
+          <div style={{ fontSize: 15, color: "var(--text2)", marginTop: 6, fontWeight: 500 }}>per payroll run</div>
+          <div style={{ fontSize: 12, color: "var(--text3)", marginTop: 4 }}>nothing until it does</div>
         </div>
       </div>
+
+      {/* Savings rows */}
+      <div className="reveal" style={{ maxWidth: 560, margin: "0 auto 2.5rem" }}>
+        <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--text3)", marginBottom: "0.85rem", textAlign: "center" }}>
+          See the math
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", border: "1px solid var(--border)", borderRadius: 16, overflow: "hidden" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", padding: "9px 16px", background: "var(--bg3)", borderBottom: "1px solid var(--border)" }}>
+            <div style={{ fontSize: 11, fontWeight: 600, color: "var(--text3)", textTransform: "uppercase", letterSpacing: "0.07em" }}>Payroll</div>
+            <div style={{ fontSize: 11, fontWeight: 600, color: "var(--text3)", textTransform: "uppercase", letterSpacing: "0.07em", textAlign: "center" }}>Our fee</div>
+            <div style={{ fontSize: 11, fontWeight: 600, color: "var(--text3)", textTransform: "uppercase", letterSpacing: "0.07em", textAlign: "right" }}>vs contractor</div>
+          </div>
+          {TIERS.map((t, i) => (
+            <div key={i} style={{
+              display: "grid", gridTemplateColumns: "1fr 1fr 1fr", padding: "13px 16px",
+              borderBottom: i < TIERS.length - 1 ? "1px solid var(--border)" : "none",
+              background: i === 1 ? "rgba(91,127,255,0.04)" : "transparent",
+            }}>
+              <div style={{ fontSize: 14, fontWeight: 600, color: "var(--text)" }}>{t.payroll}</div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: "var(--accent)", textAlign: "center" }}>{t.fee}</div>
+              <div style={{ fontSize: 13, fontWeight: 600, color: "#4FC490", textAlign: "right" }}>save {t.saved}</div>
+            </div>
+          ))}
+        </div>
+        <div style={{ textAlign: "center", fontSize: 12, color: "var(--text3)", marginTop: 10 }}>
+          Finance contractors charge $2,000–$5,000/mo regardless of payroll size.
+        </div>
+      </div>
+
+      {/* Three pillars */}
+      <div className="reveal" style={{ display: "flex", justifyContent: "center", gap: 10, flexWrap: "wrap", marginBottom: "2.5rem" }}>
+        {[
+          { label: "No monthly fee",         sub: "pay only on runs" },
+          { label: "Unlimited employees",     sub: "no per-seat pricing" },
+          { label: "On-chain audit trail",    sub: "forever, free" },
+        ].map(({ label, sub }) => (
+          <div key={label} style={{
+            padding: "10px 18px", borderRadius: 100,
+            border: "1px solid var(--border2)", background: "var(--bg2)",
+            textAlign: "center",
+          }}>
+            <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text)" }}>{label}</div>
+            <div style={{ fontSize: 11, color: "var(--text3)", marginTop: 2 }}>{sub}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* CTA */}
+      <div className="reveal" style={{ textAlign: "center" }}>
+        <button className="btn-primary" onClick={onLaunchApp} style={{ height: 50, padding: "0 32px", fontSize: 15 }}>
+          Get started <ArrowRight size={16} />
+        </button>
+        <div style={{ marginTop: 10, fontSize: 12, color: "var(--text3)" }}>No credit card · No monthly fees · No surprises</div>
+      </div>
+
     </section>
   );
 }

@@ -1,14 +1,15 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { Bot } from "lucide-react";
 
 const LOG_ENTRIES = [
-  { tag: "WATCHING",   cls: "al-blue",  msg: "SOMI rate at $0.031 · too low · waiting for better price" },
-  { tag: "HOLDING",    cls: "al-dim",   msg: "Your tokens are safe in the vault · not selling yet" },
-  { tag: "WATCHING",   cls: "al-blue",  msg: "SOMI rate up to $0.051 · looking good" },
-  { tag: "AI",         cls: "al-blue",  msg: "Best moment found · converting to USDC now" },
-  { tag: "CONVERTED",  cls: "al-blue",  msg: "Tokens → 18,500 USDC · best rate secured" },
-  { tag: "PAID",       cls: "al-green", msg: "6 employees paid · 18,500 USDC · 0.8s" },
+  { tag: "ORACLE",    cls: "al-cyan",   msg: "SOMI/USD $0.031 · ETH/USD $2,480 · BTC/USD $94,200 · rates read on-chain" },
+  { tag: "AI",        cls: "al-purple", msg: "BTC and ETH stable · SOMI trending up · holding for better window" },
+  { tag: "WATCHING",  cls: "al-yellow", msg: "Checking again in 24h. No conversion yet, rates still climbing" },
+  { tag: "AI",        cls: "al-purple", msg: "Optimal window reached · converting SOMI + ETH + BTC + BNB to USDC" },
+  { tag: "CONVERTED", cls: "al-cyan",   msg: "All volatile holdings → 18,500 USDC · best rate secured" },
+  { tag: "PAID",      cls: "al-green",  msg: "6 employees paid in USDC · 18,500 total · 0.8s · 0 failures" },
 ];
 
 export function AiSection() {
@@ -40,34 +41,35 @@ export function AiSection() {
   }, []);
 
   return (
-    <section className="ai-sec" ref={ref}>
+    <section id="agents" className="ai-sec" ref={ref}>
       <div className="ai-inner">
         {/* Left */}
         <div className="reveal">
-          <div className="sec-eyebrow">Somnia AI agents</div>
+          <div className="ai-eyebrow-badge">
+            <Bot size={13} strokeWidth={2} />
+            Somnia AI agents
+          </div>
           <h2 className="sec-h">
             The AI works.<br />
             <span className="accent">You don&apos;t have to.</span>
           </h2>
           <p className="sec-sub" style={{ marginTop: "1rem", maxWidth: 400 }}>
-            Lymitra runs on-chain AI agents continuously — watching rates,
-            choosing the right moment, and executing payroll automatically
-            on Somnia.
+            Three agents run on-chain: one watches prices, one decides when to convert, one fires payroll. You&apos;re not in the loop. On purpose.
           </p>
 
           <div className="ai-stats">
             <div className="ai-stat">
-              <div className="ai-stat-n">24/7</div>
-              <div className="ai-stat-l">Always running</div>
+              <div className="ai-stat-n ai-stat-glow">24/7</div>
+              <div className="ai-stat-l">Always watching rates</div>
             </div>
             <div className="ai-stat-div" />
             <div className="ai-stat">
-              <div className="ai-stat-n">0.8s</div>
-              <div className="ai-stat-l">Avg execution time</div>
+              <div className="ai-stat-n ai-stat-glow">0.8s</div>
+              <div className="ai-stat-l">Avg payroll time</div>
             </div>
             <div className="ai-stat-div" />
             <div className="ai-stat">
-              <div className="ai-stat-n">$0</div>
+              <div className="ai-stat-n ai-stat-glow">~$0</div>
               <div className="ai-stat-l">Gas on Somnia</div>
             </div>
           </div>
@@ -77,8 +79,14 @@ export function AiSection() {
         <div className="reveal ai-log-wrap">
           <div className="ai-log">
             <div className="al-bar">
-              <div className="al-dot" />
-              <span className="al-title">Agent activity — live</span>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <div className="al-dot" />
+                <span className="al-title">Agent activity</span>
+              </div>
+              <div className="al-live-badge">
+                <span className="al-live-dot" />
+                LIVE
+              </div>
             </div>
             <div className="al-feed">
               {LOG_ENTRIES.slice(0, visible).map((e, i) => (
@@ -89,6 +97,16 @@ export function AiSection() {
               ))}
               {visible < LOG_ENTRIES.length && (
                 <div className="al-cursor" />
+              )}
+              {visible >= LOG_ENTRIES.length && (
+                <div className="al-thinking-row">
+                  <span className="al-tag al-purple">AI</span>
+                  <span className="al-thinking-dots">
+                    {[0, 1, 2].map(n => (
+                      <span key={n} className="al-think-dot" style={{ animationDelay: `${n * 0.18}s` }} />
+                    ))}
+                  </span>
+                </div>
               )}
             </div>
           </div>

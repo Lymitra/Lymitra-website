@@ -27,13 +27,13 @@ export function FinalCta({ onLaunchApp }: FinalCtaProps) {
           <span className="muted">Every time.</span>
         </h2>
         <p className="fcta-sub">
-          Set up in 5 minutes. No code. Just your wallet.
+          5 minutes to set up. Zero effort after that.
         </p>
         <button className="btn-primary" style={{ cursor: "pointer", display: "inline-flex", fontSize: 15, height: 50, padding: "0 40px" }} onClick={onLaunchApp}>
-          Get started free
+          Start paying your team
         </button>
         <div style={{ marginTop: "1rem", fontSize: 12, color: "var(--text3)" }}>
-          First payroll run free · 1% per run after that · No monthly fees
+          No monthly fee · 1% only when payroll runs · No credit card needed
         </div>
       </div>
     </section>

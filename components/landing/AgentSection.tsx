@@ -1,29 +1,28 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { DollarSign, CalendarCheck, TrendingDown, TrendingUp } from "lucide-react";
-
+import { ShieldCheck, Zap, Users, DollarSign } from "lucide-react";
 
 const benefits = [
   {
-    Icon: TrendingDown,
-    title: "AI times the conversion",
-    desc: "Monitors rates 24/7 and converts your tokens to USDC only at the optimal window — never at a bad rate.",
+    Icon: ShieldCheck,
+    title: "Your vault, not ours",
+    desc: "Your money stays in your own on-chain vault. Lymitra never touches it.",
   },
   {
     Icon: DollarSign,
-    title: "Stable USDC, always",
-    desc: "Employees receive their exact agreed salary in USDC every month, regardless of market conditions.",
+    title: "Every run is on-chain",
+    desc: "Every conversion and payment is recorded on-chain forever. Full audit trail, no spreadsheets.",
   },
   {
-    Icon: TrendingUp,
-    title: "Your tokens keep growing",
-    desc: "Deposited SOMI and ETH sit in the vault and appreciate. The AI only converts what's needed for payroll.",
+    Icon: Zap,
+    title: "No exchange needed",
+    desc: "One deposit, one schedule. No logging in to convert and send every month.",
   },
   {
-    Icon: CalendarCheck,
-    title: "Never miss a payday",
-    desc: "Set your payday once. Payroll runs automatically every month without you.",
+    Icon: Users,
+    title: "Any team size",
+    desc: "1 employee or 100. Same setup, same fee. Add or remove people anytime.",
   },
 ];
 
@@ -43,13 +42,7 @@ export function AgentSection() {
     <section id="why" className="why-sec" ref={ref}>
       <div className="reveal" style={{ textAlign: "center", marginBottom: "2rem" }}>
         <div className="sec-eyebrow">Why Lymitra</div>
-        <h2 className="sec-h">
-          Built for teams that move fast<br />
-          and <span className="accent">hate admin work.</span>
-        </h2>
-        <p className="sec-sub" style={{ maxWidth: 440, margin: "1rem auto 0" }}>
-          Manual crypto payroll is slow, error-prone, and stressful. Lymitra eliminates it.
-        </p>
+        <h2 className="sec-h">Built different. <span className="accent">Not just automated.</span></h2>
       </div>
 
       <div className="why-grid">
@@ -63,8 +56,6 @@ export function AgentSection() {
           </div>
         ))}
       </div>
-
-
     </section>
   );
 }

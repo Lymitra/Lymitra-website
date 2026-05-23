@@ -9,14 +9,28 @@ import "./interfaces/IERC20Minimal.sol";
  * Yield model: protocol collects a small fee from each payroll cycle and
  * distributes it to stakers proportionally. Simple accumulated-reward-per-token
  * pattern (like Synthetix StakingRewards).
+ *
+ * Security: CEI pattern enforced; nonReentrant mutex on all external-call paths.
  */
 contract LymitraStaking {
     // ─── Constants ───────────────────────────────────────────────────────────
-    address public constant USDC     = 0x28BEc7E30E6faee657a03e19Bf1128AaD7632A00;
+    address public immutable USDC;
     uint256 public constant LOCK_PERIOD = 7 days;
 
     // Precision factor for reward-per-token calculation
     uint256 private constant PRECISION = 1e18;
+
+    // ─── Reentrancy guard ────────────────────────────────────────────────────
+    uint256 private constant _NOT_ENTERED = 1;
+    uint256 private constant _ENTERED     = 2;
+    uint256 private _status = _NOT_ENTERED;
+
+    modifier nonReentrant() {
+        require(_status != _ENTERED, "reentrant call");
+        _status = _ENTERED;
+        _;
+        _status = _NOT_ENTERED;
+    }
 
     // ─── State ───────────────────────────────────────────────────────────────
     address public owner;
@@ -60,18 +74,21 @@ contract LymitraStaking {
     }
 
     // ─── Constructor ─────────────────────────────────────────────────────────
-    constructor() {
+    constructor(address _usdc) {
+        require(_usdc != address(0), "zero addr");
+        USDC  = _usdc;
         owner = msg.sender;
     }
 
     // ─── Admin ───────────────────────────────────────────────────────────────
     function setVault(address _vault) external onlyOwner {
+        require(_vault != address(0), "zero addr");
         vault = _vault;
         emit VaultSet(_vault);
     }
 
     // ─── Stake (native STT) ───────────────────────────────────────────────────
-    function stake() external payable updateReward(msg.sender) {
+    function stake() external payable nonReentrant updateReward(msg.sender) {
         require(msg.value > 0, "zero stake");
 
         stakes[msg.sender].amount   += msg.value;
@@ -82,23 +99,28 @@ contract LymitraStaking {
     }
 
     // ─── Unstake ──────────────────────────────────────────────────────────────
-    function unstake(uint256 amount) external updateReward(msg.sender) {
+    function unstake(uint256 amount) external nonReentrant updateReward(msg.sender) {
         StakeInfo storage si = stakes[msg.sender];
         require(si.amount >= amount, "exceeds stake");
         require(block.timestamp >= si.stakedAt + LOCK_PERIOD, "still locked");
 
-        si.amount  -= amount;
+        // CEI: update state before external call
+        si.amount   -= amount;
         totalStaked -= amount;
 
-        payable(msg.sender).transfer(amount);
+        // Use .call to avoid 2300-gas limit of .transfer
+        (bool ok,) = payable(msg.sender).call{value: amount}("");
+        require(ok, "STT transfer failed");
+
         emit Unstaked(msg.sender, amount);
     }
 
     // ─── Claim USDC yield ─────────────────────────────────────────────────────
-    function claimReward() external updateReward(msg.sender) {
+    function claimReward() external nonReentrant updateReward(msg.sender) {
         uint256 reward = stakes[msg.sender].pendingReward;
         require(reward > 0, "nothing to claim");
 
+        // CEI: zero out before transfer
         stakes[msg.sender].pendingReward = 0;
         require(IERC20Minimal(USDC).transfer(msg.sender, reward), "transfer failed");
 
@@ -106,14 +128,15 @@ contract LymitraStaking {
     }
 
     // Claim + unstake in one call
-    function exit() external updateReward(msg.sender) {
+    function exit() external nonReentrant updateReward(msg.sender) {
         StakeInfo storage si = stakes[msg.sender];
+
+        require(block.timestamp >= si.stakedAt + LOCK_PERIOD, "still locked");
 
         uint256 reward = si.pendingReward;
         uint256 amount = si.amount;
 
-        require(block.timestamp >= si.stakedAt + LOCK_PERIOD, "still locked");
-
+        // CEI: clear all state before external calls
         si.pendingReward = 0;
         si.amount        = 0;
         totalStaked     -= amount;
@@ -123,7 +146,8 @@ contract LymitraStaking {
             emit RewardClaimed(msg.sender, reward);
         }
         if (amount > 0) {
-            payable(msg.sender).transfer(amount);
+            (bool ok,) = payable(msg.sender).call{value: amount}("");
+            require(ok, "STT transfer failed");
             emit Unstaked(msg.sender, amount);
         }
     }

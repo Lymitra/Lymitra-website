@@ -69,7 +69,7 @@ async function main() {
 
   // ── Deploy LymitraStaking ────────────────────────────────────────────────
   console.log("Deploying LymitraStaking...");
-  const staking = await (await ethers.getContractFactory("LymitraStaking")).deploy();
+  const staking = await (await ethers.getContractFactory("LymitraStaking")).deploy(usdcAddr);
   await staking.waitForDeployment();
   const stakingAddr = await staking.getAddress();
   console.log("LymitraStaking:", stakingAddr);
@@ -78,16 +78,16 @@ async function main() {
   console.log("Vault ↔ Staking wired.");
 
   // ── Seed vault with STT for agent gas ────────────────────────────────────
-  console.log("\nSeeding vault with 1 STT for agent gas...");
-  await (await deployer.sendTransaction({ to: vaultAddr, value: ethers.parseEther("1") })).wait();
+  console.log("\nSeeding vault with 0.15 STT for agent gas...");
+  await (await deployer.sendTransaction({ to: vaultAddr, value: ethers.parseEther("0.15") })).wait();
 
   // ── Seed DEX pools ───────────────────────────────────────────────────────
   let deadline = Math.floor(Date.now() / 1000) + 600;
 
-  // WSTT/USDC — 1 STT ≈ $0.031 (use 5 STT to stay within deployer balance)
+  // WSTT/USDC — 1 STT ≈ $0.031 (use 0.3 STT to stay within deployer balance)
   console.log("\nSeeding WSTT/USDC pool (1 STT ≈ $0.031)...");
-  const WSTT_AMT  = ethers.parseEther("5");
-  const USDC_WSTT = 155n * 1_000_000n;    // 155 USDC (same price ratio)
+  const WSTT_AMT  = ethers.parseEther("0.3");
+  const USDC_WSTT = 9_300_000n;           // 9.3 USDC (0.3 STT × $0.031)
   await (await wstt.deposit({ value: WSTT_AMT })).wait();
   await (await usdc.mint(deployer.address, USDC_WSTT)).wait();
   await (await wstt.approve(routerAddr, WSTT_AMT)).wait();
@@ -95,7 +95,7 @@ async function main() {
   deadline = Math.floor(Date.now() / 1000) + 600;
   await (await router.addLiquidity(wsttAddr, usdcAddr, WSTT_AMT, USDC_WSTT, 0n, 0n, deployer.address, deadline)).wait();
   const wsttPairAddr = await factory.getPair(wsttAddr, usdcAddr);
-  console.log("WSTT/USDC pair:", wsttPairAddr, "(5 WSTT + 155 USDC, 1 STT = $0.031)");
+  console.log("WSTT/USDC pair:", wsttPairAddr, "(0.3 WSTT + 9.3 USDC, 1 STT = $0.031)");
 
   // WETH/USDC — 1 ETH ≈ $2,500
   console.log("Seeding WETH/USDC pool (1 ETH ≈ $2,500)...");

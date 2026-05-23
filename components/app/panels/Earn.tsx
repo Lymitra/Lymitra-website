@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { CheckCircle } from "lucide-react";
+import Image from "next/image";
+import { CheckCircle, Zap } from "lucide-react";
 import { useAccount, useBalance } from "wagmi";
 import { activeChain } from "@/lib/chains";
 import {
@@ -12,8 +13,11 @@ import {
   useStake,
   useUnstake,
   useClaimReward,
+  useLymBalance,
+  useLymTotalSupply,
   fmtUsdc,
   fmtStt,
+  fmtLym,
 } from "@/lib/hooks";
 
 export function Earn() {
@@ -28,6 +32,9 @@ export function Earn() {
   const { stake,   isPending: staking }   = useStake();
   const { unstake, isPending: unstaking } = useUnstake();
   const { claim,   isPending: claiming }  = useClaimReward();
+
+  const { data: lymBalance }     = useLymBalance(address);
+  const { data: lymTotalSupply } = useLymTotalSupply();
 
   const [stakeAmt,   setStakeAmt]   = useState("");
   const [unstakeAmt, setUnstakeAmt] = useState("");
@@ -89,13 +96,55 @@ export function Earn() {
       <div className="sec-hd">
         <div>
           <div className="sec-ht">Earn</div>
-          <div className="sec-hs">Stake SOMI · Earn USDC yield from payroll fees · 7-day lock</div>
+          <div className="sec-hs">Run payroll → earn LYM · Stake SOMI → earn USDC yield</div>
         </div>
         {(reward ?? 0n) > 0n && (
           <button className="tb-btn green" onClick={handleClaim} disabled={claiming}>
             {claiming ? "Claiming…" : `Claim ${fmtUsdc(reward)} USDC`}
           </button>
         )}
+      </div>
+
+      {/* ── LYM Rewards card ── */}
+      <div className="card" style={{ marginBottom: "1.25rem", border: "1px solid rgba(79,196,168,0.3)", boxShadow: "0 0 0 1px rgba(27,63,191,0.04), 0 4px 24px rgba(27,63,191,0.12)" }}>
+        <div className="card-h">
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <Image src="/logos/lym.svg" width={40} height={40} alt="LYM" unoptimized style={{ borderRadius: "50%", display: "block", flexShrink: 0 }} />
+            <div>
+              <div className="card-t">LYM Rewards</div>
+              <div style={{ fontSize: 11, color: "var(--text3)", marginTop: 1 }}>Earned automatically by running payroll</div>
+            </div>
+          </div>
+          <div style={{ textAlign: "right" }}>
+            <div style={{ fontSize: 26, fontWeight: 700, color: "#4FC4A8", letterSpacing: "-0.02em", lineHeight: 1 }}>
+              {fmtLym(lymBalance as bigint | undefined)}
+            </div>
+            <div style={{ fontSize: 11, color: "var(--text3)", marginTop: 3 }}>LYM balance</div>
+          </div>
+        </div>
+
+        <div style={{ padding: "0 1.4rem 1.1rem", display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10 }}>
+          <div style={{ padding: "0.8rem", background: "var(--bg3)", border: "1px solid var(--border)", borderRadius: 10 }}>
+            <div style={{ fontSize: 10, color: "var(--text3)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 4 }}>How to earn</div>
+            <div style={{ fontSize: 12, color: "var(--text2)", lineHeight: 1.5 }}>1 LYM per employee paid, every payroll run</div>
+          </div>
+          <div style={{ padding: "0.8rem", background: "var(--bg3)", border: "1px solid var(--border)", borderRadius: 10 }}>
+            <div style={{ fontSize: 10, color: "var(--text3)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 4 }}>Total issued</div>
+            <div style={{ fontSize: 16, fontWeight: 700, color: "var(--text)" }}>{fmtLym(lymTotalSupply as bigint | undefined)} <span style={{ fontSize: 11, color: "var(--text3)", fontWeight: 400 }}>LYM</span></div>
+          </div>
+          <div style={{ padding: "0.8rem", background: "var(--bg3)", border: "1px solid var(--border)", borderRadius: 10 }}>
+            <div style={{ fontSize: 10, color: "var(--text3)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 4 }}>Utility</div>
+            <div style={{ fontSize: 12, color: "var(--text2)", lineHeight: 1.5 }}>Transfer · Trade · Future governance</div>
+          </div>
+        </div>
+
+        <div style={{ margin: "0 1.4rem 1.1rem", padding: "0.65rem 1rem", background: "rgba(243,186,47,0.06)", border: "1px solid rgba(243,186,47,0.18)", borderRadius: 8, display: "flex", alignItems: "flex-start", gap: 8 }}>
+          <Zap size={13} color="#F3BA2F" style={{ flexShrink: 0, marginTop: 1 }} />
+          <span style={{ fontSize: 12, color: "var(--text3)", lineHeight: 1.5 }}>
+            LYM is minted on-chain by the vault contract the moment payroll executes — no claiming needed.
+            Run payroll for a 5-person team every month and you automatically accumulate 5 LYM per run.
+          </span>
+        </div>
       </div>
 
       {/* Stats */}

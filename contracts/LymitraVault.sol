@@ -11,6 +11,10 @@ interface IWSTT {
     function balanceOf(address account) external view returns (uint256);
 }
 
+interface ILYMToken {
+    function mint(address to, uint256 amount) external;
+}
+
 interface IDEXRouter {
     function swapExactTokensForTokens(
         uint256 amountIn,
@@ -54,6 +58,9 @@ interface IAggregatorV3 {
  *   WETH  0x786c7893F8c26b80d42088749562eDb50Ba9601E
  *   WBTC  0x4803db1ca3A1DA49c3DB991e1c390321c20e1f21
  *   WBNB  (no testnet oracle — oracle read returns 0 safely)
+ *
+ * Security: CEI pattern enforced on all state-changing functions.
+ *           nonReentrant mutex guards all external-call paths.
  */
 contract LymitraVault {
     // ─── Somnia infrastructure ──────────────────────────────────────────────
@@ -78,6 +85,21 @@ contract LymitraVault {
 
     uint256 public constant LLM_AGENT_ID   = 12847293847561029384;
     uint256 public constant REQUEST_DEPOSIT = 12e16;
+
+    // Maximum employees per company — prevents unbounded gas in _executePayroll
+    uint256 public constant MAX_EMPLOYEES = 100;
+
+    // ─── Reentrancy guard ────────────────────────────────────────────────────
+    uint256 private constant _NOT_ENTERED = 1;
+    uint256 private constant _ENTERED     = 2;
+    uint256 private _status = _NOT_ENTERED;
+
+    modifier nonReentrant() {
+        require(_status != _ENTERED, "reentrant call");
+        _status = _ENTERED;
+        _;
+        _status = _NOT_ENTERED;
+    }
 
     // ─── Data types ─────────────────────────────────────────────────────────
     struct Employee {
@@ -108,6 +130,8 @@ contract LymitraVault {
 
     // ─── State ───────────────────────────────────────────────────────────────
     address public owner;
+    address public agentAddress;
+    address public lymToken; // LYMToken contract — mints rewards on payroll
 
     mapping(address => Company)    public companies;
     mapping(address => Employee[]) public employees;
@@ -124,15 +148,19 @@ contract LymitraVault {
     event UsdtDeposited(address indexed company, uint256 amount);
     event TokensSwapped(address indexed company, address token, uint256 amountIn, uint256 usdcOut);
     event Withdrawn(address indexed company, uint256 amount);
+    event WithdrawnSTT(address indexed to, uint256 amount);
     event EmployeeAdded(address indexed company, address indexed wallet, uint256 salary);
     event EmployeeRemoved(address indexed company, uint256 index);
     event PayrollScheduled(address indexed company, uint64 timestampMs);
     event LLMDecisionRequested(address indexed company, uint256 requestId, uint256 somiUsd, uint256 wethUsd);
     event PayrollExecuted(address indexed company, uint256 totalPaid, string decision);
     event PayrollDeferred(address indexed company, uint64 retryMs);
+    event AgentUpdated(address indexed agent);
+    event LymRewarded(address indexed company, uint256 amount);
 
     // ─── Modifiers ───────────────────────────────────────────────────────────
     modifier onlyOwner()     { require(msg.sender == owner, "not owner"); _; }
+    modifier onlyAgent()     { require(msg.sender == agentAddress, "not agent"); _; }
     modifier onlyRegistered(){ require(companies[msg.sender].owner == msg.sender, "not registered"); _; }
     modifier onlyPlatform()  { require(msg.sender == address(PLATFORM), "not platform"); _; }
 
@@ -172,52 +200,58 @@ contract LymitraVault {
     }
 
     // ─── Volatile deposits ────────────────────────────────────────────────────
+    // CEI: state updated BEFORE external call in all deposit functions.
 
-    function depositSomi() external payable onlyRegistered {
+    function depositSomi() external payable onlyRegistered nonReentrant {
         require(msg.value > 0, "send SOMI");
-        IWSTT(WSTT).deposit{value: msg.value}();
+        // CEI: update state before external call
         companies[msg.sender].somiBalance += msg.value;
+        IWSTT(WSTT).deposit{value: msg.value}();
         emit SomiDeposited(msg.sender, msg.value);
     }
 
-    function depositWeth(uint256 amount) external onlyRegistered {
+    function depositWeth(uint256 amount) external onlyRegistered nonReentrant {
         require(amount > 0, "zero");
-        require(IERC20Minimal(WETH).transferFrom(msg.sender, address(this), amount), "transfer failed");
+        // CEI: update state before external call; reverts atomically if transferFrom fails
         companies[msg.sender].wethBalance += amount;
+        require(IERC20Minimal(WETH).transferFrom(msg.sender, address(this), amount), "transfer failed");
         emit WethDeposited(msg.sender, amount);
     }
 
-    function depositWbtc(uint256 amount) external onlyRegistered {
+    function depositWbtc(uint256 amount) external onlyRegistered nonReentrant {
         require(amount > 0, "zero");
-        require(IERC20Minimal(WBTC).transferFrom(msg.sender, address(this), amount), "transfer failed");
         companies[msg.sender].wbtcBalance += amount;
+        require(IERC20Minimal(WBTC).transferFrom(msg.sender, address(this), amount), "transfer failed");
         emit WbtcDeposited(msg.sender, amount);
     }
 
-    function depositWbnb(uint256 amount) external onlyRegistered {
+    function depositWbnb(uint256 amount) external onlyRegistered nonReentrant {
         require(amount > 0, "zero");
-        require(IERC20Minimal(WBNB).transferFrom(msg.sender, address(this), amount), "transfer failed");
         companies[msg.sender].wbnbBalance += amount;
+        require(IERC20Minimal(WBNB).transferFrom(msg.sender, address(this), amount), "transfer failed");
         emit WbnbDeposited(msg.sender, amount);
     }
 
     // ─── Stable deposits (payroll-ready, no conversion needed) ───────────────
 
-    function deposit(uint256 amount) external onlyRegistered {
-        require(IERC20Minimal(USDC).transferFrom(msg.sender, address(this), amount), "transfer failed");
+    function deposit(uint256 amount) external onlyRegistered nonReentrant {
+        require(amount > 0, "zero");
         companies[msg.sender].usdcBalance += amount;
+        require(IERC20Minimal(USDC).transferFrom(msg.sender, address(this), amount), "transfer failed");
         emit UsdcDeposited(msg.sender, amount);
     }
 
-    function depositUsdt(uint256 amount) external onlyRegistered {
-        require(IERC20Minimal(USDT).transferFrom(msg.sender, address(this), amount), "transfer failed");
+    function depositUsdt(uint256 amount) external onlyRegistered nonReentrant {
+        require(amount > 0, "zero");
         companies[msg.sender].usdtBalance += amount;
+        require(IERC20Minimal(USDT).transferFrom(msg.sender, address(this), amount), "transfer failed");
         emit UsdtDeposited(msg.sender, amount);
     }
 
-    function withdraw(uint256 amount) external onlyRegistered {
+    function withdraw(uint256 amount) external onlyRegistered nonReentrant {
         Company storage co = companies[msg.sender];
         require(co.usdcBalance >= amount, "insufficient");
+        // CEI: deduct before transfer
         co.usdcBalance -= amount;
         require(IERC20Minimal(USDC).transfer(msg.sender, amount), "transfer failed");
         emit Withdrawn(msg.sender, amount);
@@ -226,6 +260,7 @@ contract LymitraVault {
     // ─── Employee management ─────────────────────────────────────────────────
     function addEmployee(address wallet, uint256 salaryUsdc, string calldata empName) external onlyRegistered {
         require(wallet != address(0) && salaryUsdc > 0, "invalid params");
+        require(employees[msg.sender].length < MAX_EMPLOYEES, "employee cap reached");
         employees[msg.sender].push(Employee({ wallet: wallet, salaryUsdc: salaryUsdc, active: true, name: empName }));
         monthlyPayroll[msg.sender] += salaryUsdc;
         emit EmployeeAdded(msg.sender, wallet, salaryUsdc);
@@ -310,10 +345,11 @@ contract LymitraVault {
     // ─── LLM callback ─────────────────────────────────────────────────────────
     function handleLLMResponse(
         uint256 requestId, Response[] memory responses, ResponseStatus status, Request memory
-    ) external onlyPlatform {
+    ) external onlyPlatform nonReentrant {
         PendingRequest storage req = pendingRequests[requestId];
         require(req.company != address(0), "unknown");
         address company = req.company;
+        // CEI: clear pending request before executing payroll
         delete pendingRequests[requestId];
 
         string memory decision = "CONVERT";
@@ -338,10 +374,21 @@ contract LymitraVault {
     function _convertAllToUsdc(address company) internal {
         Company storage co = companies[company];
 
-        _swapToUsdc(co.somiBalance, WSTT,    company, true);   co.somiBalance = 0;
-        _swapToUsdc(co.wethBalance, WETH,    company, false);  co.wethBalance = 0;
-        _swapToUsdc(co.wbtcBalance, WBTC,    company, false);  co.wbtcBalance = 0;
-        _swapToUsdc(co.wbnbBalance, WBNB,    company, false);  co.wbnbBalance = 0;
+        uint256 somi = co.somiBalance;
+        uint256 weth = co.wethBalance;
+        uint256 wbtc = co.wbtcBalance;
+        uint256 wbnb = co.wbnbBalance;
+
+        // CEI: zero out balances before calling DEX
+        co.somiBalance = 0;
+        co.wethBalance = 0;
+        co.wbtcBalance = 0;
+        co.wbnbBalance = 0;
+
+        _swapToUsdc(somi, WSTT, company, true);
+        _swapToUsdc(weth, WETH, company, false);
+        _swapToUsdc(wbtc, WBTC, company, false);
+        _swapToUsdc(wbnb, WBNB, company, false);
 
         // Merge USDT reserve into USDC reserve (1:1 on testnet; in prod swap via DEX)
         if (co.usdtBalance > 0) {
@@ -352,9 +399,12 @@ contract LymitraVault {
 
     function _swapToUsdc(uint256 amount, address token, address company, bool isWstt) internal {
         if (amount == 0) return;
+        // Reset allowance to 0 first — required for tokens that disallow non-zero→non-zero approval
         if (isWstt) {
+            IWSTT(token).approve(DEX_ROUTER, 0);
             IWSTT(token).approve(DEX_ROUTER, amount);
         } else {
+            IERC20Minimal(token).approve(DEX_ROUTER, 0);
             IERC20Minimal(token).approve(DEX_ROUTER, amount);
         }
         address[] memory path = new address[](2);
@@ -372,19 +422,56 @@ contract LymitraVault {
         uint256 total = monthlyPayroll[company];
         require(total > 0, "no payroll");
         require(co.usdcBalance >= total, "insufficient USDC");
+        // CEI: deduct full payroll amount before iterating transfers
         co.usdcBalance -= total;
         Employee[] storage emps = employees[company];
+        uint256 paidCount = 0;
         for (uint256 i = 0; i < emps.length; i++) {
             if (emps[i].active) {
                 require(IERC20Minimal(USDC).transfer(emps[i].wallet, emps[i].salaryUsdc), "transfer failed");
+                paidCount++;
             }
         }
         emit PayrollExecuted(company, total, decision);
+
+        // Mint 1 LYM per employee paid as platform reward for the company owner.
+        // Wrapped in try-catch so a missing lymToken never blocks payroll.
+        if (lymToken != address(0) && paidCount > 0) {
+            uint256 lymAmount = paidCount * 1e18;
+            try ILYMToken(lymToken).mint(co.owner, lymAmount) {
+                emit LymRewarded(company, lymAmount);
+            } catch {}
+        }
     }
 
-    function executePayrollManual() external onlyRegistered {
+    function executePayrollManual() external onlyRegistered nonReentrant {
         _convertAllToUsdc(msg.sender);
         _executePayroll(msg.sender, "MANUAL");
+    }
+
+    // ─── Agent wallet functions (no user interaction needed) ─────────────────
+
+    function setAgent(address _agent) external onlyOwner {
+        agentAddress = _agent;
+        emit AgentUpdated(_agent);
+    }
+
+    function setLymToken(address _lym) external onlyOwner {
+        require(_lym != address(0), "zero addr");
+        lymToken = _lym;
+    }
+
+    // Called autonomously by the keeper — converts volatile holdings and pays employees.
+    // Agent can only act on companies that have agentsEnabled and whose payday has passed.
+    // Agent CANNOT withdraw, add employees, or change any company settings.
+    function executePayrollAgent(address company) external onlyAgent nonReentrant {
+        Company storage co = companies[company];
+        require(co.owner != address(0),      "not registered");
+        require(co.agentsEnabled,            "agents disabled");
+        require(co.nextPayrollMs > 0,        "no payroll scheduled");
+        require(block.timestamp * 1000 >= co.nextPayrollMs, "not yet due");
+        _convertAllToUsdc(company);
+        _executePayroll(company, "AGENT");
     }
 
     // ─── Views ────────────────────────────────────────────────────────────────
@@ -397,9 +484,13 @@ contract LymitraVault {
     function getWbtcUsdPrice() external view returns (uint256) { return _readOracle(WBTC_ORACLE); }
 
     receive() external payable {}
+
     function withdrawSTT(uint256 amount) external onlyOwner {
         require(address(this).balance >= amount, "insufficient STT");
-        payable(owner).transfer(amount);
+        emit WithdrawnSTT(owner, amount);
+        // Use .call to avoid 2300-gas limit of .transfer; re-entrance safe (onlyOwner)
+        (bool ok,) = payable(owner).call{value: amount}("");
+        require(ok, "STT transfer failed");
     }
 
     // ─── Price formatting helpers ─────────────────────────────────────────────

@@ -20,6 +20,9 @@
     "viem": "^2.29.2",
     "wagmi": "^2.15.4"
   },
+  "ts-node": {
+    "project": "tsconfig.hardhat.json"
+  },
   "devDependencies": {
     "@nomicfoundation/hardhat-chai-matchers": "^2.1.2",
     "@nomicfoundation/hardhat-ethers": "^3.1.3",

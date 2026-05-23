@@ -2,17 +2,19 @@
 
 import { useState } from "react";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { useTheme } from "@/components/ui/ThemeContext";
+import { Sun, Moon } from "lucide-react";
 
 type Panel = "dashboard" | "aichat" | "myagent" | "vault" | "payments" | "earn" | "analytics";
 
 const meta: Record<Panel, [string, string]> = {
-  dashboard: ["Dashboard",  "Portfolio overview · Somnia Shannon"],
-  aichat:    ["AI Chat",    "Powered by Somnia on-chain LLM"],
-  myagent:   ["My Agent",   "Autonomous agents · On-chain reactivity"],
-  vault:     ["Vault",      "Non-custodial treasury · Somnia Shannon"],
-  payments:  ["Payments",   "Agent-executed payroll · USDC"],
-  earn:      ["Earn",       "SOMI staking · Protocol rewards"],
-  analytics: ["Analytics",  "Transaction history · All activity"],
+  dashboard: ["Dashboard",  "Your portfolio at a glance"],
+  aichat:    ["AI Chat",    "Ask anything about your payroll"],
+  myagent:   ["My Agent",   "Autonomous payroll agents"],
+  vault:     ["Vault",      "Deposit, swap, and manage funds"],
+  payments:  ["Payments",   "Team salaries and schedule"],
+  earn:      ["Earn",       "Stake SOMI · Earn rewards"],
+  analytics: ["Analytics",  "Reports, audits, and history"],
 };
 
 interface TopbarProps {
@@ -24,6 +26,7 @@ const notifications: { text: string; time: string }[] = [];
 export function Topbar({ active }: TopbarProps) {
   const [page, sub] = meta[active];
   const [bellOpen, setBellOpen] = useState(false);
+  const { theme, toggleTheme } = useTheme();
 
   return (
     <div className="topbar">
@@ -66,6 +69,11 @@ export function Topbar({ active }: TopbarProps) {
             </div>
           )}
         </div>
+
+        {/* Theme toggle */}
+        <button className="theme-btn-land" onClick={toggleTheme} aria-label="Toggle theme">
+          {theme === "dark" ? <Sun size={15} /> : <Moon size={15} />}
+        </button>
 
         {/* RainbowKit connect button */}
         <ConnectButton

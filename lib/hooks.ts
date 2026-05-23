@@ -2,7 +2,8 @@
 
 import { useReadContract, useWriteContract } from "wagmi";
 import { parseUnits, formatUnits } from "viem";
-import { VAULT_CONTRACT, STAKING_CONTRACT, ROUTER_CONTRACT, PAIR_CONTRACT } from "./contracts";
+import { useEffect, useState } from "react";
+import { VAULT_CONTRACT, STAKING_CONTRACT, ROUTER_CONTRACT, PAIR_CONTRACT, ROUTER_ADDRESS, LYM_CONTRACT } from "./contracts";
 import {
   USDC_ADDRESS, USDT_ADDRESS, WSTT_ADDRESS,
   WETH_ADDRESS, WBTC_ADDRESS, WBNB_ADDRESS,
@@ -412,17 +413,39 @@ export function useDepositUsdt() {
   return { approve, depositUsdt, isPending };
 }
 
+export function useAgentAddress() {
+  return useReadContract({ ...VAULT_CONTRACT, functionName: "agentAddress" });
+}
+
 // ─── Oracle price reads (DIA on-chain feeds) ──────────────────────────────────
 export function useSomiUsdPrice() {
-  return useReadContract({ ...VAULT_CONTRACT, functionName: "getSomiUsdPrice" });
+  return useReadContract({ ...VAULT_CONTRACT, functionName: "getSomiUsdPrice", query: { refetchInterval: 30_000 } });
 }
 
 export function useWethUsdPrice() {
-  return useReadContract({ ...VAULT_CONTRACT, functionName: "getWethUsdPrice" });
+  return useReadContract({ ...VAULT_CONTRACT, functionName: "getWethUsdPrice", query: { refetchInterval: 30_000 } });
 }
 
 export function useWbtcUsdPrice() {
-  return useReadContract({ ...VAULT_CONTRACT, functionName: "getWbtcUsdPrice" });
+  return useReadContract({ ...VAULT_CONTRACT, functionName: "getWbtcUsdPrice", query: { refetchInterval: 30_000 } });
+}
+
+export function useBnbUsdPrice(): number {
+  const [price, setPrice] = useState(600);
+  useEffect(() => {
+    let cancelled = false;
+    async function fetch_() {
+      try {
+        const res = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=binancecoin&vs_currencies=usd");
+        const json = await res.json();
+        if (!cancelled && json?.binancecoin?.usd) setPrice(json.binancecoin.usd);
+      } catch { /* keep last value */ }
+    }
+    fetch_();
+    const id = setInterval(fetch_, 60_000);
+    return () => { cancelled = true; clearInterval(id); };
+  }, []);
+  return price;
 }
 
 // ─── DEX reads ────────────────────────────────────────────────────────────────
@@ -450,4 +473,98 @@ export function fmtUsdc(raw?: bigint): string {
 export function fmtStt(raw?: bigint): string {
   if (raw === undefined) return "—";
   return Number(formatUnits(raw, 18)).toLocaleString("en-US", { maximumFractionDigits: 4 });
+}
+
+// ─── WSTT wrap hooks ──────────────────────────────────────────────────────────
+const WSTT_PAYABLE_ABI = [
+  { name: "deposit",  type: "function", stateMutability: "payable",     inputs: [], outputs: [] },
+] as const;
+
+export function useWsttBalance(address?: `0x${string}`) {
+  return useReadContract({
+    address: WSTT_ADDRESS,
+    abi: ERC20_ABI,
+    functionName: "balanceOf",
+    args: address ? [address] : undefined,
+    query: { enabled: !!address },
+  });
+}
+
+export function useWrapStt() {
+  const { writeContractAsync, isPending } = useWriteContract();
+  const wrap = (sttAmount: bigint) =>
+    writeContractAsync({
+      address: WSTT_ADDRESS,
+      abi: WSTT_PAYABLE_ABI,
+      functionName: "deposit",
+      value: sttAmount,
+      chainId: CHAIN_ID,
+    });
+  return { wrap, isPending };
+}
+
+// ─── Swap hooks ───────────────────────────────────────────────────────────────
+export function useGetAmountsOut(amountIn: bigint, path: `0x${string}`[]) {
+  return useReadContract({
+    ...ROUTER_CONTRACT,
+    functionName: "getAmountsOut",
+    args: [amountIn, path] as unknown as [bigint, `0x${string}`[]],
+    query: { enabled: amountIn > 0n && path.length >= 2, refetchInterval: 5_000 },
+  });
+}
+
+export function useRouterAllowance(tokenAddress?: `0x${string}`, owner?: `0x${string}`) {
+  return useReadContract({
+    address: tokenAddress,
+    abi: ERC20_ABI,
+    functionName: "allowance",
+    args: owner && tokenAddress ? [owner, ROUTER_ADDRESS] : undefined,
+    query: { enabled: !!owner && !!tokenAddress },
+  });
+}
+
+export function useSwapTokens() {
+  const { writeContractAsync, isPending } = useWriteContract();
+
+  const approveRouter = (tokenAddress: `0x${string}`, amount: bigint) =>
+    writeContractAsync({
+      address: tokenAddress,
+      abi: ERC20_ABI,
+      functionName: "approve",
+      args: [ROUTER_ADDRESS, amount],
+      chainId: CHAIN_ID,
+    });
+
+  const swap = (amountIn: bigint, amountOutMin: bigint, path: `0x${string}`[], to: `0x${string}`) =>
+    writeContractAsync({
+      ...ROUTER_CONTRACT,
+      functionName: "swapExactTokensForTokens",
+      args: [amountIn, amountOutMin, path, to, BigInt(Math.floor(Date.now() / 1000) + 1200)],
+    });
+
+  return { approveRouter, swap, isPending };
+}
+
+// ─── LYM token hooks ──────────────────────────────────────────────────────────
+
+export function useLymBalance(address?: `0x${string}`) {
+  return useReadContract({
+    ...LYM_CONTRACT,
+    functionName: "balanceOf",
+    args: address ? [address] : undefined,
+    query: { enabled: !!address, refetchInterval: 15_000 },
+  });
+}
+
+export function useLymTotalSupply() {
+  return useReadContract({
+    ...LYM_CONTRACT,
+    functionName: "totalSupply",
+    query: { refetchInterval: 30_000 },
+  });
+}
+
+export function fmtLym(val?: bigint): string {
+  if (!val) return "0";
+  return Number(formatUnits(val, 18)).toLocaleString("en-US", { maximumFractionDigits: 2 });
 }

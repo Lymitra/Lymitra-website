@@ -1,29 +1,29 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { Wallet, Users, Repeat } from "lucide-react";
+import { Wallet, TrendingUp, ShieldCheck } from "lucide-react";
 
 const steps = [
   {
     n: "01",
     Icon: Wallet,
-    title: "Deposit any big token",
-    desc: "Deposit SOMI, ETH, BTC, BNB, USDC, or USDT into your vault. Add your team and pick a payday.",
-    tag: "5 min setup",
+    title: "Drop in crypto. Your team is set.",
+    desc: "Add employees, set a payday, choose which tokens to hold. One-time setup, no treasury ops team, no bank integration required.",
+    tag: "Under 5 min",
   },
   {
     n: "02",
-    Icon: Repeat,
-    title: "AI picks the moment",
-    desc: "Our on-chain AI monitors the rate 24/7 and converts to USDC at the optimal window before payday.",
-    tag: "Running 24/7",
+    Icon: TrendingUp,
+    title: "AI times the market for you.",
+    desc: "The AI watches exchange rates around the clock and converts when conditions are favorable, so your team gets more without you lifting a finger.",
+    tag: "Rate-optimized",
   },
   {
     n: "03",
-    Icon: Users,
-    title: "Team gets paid in USDC",
-    desc: "Every employee receives their exact salary in stable USDC on payday. You do nothing.",
-    tag: "Every month",
+    Icon: ShieldCheck,
+    title: "Payday lands. Every time.",
+    desc: "Employees receive USDC or USDT on schedule, regardless of market volatility. No delays, no failures, full on-chain audit trail.",
+    tag: "Zero failures",
   },
 ];
 
@@ -43,7 +43,10 @@ export function HowItWorks() {
     <section id="how" className="how" ref={ref}>
       <div className="reveal" style={{ marginBottom: "1rem" }}>
         <div className="sec-eyebrow">How it works</div>
-        <h2 className="sec-h">Set up once. <span className="accent">Walk away.</span></h2>
+        <h2 className="sec-h">Set up once. <span className="accent">Never touch it again.</span></h2>
+        <p style={{ color: "var(--text3)", fontSize: "0.95rem", marginTop: "0.5rem", maxWidth: 480, margin: "0.5rem auto 0" }}>
+          Most payroll tools require a finance team. Lymitra requires a wallet.
+        </p>
       </div>
       <div className="steps">
         {steps.map((s) => (
@@ -58,6 +61,7 @@ export function HowItWorks() {
           </div>
         ))}
       </div>
+
     </section>
   );
 }

@@ -2,17 +2,13 @@
 
 import { Logo } from "@/components/ui/Logo";
 
-interface FooterProps {
-  onGoLanding: () => void;
-}
-
-export function Footer({ onGoLanding }: FooterProps) {
+export function Footer() {
   return (
     <footer className="l-foot">
-      <div className="l-logo" onClick={onGoLanding} style={{ cursor: "pointer" }}>
+      <a className="l-logo" href="#" style={{ textDecoration: "none" }}>
         <Logo size={20} />
         <span className="l-wm" style={{ fontSize: 15 }}>lymitra</span>
-      </div>
+      </a>
 <div className="f-links">
         <a href="https://x.com" target="_blank" rel="noopener noreferrer" aria-label="X" style={{ display: "flex", alignItems: "center", gap: 5 }}>
           <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">

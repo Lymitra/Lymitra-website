@@ -1,50 +1,48 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useAccount, useBalance } from "wagmi";
 import { formatUnits } from "viem";
-import { TrendingUp, Users, BarChart2, Zap, Brain, CalendarCheck, AlertTriangle } from "lucide-react";
+import Image from "next/image";
+import { TrendingUp, Users, BarChart2, Zap, Brain, CalendarCheck, AlertTriangle, ArrowRight, FileText, Shield } from "lucide-react";
 import {
   useCompany, useEmployees, useMonthlyPayroll,
   useStakeOf, usePendingReward, useClaimReward,
-  useUsdcBalance, useWethBalance, useWbtcBalance, useWbnbBalance, useUsdtBalance,
-  useSomiUsdPrice, useWethUsdPrice, useWbtcUsdPrice,
-  fmtUsdc, fmtStt,
+  useWethBalance, useWbtcBalance, useWbnbBalance, useUsdcBalance, useUsdtBalance,
+  useSomiUsdPrice, useWethUsdPrice, useWbtcUsdPrice, useBnbUsdPrice,
+  useLymBalance, fmtUsdc, fmtStt, fmtLym,
 } from "@/lib/hooks";
 import { activeChain } from "@/lib/chains";
 
-// Token brand colors + symbols
-const TOKENS = [
-  { id: "somi", label: "SOMI", color: "#9B7FFF", stable: false },
-  { id: "eth",  label: "ETH",  color: "#627EEA", stable: false },
-  { id: "btc",  label: "BTC",  color: "#F7931A", stable: false },
-  { id: "bnb",  label: "BNB",  color: "#F3BA2F", stable: false },
-  { id: "usdc", label: "USDC", color: "#2775CA", stable: true  },
-  { id: "usdt", label: "USDT", color: "#26A17B", stable: true  },
-] as const;
+const LOGO: Record<string, string> = {
+  LYM:  "/logos/lym.svg",
+  SOMI: "/logos/somi-token-roundel-1.png",
+  ETH:  "/logos/eth.png",
+  BTC:  "/logos/btc.png",
+  BNB:  "/logos/bnb.png",
+  USDC: "/logos/usdc.png",
+  USDT: "/logos/usdt.png",
+};
 
-function TokenLogo({ label, color, size = 34 }: { label: string; color: string; size?: number }) {
+function TokenImg({ symbol, size = 32 }: { symbol: string; size?: number }) {
   return (
-    <div style={{
-      width: size, height: size, borderRadius: "50%", background: color,
-      display: "flex", alignItems: "center", justifyContent: "center",
-      fontSize: size * 0.28, fontWeight: 800, color: "#fff", flexShrink: 0,
-      letterSpacing: "-0.5px",
-    }}>
-      {label.slice(0, 3)}
-    </div>
+    <Image
+      src={LOGO[symbol] ?? LOGO["USDC"]}
+      width={size} height={size} alt={symbol}
+      unoptimized
+      style={{ borderRadius: "50%", display: "block", flexShrink: 0 }}
+    />
   );
 }
 
-function fmt(n: number, decimals = 4) {
-  return n.toLocaleString("en-US", { maximumFractionDigits: decimals });
-}
 function usd(n: number) {
   return "$" + n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
-// Convert 6-dec oracle uint to human price
+function fmt(n: number, d = 4) {
+  return n.toLocaleString("en-US", { maximumFractionDigits: d });
+}
 function oracleToNum(raw?: bigint): number | null {
-  if (raw === undefined || raw === 0n) return null;
+  if (!raw || raw === 0n) return null;
   return Number(raw) / 1e6;
 }
 
@@ -54,7 +52,6 @@ interface DashboardProps { onNav: (panel: Panel) => void }
 export function Dashboard({ onNav }: DashboardProps) {
   const { address, isConnected } = useAccount();
 
-  // On-chain oracle prices (DIA — free, always fresh)
   const { data: somiRaw } = useSomiUsdPrice();
   const { data: wethRaw } = useWethUsdPrice();
   const { data: wbtcRaw } = useWbtcUsdPrice();
@@ -62,8 +59,7 @@ export function Dashboard({ onNav }: DashboardProps) {
   const somiPrice = oracleToNum(somiRaw as bigint | undefined);
   const ethPrice  = oracleToNum(wethRaw as bigint | undefined);
   const btcPrice  = oracleToNum(wbtcRaw as bigint | undefined);
-  // BNB: no oracle on testnet — show seeded DEX price
-  const bnbPrice  = 600;
+  const bnbPrice  = useBnbUsdPrice();
 
   const { data: company }      = useCompany(address);
   const { data: employees }    = useEmployees(address);
@@ -71,18 +67,23 @@ export function Dashboard({ onNav }: DashboardProps) {
   const { data: staked }       = useStakeOf(address);
   const { data: pendingReward, refetch: refetchReward } = usePendingReward(address);
   const { claim, isPending: claiming } = useClaimReward();
-  const isSetUp = company?.owner === address;
+  const { data: lymBalance }   = useLymBalance(address);
 
-  const vaultUsdc     = company?.usdcBalance as bigint | undefined;
-  const companyName   = company?.name as string | undefined;
+  const isSetUp     = company?.owner === address;
+  const companyName = company?.name as string | undefined;
+
+  // Vault balances — tokens live in the vault contract after deposit
+  const vaultUsdc = company?.usdcBalance as bigint | undefined;
+  const vaultUsdt = company?.usdtBalance as bigint | undefined;
+  const vaultSomi = company?.somiBalance as bigint | undefined;
+  const vaultWeth = company?.wethBalance as bigint | undefined;
+  const vaultWbtc = company?.wbtcBalance as bigint | undefined;
+  const vaultWbnb = company?.wbnbBalance as bigint | undefined;
   const nextPayrollMs = company?.nextPayrollMs as bigint | undefined;
   const empCount      = employees ? (employees as unknown[]).length : 0;
-  const runwayMonths  =
-    vaultUsdc && monthlyTotal && (monthlyTotal as bigint) > 0n
-      ? (Number(vaultUsdc) / Number(monthlyTotal as bigint)).toFixed(1)
-      : null;
-  const lowVault = runwayMonths !== null && Number(runwayMonths) < 1;
-
+  const runwayMonths  = vaultUsdc && monthlyTotal && (monthlyTotal as bigint) > 0n
+    ? (Number(vaultUsdc) / Number(monthlyTotal as bigint)).toFixed(1) : null;
+  const lowVault      = runwayMonths !== null && Number(runwayMonths) < 1;
   const nextPayrollDate = nextPayrollMs && (nextPayrollMs as bigint) > 0n
     ? new Date(Number(nextPayrollMs)).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
     : null;
@@ -91,7 +92,7 @@ export function Dashboard({ onNav }: DashboardProps) {
     try { await claim(); refetchReward(); } catch {}
   }
 
-  // Wallet balances
+  // Wallet balances — what the user currently holds
   const { data: sttRaw  } = useBalance({ address, chainId: activeChain.id });
   const { data: wethBal } = useWethBalance(address);
   const { data: wbtcBal } = useWbtcBalance(address);
@@ -99,236 +100,379 @@ export function Dashboard({ onNav }: DashboardProps) {
   const { data: usdcBal } = useUsdcBalance(address);
   const { data: usdtBal } = useUsdtBalance(address);
 
-  const sttAmt  = sttRaw  ? Number(sttRaw.formatted)                  : 0;
+  const somiAmt = sttRaw  ? Number(sttRaw.formatted)                  : 0;
   const wethAmt = wethBal ? Number(formatUnits(wethBal as bigint, 18)) : 0;
   const wbtcAmt = wbtcBal ? Number(wbtcBal) / 1e8                     : 0;
   const wbnbAmt = wbnbBal ? Number(formatUnits(wbnbBal as bigint, 18)) : 0;
   const usdcAmt = usdcBal ? Number(formatUnits(usdcBal as bigint, 6))  : 0;
   const usdtAmt = usdtBal ? Number(formatUnits(usdtBal as bigint, 6))  : 0;
 
-  const sttUsd  = somiPrice ? sttAmt  * somiPrice : null;
-  const wethUsd = ethPrice  ? wethAmt * ethPrice  : null;
-  const wbtcUsd = btcPrice  ? wbtcAmt * btcPrice  : null;
+  const somiUsd = somiPrice ? somiAmt * somiPrice : 0;
+  const wethUsd = ethPrice  ? wethAmt * ethPrice  : 0;
+  const wbtcUsd = btcPrice  ? wbtcAmt * btcPrice  : 0;
   const wbnbUsd = wbnbAmt   * bnbPrice;
-  const totalUsd = sttUsd !== null && wethUsd !== null && wbtcUsd !== null
-    ? sttUsd + wethUsd + wbtcUsd + wbnbUsd + usdcAmt + usdtAmt
-    : null;
+  const totalUsd = somiUsd + wethUsd + wbtcUsd + wbnbUsd + usdcAmt + usdtAmt;
 
   const counterRef = useRef<HTMLDivElement>(null);
   const prevTotal  = useRef(0);
   useEffect(() => {
     const el = counterRef.current;
-    if (!el || totalUsd === null) return;
+    if (!el) return;
     const from = prevTotal.current;
-    const to   = totalUsd;
-    prevTotal.current = to;
-    const dur = 900;
+    prevTotal.current = totalUsd;
+    const dur = 800;
     const t0  = performance.now();
     function step(now: number) {
-      const p    = Math.min((now - t0) / dur, 1);
+      const p = Math.min((now - t0) / dur, 1);
       const ease = 1 - Math.pow(1 - p, 3);
-      el!.textContent = usd(from + (to - from) * ease);
+      el!.textContent = usd(from + (totalUsd - from) * ease);
       if (p < 1) requestAnimationFrame(step);
     }
     requestAnimationFrame(step);
   }, [totalUsd]);
 
-  // Live price ticker data
-  const priceTicker = [
-    { label: "SOMI", price: somiPrice ? "$" + somiPrice.toFixed(4) : "—",     color: "#9B7FFF" },
-    { label: "ETH",  price: ethPrice  ? "$" + Math.round(ethPrice).toLocaleString() : "—", color: "#627EEA" },
-    { label: "BTC",  price: btcPrice  ? "$" + Math.round(btcPrice).toLocaleString() : "—", color: "#F7931A" },
-    { label: "BNB",  price: "$" + bnbPrice.toLocaleString(),                  color: "#F3BA2F" },
-    { label: "USDC", price: "$1.00",                                           color: "#2775CA" },
-    { label: "USDT", price: "$1.00",                                           color: "#26A17B" },
+  const lymAmt = lymBalance ? Number(lymBalance as bigint) / 1e18 : 0;
+
+  const volatile = [
+    { symbol: "SOMI", fmtAmt: fmt(somiAmt, 3),  tag: null },
+    { symbol: "LYM",  fmtAmt: fmt(lymAmt, 2),   tag: "Rewards" },
+    { symbol: "ETH",  fmtAmt: fmt(wethAmt, 4),  tag: null },
+    { symbol: "BTC",  fmtAmt: fmt(wbtcAmt, 6),  tag: null },
+    { symbol: "BNB",  fmtAmt: fmt(wbnbAmt, 3),  tag: null },
+  ];
+  const stable = [
+    { symbol: "USDC", usdVal: usdcAmt, fmtAmt: fmt(usdcAmt, 2) },
+    { symbol: "USDT", usdVal: usdtAmt, fmtAmt: fmt(usdtAmt, 2) },
   ];
 
-  // Holdings rows
-  const holdings = [
-    { label: "SOMI", color: "#9B7FFF", usdVal: sttUsd,  amt: fmt(sttAmt, 3)  + " SOMI", price: somiPrice ? "$" + somiPrice.toFixed(4) : "—" },
-    { label: "ETH",  color: "#627EEA", usdVal: wethUsd, amt: fmt(wethAmt, 4) + " ETH",  price: ethPrice  ? "$" + Math.round(ethPrice).toLocaleString() : "—" },
-    { label: "BTC",  color: "#F7931A", usdVal: wbtcUsd, amt: fmt(wbtcAmt, 6) + " BTC",  price: btcPrice  ? "$" + Math.round(btcPrice).toLocaleString() : "—" },
-    { label: "BNB",  color: "#F3BA2F", usdVal: wbnbUsd, amt: fmt(wbnbAmt, 3) + " BNB",  price: "$" + bnbPrice },
-    { label: "USDC", color: "#2775CA", usdVal: usdcAmt, amt: fmt(usdcAmt, 2) + " USDC", price: "$1.00" },
-    { label: "USDT", color: "#26A17B", usdVal: usdtAmt, amt: fmt(usdtAmt, 2) + " USDT", price: "$1.00" },
+  const agents = [
+    { Icon: Zap,           label: "Rate Watch",        desc: "Monitors prices 24/7" },
+    { Icon: Brain,         label: "AI Decision",       desc: "Converts at the best rate" },
+    { Icon: CalendarCheck, label: "Auto Payroll",      desc: "Pays team on payday" },
   ];
 
   return (
-    <div>
-      {/* Hero */}
+    <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+
+      {/* ── Hero ─────────────────────────────────────────────────────── */}
       <div className="dash-hero">
         <div className="dh-glow" />
         <div className="dh-top">
-          <div className="dh-lbl">{companyName ?? "Total portfolio value"}</div>
+          <div className="dh-lbl">{companyName ? companyName + " · Portfolio value" : "Total portfolio value"}</div>
           <div className="dh-ai-badge">
             <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#3ED9B8", animation: "pulse 1.8s ease-in-out infinite", display: "inline-block", flexShrink: 0 }} />
-            {isSetUp ? "Agents active" : "AI ready"}
+            {isSetUp ? "Agents live" : "Connect vault to start"}
           </div>
         </div>
-        <div className="dh-amt" ref={counterRef}>
-          {totalUsd !== null ? usd(totalUsd) : isConnected ? "Loading…" : "—"}
-        </div>
+        <div className="dh-amt" ref={counterRef}>{usd(totalUsd)}</div>
 
-        {/* 6-token live price strip */}
-        <div className="dh-prices" style={{ flexWrap: "wrap", gap: "6px 16px" }}>
-          {priceTicker.map(({ label, price, color }) => (
-            <div className="dh-price-item" key={label}>
-              <TokenLogo label={label} color={color} size={18} />
-              <span className="dh-price-lbl">{label}</span>
+        {/* Live price strip */}
+        <div className="dh-prices" style={{ flexWrap: "wrap", gap: "6px 14px" }}>
+          {[
+            { symbol: "SOMI", price: somiPrice ? "$" + somiPrice.toFixed(4) : "—" },
+            { symbol: "ETH",  price: ethPrice  ? "$" + Math.round(ethPrice).toLocaleString() : "—" },
+            { symbol: "BTC",  price: btcPrice  ? "$" + Math.round(btcPrice).toLocaleString() : "—" },
+            { symbol: "BNB",  price: "$" + Math.round(bnbPrice).toLocaleString() },
+            { symbol: "USDC", price: "$1.00" },
+            { symbol: "USDT", price: "$1.00" },
+          ].map(({ symbol, price }) => (
+            <div className="dh-price-item" key={symbol}>
+              <TokenImg symbol={symbol} size={16} />
+              <span className="dh-price-lbl">{symbol}</span>
               <span className="dh-price-val">{price}</span>
             </div>
           ))}
         </div>
 
-        <div className="dh-acts">
-          <button className="dh-btn p" onClick={() => onNav("vault")}>+ Deposit</button>
-          <button className="dh-btn" onClick={() => onNav("payments")}><Users size={12} />Team</button>
-          <button className="dh-btn" onClick={() => onNav("earn")}><TrendingUp size={12} />Stake</button>
-          <button className="dh-btn" onClick={() => onNav("analytics")}><BarChart2 size={12} />History</button>
+        {/* App flow steps */}
+        <div style={{ display: "flex", alignItems: "center", gap: 0, flexWrap: "wrap", marginTop: "1.25rem" }}>
+          {[
+            { step: "1", label: "Deposit", sub: "Crypto in", nav: "vault",     Icon: TrendingUp, accent: true },
+            { step: "2", label: "Add Team", sub: "Set salaries", nav: "payments", Icon: Users,      accent: false },
+            { step: "3", label: "Stake",   sub: "Earn rewards", nav: "earn",     Icon: TrendingUp, accent: false },
+            { step: "4", label: "History", sub: "Audit trail",  nav: "analytics",Icon: BarChart2,  accent: false },
+          ].map(({ step, label, sub, nav, Icon, accent }, i) => (
+            <div key={step} style={{ display: "flex", alignItems: "center" }}>
+              <button
+                onClick={() => onNav(nav as Panel)}
+                style={{
+                  display: "flex", flexDirection: "column", alignItems: "flex-start",
+                  gap: 1, padding: "8px 14px", borderRadius: 10, cursor: "pointer",
+                  background: accent ? "rgba(62,217,184,0.1)" : "var(--bg3)",
+                  border: accent ? "1px solid rgba(62,217,184,0.25)" : "1px solid var(--border)",
+                  fontFamily: "inherit", transition: "all 0.15s",
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                  <span style={{ fontSize: 9, fontWeight: 700, color: accent ? "#3ED9B8" : "var(--text3)", letterSpacing: "0.06em" }}>
+                    {step}
+                  </span>
+                  <Icon size={10} color={accent ? "#3ED9B8" : "var(--text3)"} />
+                </div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: accent ? "var(--text)" : "var(--text2)" }}>{label}</div>
+                <div style={{ fontSize: 10, color: "var(--text3)" }}>{sub}</div>
+              </button>
+              {i < 3 && (
+                <div style={{ width: 20, textAlign: "center", fontSize: 10, color: "var(--text3)", flexShrink: 0 }}>→</div>
+              )}
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* Payroll stat strip */}
+      {/* ── 4-stat strip ─────────────────────────────────────────────── */}
       <div className="ss">
         <div className="sc">
-          <div className="sc-l">Vault (USDC+USDT)</div>
+          <div className="sc-l">Payroll reserve</div>
           <div className="sc-v accent">{isSetUp ? fmtUsdc(vaultUsdc) : "—"}</div>
-          <div className="sc-s">stable reserve</div>
+          <div className="sc-s">USDC + USDT ready</div>
         </div>
         <div className="sc">
           <div className="sc-l">Monthly payroll</div>
           <div className="sc-v">{isSetUp ? fmtUsdc(monthlyTotal as bigint | undefined) : "—"}</div>
-          <div className="sc-s">total across team</div>
+          <div className="sc-s">{empCount > 0 ? `across ${empCount} employees` : "total salaries"}</div>
         </div>
         <div className="sc">
-          <div className="sc-l">Employees</div>
-          <div className="sc-v gold">{isConnected ? empCount : "—"}</div>
-          <div className="sc-s">on payroll</div>
+          <div className="sc-l">Next payday</div>
+          <div className="sc-v" style={{ fontSize: nextPayrollDate ? 14 : 24, paddingTop: nextPayrollDate ? 6 : 0 }}>
+            {nextPayrollDate ?? "—"}
+          </div>
+          <div className="sc-s">auto-executed</div>
         </div>
         <div className="sc">
           <div className="sc-l">Runway</div>
-          <div className="sc-v green">{runwayMonths ? runwayMonths + " mo" : "—"}</div>
-          <div className="sc-s">months covered</div>
+          <div className="sc-v" style={{ color: lowVault ? "#ff6b6b" : "var(--green)" }}>
+            {runwayMonths ? runwayMonths + " mo" : "—"}
+          </div>
+          <div className="sc-s">months of payroll left</div>
         </div>
       </div>
 
+      {/* ── Low vault warning ──────────────────────────────────────────── */}
       {lowVault && (
-        <div style={{ display: "flex", alignItems: "center", gap: 10, background: "rgba(255,107,107,0.08)", border: "1px solid rgba(255,107,107,0.25)", borderRadius: 10, padding: "0.75rem 1rem", marginBottom: "1.25rem", fontSize: 13 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, background: "rgba(255,107,107,0.08)", border: "1px solid rgba(255,107,107,0.25)", borderRadius: 10, padding: "0.75rem 1rem", fontSize: 13 }}>
           <AlertTriangle size={15} color="#ff6b6b" style={{ flexShrink: 0 }} />
-          <span style={{ color: "#ff6b6b", fontWeight: 600 }}>Vault running low</span>
-          <span style={{ color: "var(--text2)", marginLeft: 4 }}>Less than 1 month of payroll remaining. Deposit tokens to top up.</span>
-          <button className="tb-btn" style={{ marginLeft: "auto", flexShrink: 0 }} onClick={() => onNav("vault")}>Deposit →</button>
+          <div>
+            <span style={{ color: "#ff6b6b", fontWeight: 600 }}>Vault running low. </span>
+            <span style={{ color: "var(--text2)" }}>less than 1 month of payroll remaining.</span>
+          </div>
+          <button className="tb-btn" style={{ marginLeft: "auto", flexShrink: 0 }} onClick={() => onNav("vault")}>Top up →</button>
         </div>
       )}
 
-      {/* Main grid */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "1rem" }}>
-        {/* Holdings — all 6 tokens */}
-        <div className="card">
+      {/* ── Main 2-col grid ───────────────────────────────────────────── */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: "1rem", alignItems: "stretch" }}
+           className="dash-main-grid">
+
+        {/* Holdings */}
+        <div className="card" style={{ height: "100%" }}>
           <div className="card-h">
             <div className="card-t">Holdings</div>
-            <button className="card-a" onClick={() => onNav("vault")}>Manage →</button>
+            <button className="card-a" onClick={() => onNav("vault")}>Deposit →</button>
           </div>
-          {holdings.map(({ label, color, usdVal, amt, price }) => (
-            <div className="tr" key={label}>
-              <div className="db-logo">
-                <TokenLogo label={label} color={color} size={34} />
+
+          {/* Volatile */}
+          <div style={{ padding: "0.5rem 1.25rem 0.25rem", fontSize: 11, fontWeight: 600, color: "var(--text3)", textTransform: "uppercase", letterSpacing: "0.07em" }}>
+            Volatile
+          </div>
+          {volatile.map(({ symbol, fmtAmt, tag }) => (
+            <div key={symbol} style={{
+              display: "flex", alignItems: "center", gap: 12, padding: "0.7rem 1.25rem",
+              borderBottom: "1px solid var(--border)",
+              background: symbol === "LYM" ? "rgba(27,63,191,0.05)" : "transparent",
+            }}>
+              <div style={{ position: "relative", flexShrink: 0 }}>
+                <TokenImg symbol={symbol} size={36} />
+                {symbol === "LYM" && (
+                  <div style={{
+                    position: "absolute", bottom: -2, right: -2,
+                    width: 12, height: 12, borderRadius: "50%",
+                    background: "#4FC4A8", border: "1.5px solid var(--bg1)",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                  }} />
+                )}
               </div>
-              <div className="ti-inf">
-                <div className="ti-n">{label}</div>
-                <div className="ti-t">{price}</div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                  <span style={{ fontSize: 14, fontWeight: 600, color: "var(--text)" }}>{symbol}</span>
+                  {tag && (
+                    <span style={{
+                      fontSize: 9, fontWeight: 700, letterSpacing: "0.07em",
+                      textTransform: "uppercase", color: "#4FC4A8",
+                      background: "rgba(79,196,168,0.12)", border: "1px solid rgba(79,196,168,0.25)",
+                      borderRadius: 4, padding: "1px 5px",
+                    }}>{tag}</span>
+                  )}
+                </div>
+                {symbol === "LYM" && (
+                  <div style={{ fontSize: 10, color: "var(--text3)", marginTop: 1 }}>Lymitra Rewards Token</div>
+                )}
               </div>
-              <div className="t-bal">
-                <div className="t-usd">{isConnected ? usd(usdVal ?? 0) : "—"}</div>
-                <div className="t-amt">{isConnected ? amt : "—"}</div>
+              <div style={{ textAlign: "right", flexShrink: 0 }}>
+                <div style={{ fontSize: 14, fontWeight: 600, color: symbol === "LYM" ? "#4FC4A8" : "var(--text)" }}>
+                  {isConnected ? fmtAmt + " " + symbol : "—"}
+                </div>
               </div>
             </div>
           ))}
+
+          {/* Stable */}
+          <div style={{ padding: "0.75rem 1.25rem 0.25rem", fontSize: 11, fontWeight: 600, color: "#4FC490", textTransform: "uppercase", letterSpacing: "0.07em" }}>
+            Stable
+          </div>
+          {stable.map(({ symbol, fmtAmt }) => (
+            <div key={symbol} style={{ display: "flex", alignItems: "center", gap: 12, padding: "0.7rem 1.25rem", borderBottom: "1px solid var(--border)" }}>
+              <TokenImg symbol={symbol} size={36} />
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 14, fontWeight: 600, color: "var(--text)" }}>{symbol}</div>
+              </div>
+              <div style={{ textAlign: "right", flexShrink: 0 }}>
+                <div style={{ fontSize: 14, fontWeight: 600, color: "var(--text)" }}>{isConnected ? fmtAmt + " " + symbol : "—"}</div>
+              </div>
+            </div>
+          ))}
+
+          {!isConnected && (
+            <div style={{ padding: "1.5rem", textAlign: "center", fontSize: 13, color: "var(--text3)" }}>
+              Connect your wallet to see your balances.
+            </div>
+          )}
         </div>
 
-        {/* Next payroll + staking */}
-        <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-          <div className="card">
+        {/* Right column */}
+        <div style={{ display: "flex", flexDirection: "column", gap: "1rem", height: "100%" }}>
+
+          {/* Next payroll */}
+          <div className="card" style={{ flex: 1 }}>
             <div className="card-h">
               <div className="card-t">Next payroll</div>
-              {isSetUp && <button className="card-a" onClick={() => onNav("payments")}>Manage →</button>}
+              {isSetUp && <button className="card-a" onClick={() => onNav("payments")}>Edit →</button>}
             </div>
-            <div style={{ padding: "1.1rem" }}>
+            <div style={{ padding: "1rem 1.25rem" }}>
               {nextPayrollDate ? (
-                <>
-                  <div style={{ fontSize: 22, fontWeight: 700, color: "var(--accent)", marginBottom: 4 }}>{nextPayrollDate}</div>
-                  <div style={{ fontSize: 12, color: "var(--text2)" }}>
-                    {fmtUsdc(monthlyTotal as bigint | undefined)} · {empCount} {empCount === 1 ? "employee" : "employees"}
+                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                  <div style={{ fontSize: 22, fontWeight: 700, color: "var(--accent)" }}>{nextPayrollDate}</div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 11, color: "#4FC490" }}>
+                    <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#4FC490", animation: "pulse 1.8s ease-in-out infinite", display: "inline-block" }} />
+                    Agents handle this automatically
                   </div>
-                </>
+                </div>
+              ) : isSetUp ? (
+                <div>
+                  <div style={{ fontSize: 13, color: "var(--text3)", marginBottom: 10 }}>No payroll scheduled yet.</div>
+                  <button className="tb-btn" style={{ display: "flex", alignItems: "center", gap: 5 }} onClick={() => onNav("payments")}>
+                    Schedule now <ArrowRight size={11} />
+                  </button>
+                </div>
               ) : (
-                <div style={{ fontSize: 13, color: "var(--text3)" }}>
-                  {isSetUp ? "No payroll scheduled yet." : "Set up your vault to schedule payroll."}
+                <div>
+                  <div style={{ fontSize: 13, color: "var(--text3)", marginBottom: 10 }}>Register your company first.</div>
+                  <button className="tb-btn" style={{ display: "flex", alignItems: "center", gap: 5 }} onClick={() => onNav("vault")}>
+                    Go to Vault <ArrowRight size={11} />
+                  </button>
                 </div>
               )}
             </div>
           </div>
 
-          <div className="card">
+          {/* Rewards */}
+          <div className="card" style={{ flex: 1 }}>
             <div className="card-h">
-              <div className="card-t">Staking</div>
-              <button className="card-a" onClick={() => onNav("earn")}>View →</button>
+              <div className="card-t">Rewards</div>
+              <button className="card-a" onClick={() => onNav("earn")}>Manage →</button>
             </div>
-            <div style={{ padding: "1.1rem" }}>
-              <div className="kv">
-                <span className="kk">Staked</span>
-                <span className="kv-v gold">{fmtStt(staked as bigint | undefined)} SOMI</span>
+            <div style={{ padding: "0.85rem 1.25rem", display: "flex", flexDirection: "column", gap: 8 }}>
+
+              {/* LYM row */}
+              <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "0.6rem 0.85rem", background: "rgba(27,63,191,0.07)", border: "1px solid rgba(79,196,168,0.2)", borderRadius: 10 }}>
+                <Image src="/logos/lym.svg" width={28} height={28} alt="LYM" unoptimized style={{ borderRadius: "50%", display: "block", flexShrink: 0 }} />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.06em", color: "var(--text3)", textTransform: "uppercase" }}>LYM Earned</div>
+                  <div style={{ fontSize: 9, color: "var(--text3)" }}>1 per employee per run</div>
+                </div>
+                <div style={{ fontSize: 15, fontWeight: 700, color: "#4FC4A8", flexShrink: 0 }}>{fmtLym(lymBalance as bigint | undefined)}</div>
               </div>
-              <div className="kv">
-                <span className="kk">Pending reward</span>
-                <span className="kv-v accent">{fmtUsdc(pendingReward as bigint | undefined)}</span>
+
+              {/* USDC staking row */}
+              <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "0.6rem 0.85rem", background: "var(--bg3)", border: "1px solid var(--border)", borderRadius: 10 }}>
+                <Image src="/logos/usdc.png" width={28} height={28} alt="USDC" unoptimized style={{ borderRadius: "50%", display: "block", flexShrink: 0 }} />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.06em", color: "var(--text3)", textTransform: "uppercase" }}>USDC Yield</div>
+                  <div style={{ fontSize: 9, color: "var(--text3)" }}>{fmtStt(staked as bigint | undefined)} SOMI staked</div>
+                </div>
+                <div style={{ fontSize: 15, fontWeight: 700, color: "var(--accent)", flexShrink: 0 }}>{fmtUsdc(pendingReward as bigint | undefined)}</div>
               </div>
+
               {(pendingReward as bigint | undefined) && (pendingReward as bigint) > 0n && (
-                <button className="sub-btn" onClick={handleClaim} disabled={claiming} style={{ marginTop: "0.75rem" }}>
+                <button className="sub-btn" onClick={handleClaim} disabled={claiming} style={{ marginTop: 2 }}>
                   {claiming ? "Claiming…" : `Claim ${fmtUsdc(pendingReward as bigint)} USDC`}
                 </button>
               )}
             </div>
           </div>
-        </div>
 
-        {/* Agent status */}
-        <div className="agp">
-          <div className="agp-h">
-            <div className="agp-hl">
-              <div className="ag-led" />
-              <div className="agp-ht">Agents</div>
+          {/* Agent status */}
+          <div className="card" style={{ flex: 1 }}>
+            <div className="card-h">
+              <div className="card-t">
+                <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                  <div className="ag-led" style={{ width: 7, height: 7 }} />
+                  Agents
+                </span>
+              </div>
+              <button className="card-a" onClick={() => onNav("myagent")}>View →</button>
             </div>
-            <button className="card-a" onClick={() => onNav("myagent")}>View all →</button>
-          </div>
-          <div className="agp-feed">
-            {[
-              { Icon: Zap,           label: "Rate Watch",        sub: "Monitors SOMI, ETH, BTC rates 24/7 via DIA oracle" },
-              { Icon: Brain,         label: "LLM Decision",      sub: "Picks optimal moment to convert 4 volatile tokens" },
-              { Icon: CalendarCheck, label: "Payroll Execution", sub: "Sends USDC/USDT to all employees on payday" },
-            ].map(({ Icon, label, sub }) => (
-              <div className="ag-item" key={label}>
-                <div className="ai-ic"><Icon size={11} /></div>
-                <div className="ai-body">
-                  <div className="ai-title">{label}</div>
-                  <div className="ai-sub">{sub}</div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
+              {agents.map(({ Icon, label, desc }) => (
+                <div key={label} style={{ display: "flex", alignItems: "center", gap: 10, padding: "0.7rem 1.25rem", borderBottom: "1px solid var(--border)" }}>
+                  <div style={{ width: 28, height: 28, borderRadius: 8, background: isSetUp ? "rgba(79,196,144,0.1)" : "var(--bg2)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                    <Icon size={13} color={isSetUp ? "#4FC490" : "var(--text3)"} />
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: "var(--text)" }}>{label}</div>
+                    <div style={{ fontSize: 11, color: "var(--text3)", marginTop: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{desc}</div>
+                  </div>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: isSetUp ? "#4FC490" : "var(--text3)", flexShrink: 0 }}>
+                    {isSetUp ? "Live" : "Off"}
+                  </div>
                 </div>
-                <div className="ai-time" style={{ color: isSetUp ? "#4FC490" : "var(--text3)" }}>
-                  {isSetUp ? "Active" : "Waiting"}
-                </div>
-              </div>
-            ))}
-            {!isConnected && (
-              <div style={{ padding: "1rem 1.25rem", fontSize: "12px", color: "var(--text3)" }}>
-                Connect your wallet to activate agents.
-              </div>
-            )}
-            {isConnected && !isSetUp && (
-              <div style={{ padding: "1rem 1.25rem", fontSize: "12px", color: "var(--text3)" }}>
-                Set up your vault to activate agents.
-              </div>
-            )}
+              ))}
+            </div>
           </div>
+        </div>
+      </div>
+
+      {/* ── Finance Reports teaser ─────────────────────────────────── */}
+      <div className="card" style={{ marginTop: "1rem" }}>
+        <div className="card-h">
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <div style={{ width: 26, height: 26, borderRadius: 8, background: "rgba(62,217,184,0.1)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <Shield size={13} color="#3ED9B8" />
+            </div>
+            <div className="card-t">Finance Reports</div>
+          </div>
+          <button className="card-a" onClick={() => onNav("analytics")}>Open hub →</button>
+        </div>
+        <div style={{ padding: "0.75rem 1.25rem 1rem", display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }}>
+          {[
+            { Icon: BarChart2,     color: "#5B7FFF", title: "Monthly Summary",  sub: "Payroll breakdown · CFO-ready" },
+            { Icon: CalendarCheck, color: "#3ED9B8", title: "Quarterly Audit",  sub: "Compliance report · Download" },
+            { Icon: FileText,      color: "#F3BA2F", title: "Invoice",          sub: "Itemised · Per payroll cycle" },
+          ].map(({ Icon, color, title, sub }) => (
+            <button
+              key={title}
+              onClick={() => onNav("analytics")}
+              style={{
+                display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 6,
+                padding: "0.8rem 0.9rem", borderRadius: 10, cursor: "pointer", textAlign: "left",
+                background: `${color}08`, border: `1px solid ${color}25`, fontFamily: "inherit",
+              }}
+            >
+              <Icon size={14} color={color} />
+              <div style={{ fontSize: 12, fontWeight: 700, color: "var(--text)" }}>{title}</div>
+              <div style={{ fontSize: 10, color: "var(--text3)", lineHeight: 1.4 }}>{sub}</div>
+            </button>
+          ))}
         </div>
       </div>
     </div>

@@ -1,41 +1,74 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
+import Image from "next/image";
 
-interface HeroProps {
-  onLaunchApp: () => void;
-}
+interface HeroProps {}
 
 const TEAM = [
-  { name: "Alex Kim",    role: "Product Lead",   salary: "$4,500", avatar: "https://i.pravatar.cc/80?img=11" },
-  { name: "Sofia Reyes", role: "Designer",       salary: "$3,800", avatar: "https://i.pravatar.cc/80?img=5"  },
-  { name: "Marcus N.",   role: "Lead Engineer",  salary: "$4,200", avatar: "https://i.pravatar.cc/80?img=52" },
+  { name: "Alex Kim",    role: "Product Lead",   salary: "$4,500", amount: 4500, avatar: "https://i.pravatar.cc/80?img=11" },
+  { name: "Sofia Reyes", role: "UX Designer",    salary: "$3,200", amount: 3200, avatar: "https://i.pravatar.cc/80?img=5"  },
+  { name: "Marcus N.",   role: "Lead Engineer",  salary: "$6,800", amount: 6800, avatar: "https://i.pravatar.cc/80?img=52" },
 ];
+// Staggered delays in ms — mimic real block confirmation variation
+const PAY_DELAYS = [880, 1540, 2310];
 
-export function Hero({ onLaunchApp }: HeroProps) {
+function currentPayrollLabel() {
+  const now = new Date();
+  return now.toLocaleString("en-US", { month: "long" }) + " Payroll";
+}
+function nextPayrollLabel() {
+  const now = new Date();
+  const next = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+  return next.toLocaleString("en-US", { month: "short" }) + " 1 · Automatic";
+}
+
+function TokenLogo({ src, alt, size = 18 }: { src: string; alt: string; size?: number }) {
+  return (
+    <Image src={src} width={size} height={size} alt={alt} unoptimized style={{ borderRadius: "50%", display: "block" }} />
+  );
+}
+
+export function Hero({}: HeroProps) {
   const sectionRef  = useRef<HTMLElement>(null);
   const spotlightRef = useRef<HTMLDivElement>(null);
   const rightRef    = useRef<HTMLDivElement>(null);
   const glareRef    = useRef<HTMLDivElement>(null);
 
-  const [paidIdx, setPaidIdx] = useState(-1);
-  const [running, setRunning] = useState(false);
-  const [total,   setTotal]   = useState(0);
-  const [done,    setDone]    = useState(false);
+  const [paidIdx,    setPaidIdx]    = useState(-1);
+  const [running,    setRunning]    = useState(false);
+  const [total,      setTotal]      = useState(0);
+  const [done,       setDone]       = useState(false);
+  const [paidTimes,  setPaidTimes]  = useState<string[]>([]);
+  const [paidHashes, setPaidHashes] = useState<string[]>([]);
+  const [curLabel,   setCurLabel]   = useState(currentPayrollLabel);
+  const [nextLabel,  setNextLabel]  = useState(nextPayrollLabel);
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      setCurLabel(currentPayrollLabel());
+      setNextLabel(nextPayrollLabel());
+    }, 60_000);
+    return () => clearInterval(id);
+  }, []);
 
   useEffect(() => {
     let timers: ReturnType<typeof setTimeout>[] = [];
     function cycle() {
       setPaidIdx(-1); setTotal(0); setDone(false); setRunning(true);
-      const amounts = [4500, 3800, 4200];
+      setPaidTimes([]); setPaidHashes([]);
       let acc = 0;
-      TEAM.forEach((_, i) => {
+      TEAM.forEach((emp, i) => {
         const t = setTimeout(() => {
-          acc += amounts[i];
+          acc += emp.amount;
           setPaidIdx(i);
           setTotal(acc);
+          const ts   = new Date().toLocaleTimeString("en-US", { hour12: false });
+          const hash = "0x" + Math.random().toString(16).slice(2, 7) + "…" + Math.random().toString(16).slice(2, 6);
+          setPaidTimes( prev => { const n = [...prev]; n[i] = ts;   return n; });
+          setPaidHashes(prev => { const n = [...prev]; n[i] = hash; return n; });
           if (i === TEAM.length - 1) setTimeout(() => setDone(true), 400);
-        }, 900 + i * 600);
+        }, PAY_DELAYS[i]);
         timers.push(t);
       });
       const reset = setTimeout(() => {
@@ -49,7 +82,6 @@ export function Hero({ onLaunchApp }: HeroProps) {
     return () => { clearTimeout(init); timers.forEach(clearTimeout); };
   }, []);
 
-  // Soft spotlight follows cursor across the whole hero
   const onSectionMove = useCallback((e: MouseEvent) => {
     const s = sectionRef.current;
     const sp = spotlightRef.current;
@@ -64,7 +96,6 @@ export function Hero({ onLaunchApp }: HeroProps) {
     if (spotlightRef.current) spotlightRef.current.style.background = "";
   }, []);
 
-  // Strong 3D tilt + card glare
   const onRightMove = useCallback((e: MouseEvent) => {
     const el = rightRef.current;
     const glare = glareRef.current;
@@ -118,51 +149,56 @@ export function Hero({ onLaunchApp }: HeroProps) {
         <div className="hero-left">
           <div className="h-badge">
             <span className="h-badge-dot" />
-            AI-powered payroll on Somnia
+            Available on iOS &amp; Android
           </div>
 
           <h1 className="hero-h">
-            Any crypto in.<br />
-            <span className="accent">Stablecoins out.</span>
+            Crypto in.<br />
+            <span className="accent">Payday, out.</span>
           </h1>
 
           <p className="h-sub">
-            Deposit SOMI, ETH, BTC, or BNB. Our AI converts at the right moment
-            and pays your team in USDC or USDT — every month, automatically.
+            Add your team once. The AI converts your deposits to stablecoins and pays everyone on schedule.
           </p>
 
           <div className="cta-row" style={{ justifyContent: "flex-start" }}>
-            <button className="btn-primary" onClick={onLaunchApp}>
-              Get started
-            </button>
-            <a className="btn-ghost" href="#how">How it works</a>
+            <a className="btn-primary" href="#mobile-app">
+              Get Started
+            </a>
           </div>
 
-          {/* Supported token strip */}
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: "1.25rem", flexWrap: "wrap" }}>
-            <span style={{ fontSize: 11, color: "var(--text3)", fontWeight: 500, marginRight: 4 }}>Deposit:</span>
-            {[
-              { label: "SOMI", color: "#9B7FFF" },
-              { label: "ETH",  color: "#627EEA" },
-              { label: "BTC",  color: "#F7931A" },
-              { label: "BNB",  color: "#F3BA2F" },
-              { label: "USDC", color: "#2775CA" },
-              { label: "USDT", color: "#26A17B" },
-            ].map(({ label, color }) => (
-              <div key={label} style={{ display: "flex", alignItems: "center", gap: 5, background: "var(--bg2)", borderRadius: 20, padding: "3px 10px 3px 5px" }}>
-                <div style={{ width: 18, height: 18, borderRadius: "50%", background: color, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 7, fontWeight: 800, color: "#fff" }}>
-                  {label.slice(0, 3)}
+          {/* Two-row token strip — inputs vs output */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: "1.25rem" }}>
+            {/* Volatile deposits */}
+            <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+              <span style={{ fontSize: 11, color: "var(--text3)", fontWeight: 500, minWidth: 52 }}>Deposit:</span>
+              {[
+                { label: "SOMI", src: "/logos/somi-token-roundel-1.png" },
+                { label: "ETH",  src: "/logos/eth.png"  },
+                { label: "BTC",  src: "/logos/btc.png"  },
+                { label: "BNB",  src: "/logos/bnb.png"  },
+              ].map(({ label, src }) => (
+                <div key={label} style={{ display: "flex", alignItems: "center", gap: 5, background: "var(--bg2)", borderRadius: 20, padding: "3px 10px 3px 5px" }}>
+                  <TokenLogo src={src} alt={label} size={18} />
+                  <span style={{ fontSize: 11, fontWeight: 600, color: "var(--text2)" }}>{label}</span>
                 </div>
-                <span style={{ fontSize: 11, fontWeight: 600, color: "var(--text2)" }}>{label}</span>
-              </div>
-            ))}
+              ))}
+            </div>
+            {/* Stable output */}
+            <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+              <span style={{ fontSize: 11, color: "var(--text3)", fontWeight: 500, minWidth: 52 }}>Pays in:</span>
+              {[
+                { label: "USDC", src: "/logos/usdc.png" },
+                { label: "USDT", src: "/logos/usdt.png" },
+              ].map(({ label, src }) => (
+                <div key={label} style={{ display: "flex", alignItems: "center", gap: 5, background: "rgba(79,196,144,0.07)", border: "1px solid rgba(79,196,144,0.18)", borderRadius: 20, padding: "3px 10px 3px 5px" }}>
+                  <TokenLogo src={src} alt={label} size={18} />
+                  <span style={{ fontSize: 11, fontWeight: 600, color: "#4FC490" }}>{label}</span>
+                </div>
+              ))}
+            </div>
           </div>
 
-          <div className="hero-trust">
-            <span className="ht-item">No manual transfers. Ever.</span>
-            <span className="ht-sep">·</span>
-            <span className="ht-item">Your team gets paid while you sleep.</span>
-          </div>
         </div>
 
         {/* Right — 3D tilt payroll card */}
@@ -175,15 +211,14 @@ export function Hero({ onLaunchApp }: HeroProps) {
             <div className="pay-glare" ref={glareRef} />
             <div className="pay-card-header">
               <div>
-                <div className="pay-card-title">June Payroll</div>
-                <div className="pay-card-sub">Somnia · USDC</div>
+                <div className="pay-card-title">{curLabel}</div>
+                <div className="pay-card-sub">Somnia · USDC / USDT</div>
               </div>
               <div className={`pay-status ${done ? "pay-status-done" : "pay-status-run"}`}>
                 {done ? "Complete" : running ? "Running" : "Scheduled"}
               </div>
             </div>
 
-            {/* Progress bar */}
             <div className="pay-progress-wrap">
               <div
                 className="pay-progress-bar"
@@ -209,12 +244,26 @@ export function Hero({ onLaunchApp }: HeroProps) {
                     </div>
                     <div className="pay-emp-info">
                       <div className="pay-emp-name">{emp.name}</div>
-                      <div className="pay-emp-role">{emp.role}</div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                        <div className="pay-emp-role">{emp.role}</div>
+                        {paid && paidHashes[i] && (
+                          <span style={{ fontSize: 9, color: "rgba(79,196,144,0.55)", fontFamily: "monospace", letterSpacing: "0.02em" }}>
+                            {paidHashes[i]}
+                          </span>
+                        )}
+                      </div>
                     </div>
                     <div className="pay-right-col">
                       <div className="pay-amount">{emp.salary}</div>
-                      <div className={`pay-badge ${paid ? "pay-badge-paid" : "pay-badge-pending"}`}>
-                        {paid ? "Paid" : "Pending"}
+                      <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                        {paid && paidTimes[i] && (
+                          <span style={{ fontSize: 9, color: "rgba(79,196,144,0.7)", fontFamily: "monospace" }}>
+                            {paidTimes[i]}
+                          </span>
+                        )}
+                        <div className={`pay-badge ${paid ? "pay-badge-paid" : "pay-badge-pending"}`}>
+                          {paid ? "Paid" : "Pending"}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -227,20 +276,17 @@ export function Hero({ onLaunchApp }: HeroProps) {
             <div className="pay-footer">
               <div className="pay-total-label">Total disbursed</div>
               <div className="pay-total-amt">
-                ${total.toLocaleString()} <span className="pay-total-token">USDC</span>
+                ${total.toLocaleString()} <span className="pay-total-token">USDC/USDT</span>
               </div>
             </div>
 
-            {done && (
-              <div className="pay-exec-badge">Executed in 0.8s · 0 failures · 1% fee</div>
-            )}
           </div>
 
           <div className="pay-mini-card">
             <div className="pmc-dot" />
             <div>
               <div className="pmc-label">Next payroll</div>
-              <div className="pmc-val">Jul 1 · Automatic</div>
+              <div className="pmc-val">{nextLabel}</div>
             </div>
           </div>
         </div>

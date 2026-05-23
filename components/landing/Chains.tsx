@@ -16,15 +16,15 @@ export function Chains() {
 
   return (
     <section id="chains-l" className="chains" ref={ref}>
-      <div className="c-lbl reveal">Assets from any chain · Intelligence on Somnia</div>
+      <div className="c-lbl reveal">Built on Somnia. Ultra-fast blocks, near-zero gas, on-chain AI.</div>
       <div className="c-pills reveal">
         <div className="cp live">
-          <div className="cp-dot cpd-a" />Somnia<span className="live-t">● LIVE</span>
+          <div className="cp-dot cpd-a" />Somnia Testnet<span className="live-t">● LIVE</span>
         </div>
-        <div className="cp"><div className="cp-dot cpd-b" />Ethereum</div>
-        <div className="cp"><div className="cp-dot cpd-b" />Base</div>
-        <div className="cp"><div className="cp-dot cpd-p" />Polygon</div>
-        <div className="cp"><div className="cp-dot cpd-gr" />More soon</div>
+        <div className="cp"><div className="cp-dot cpd-b" />DIA Oracle pricing</div>
+        <div className="cp"><div className="cp-dot cpd-b" />On-chain LLM agents</div>
+        <div className="cp"><div className="cp-dot cpd-gr" />Somnia Reactivity</div>
+        <div className="cp"><div className="cp-dot cpd-p" />~$0 gas per payroll</div>
       </div>
     </section>
   );
