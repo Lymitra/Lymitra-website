@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import { useAccount, useDisconnect } from "wagmi";
 import { formatUnits } from "viem";
 import { useTheme } from "@/components/ui/ThemeContext";

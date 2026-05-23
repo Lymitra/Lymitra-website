@@ -3,8 +3,6 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import Image from "next/image";
 
-interface HeroProps {}
-
 const TEAM = [
   { name: "Alex Kim",    role: "Product Lead",   salary: "$4,500", amount: 4500, avatar: "https://i.pravatar.cc/80?img=11" },
   { name: "Sofia Reyes", role: "UX Designer",    salary: "$3,200", amount: 3200, avatar: "https://i.pravatar.cc/80?img=5"  },
@@ -29,7 +27,7 @@ function TokenLogo({ src, alt, size = 18 }: { src: string; alt: string; size?: n
   );
 }
 
-export function Hero({}: HeroProps) {
+export function Hero() {
   const sectionRef  = useRef<HTMLElement>(null);
   const spotlightRef = useRef<HTMLDivElement>(null);
   const rightRef    = useRef<HTMLDivElement>(null);

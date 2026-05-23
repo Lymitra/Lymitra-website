@@ -74,11 +74,11 @@ export function Dashboard({ onNav }: DashboardProps) {
 
   // Vault balances — tokens live in the vault contract after deposit
   const vaultUsdc = company?.usdcBalance as bigint | undefined;
-  const vaultUsdt = company?.usdtBalance as bigint | undefined;
-  const vaultSomi = company?.somiBalance as bigint | undefined;
-  const vaultWeth = company?.wethBalance as bigint | undefined;
-  const vaultWbtc = company?.wbtcBalance as bigint | undefined;
-  const vaultWbnb = company?.wbnbBalance as bigint | undefined;
+  const _vaultUsdt = company?.usdtBalance as bigint | undefined;
+  const _vaultSomi = company?.somiBalance as bigint | undefined;
+  const _vaultWeth = company?.wethBalance as bigint | undefined;
+  const _vaultWbtc = company?.wbtcBalance as bigint | undefined;
+  const _vaultWbnb = company?.wbnbBalance as bigint | undefined;
   const nextPayrollMs = company?.nextPayrollMs as bigint | undefined;
   const empCount      = employees ? (employees as unknown[]).length : 0;
   const runwayMonths  = vaultUsdc && monthlyTotal && (monthlyTotal as bigint) > 0n
