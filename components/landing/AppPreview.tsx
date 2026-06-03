@@ -48,6 +48,7 @@ function PhonePay() {
 }
 
 /* ── Main export ─────────────────────────────────── */
+// Updated with real app screenshots and Expo build links
 export function AppPreview() {
   const ref = useRef<HTMLDivElement>(null);
 
