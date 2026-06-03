@@ -32,9 +32,6 @@ The full platform is available as a mobile app built with React Native. Manage p
 npm install
 npm run dev
 ```
-
-Visit `http://localhost:3000` to view the landing page. Connect a wallet on the Somnia Shannon Testnet to interact with the platform.
-
 ---
 
 ## Tech Stack
