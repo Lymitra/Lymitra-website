@@ -1,106 +1,62 @@
 # Lymitra
 
-**Crypto payroll, powered by AI. Built on Somnia.**
+**Autonomous payroll for crypto-native companies. Powered by AI. Built on Somnia.**
 
-Lymitra lets employers deposit crypto and pay their team in stablecoins on schedule — automatically. The AI monitors exchange rates around the clock and converts at the right moment, so every employee receives USDC or USDT on payday without the employer lifting a finger.
-
----
-
-## What it does
-
-- **Deposit any token** — SOMI (STT), ETH, BTC, BNB, USDC, or USDT into your company vault
-- **Add your team** — set wallet addresses and salaries once
-- **Schedule payroll** — pick a payday and the AI handles everything from there
-- **AI rate optimization** — three autonomous on-chain agents watch prices, decide when to convert, and execute payroll
-- **Stablecoin payouts** — employees always receive USDC or USDT regardless of market volatility
-- **On-chain audit trail** — every payment is transparent and verifiable on Somnia
+Lymitra automates employee payments with AI-driven rate optimization. Deposit crypto, set salaries, and the platform handles payroll execution—converting at the optimal moment and paying employees in stablecoins.
 
 ---
 
-## How the AI works
+## 📱 Mobile App
 
-Lymitra uses three autonomous agents built on Somnia primitives:
+**👉 [Check out the Lymitra Mobile App](https://github.com/Lymitra/lymitra-mobile)**
 
-| Agent | Role |
-|---|---|
-| **Rate Watch** | Reads live oracle prices for SOMI, ETH, BTC, BNB |
-| **LLM Decision** | Analyzes a 7-day rate window and decides when to convert |
-| **Payroll Execution** | Converts vault holdings to USDC and pays all employees on payday |
-
-Once you schedule payroll, all three agents activate and run without any manual input.
+The full platform is available as a mobile app built with React Native. Manage payroll, vault, staking, and governance directly from your phone.
 
 ---
 
-## Smart contracts
+## Core Features
 
-| Contract | Purpose |
-|---|---|
-| `LymitraVault.sol` | Company vault — holds deposits, manages employee registry, runs payroll |
-| `LymitraStaking.sol` | Stake LYM tokens to earn rewards |
-| `LYMToken.sol` | Native LYM governance/reward token |
-| `dex/SomniaFactory.sol` | AMM factory for token pair creation |
-| `dex/SomniaPair.sol` | AMM liquidity pair (WSTT/USDC, WETH/USDC, WBTC/USDC, WBNB/USDC) |
-| `dex/SomniaRouter.sol` | DEX router — handles swaps used for AI conversions |
-
----
-
-## Tech stack
-
-- **Frontend** — Next.js 15, TypeScript, Tailwind CSS
-- **Wallet** — wagmi v2, RainbowKit, viem
-- **AI** — Anthropic Claude SDK (LLM agent for rate decisions)
-- **Database** — Supabase (agent state, job queue)
-- **Chain** — Somnia Shannon Testnet (Chain ID 50312)
+- **Deposit Crypto** — Add SOMI, ETH, BTC, BNB, USDC, or USDT to your company vault
+- **Manage Employees** — Set wallet addresses and monthly salaries
+- **Automated Payroll** — AI agent executes payments on schedule
+- **Smart Swaps** — Convert volatile tokens to stablecoins at optimal rates
+- **Staking** — Stake SOMI tokens and earn platform fees
+- **Governance** — Vote on protocol decisions via DAO
+- **Transparent** — Every transaction verified on-chain
 
 ---
 
-## Supported tokens
-
-| Token | Role |
-|---|---|
-| STT / SOMI | Native Somnia token, depositable via wrap |
-| WETH | Wrapped ETH deposit |
-| WBTC | Wrapped BTC deposit |
-| WBNB | Wrapped BNB deposit |
-| USDC | Stablecoin payout + vault reserve |
-| USDT | Stablecoin payout |
-| LYM | Platform token, earned by staking |
-
----
-
-## Landing page features
-
-- Animated payroll card with live month labels
-- **Rate Rush** — interactive minigame that demonstrates exactly how the AI converts tokens on payday. Play it to see why timing matters.
-- Mobile app preview with phone mockups (iOS + Android, built on Somnia)
-- Live token price feeds via CoinGecko / Binance fallback
-
----
-
-## Getting started
+## Getting Started
 
 ```bash
 npm install
 npm run dev
 ```
 
-Create a `.env.local` file with the required environment variables (see `.env.example` if available) and connect a wallet on the Somnia Shannon Testnet.
-
-To deploy contracts:
-
-```bash
-npx hardhat run scripts/deploy.ts
-```
+Visit `http://localhost:3000` to view the landing page. Connect a wallet on the Somnia Shannon Testnet to interact with the platform.
 
 ---
 
-## Chain
+## Tech Stack
 
-**Somnia Shannon Testnet**
-- RPC: `https://dream-rpc.somnia.network`
-- Chain ID: `50312`
-- Native token: STT
+- **Frontend** — Next.js 15, TypeScript, Tailwind CSS
+- **Blockchain** — Wagmi, Viem, Smart Contracts on Somnia
+- **AI** — Anthropic Claude SDK for agent decision-making
+- **Database** — Supabase for agent state management
 
 ---
 
-Built for the **Somnia Agentathon** hackathon.
+## Supported Tokens
+
+SOMI, ETH, BTC, BNB, USDC, USDT, LYM
+
+---
+
+## Network
+
+**Somnia Shannon Testnet (Chain ID: 50312)**  
+RPC: `https://dream-rpc.somnia.network`
+
+---
+
+Built for the **Somnia Agentathon**. Check out the [Mobile App](https://github.com/Lymitra/lymitra-mobile) for the full experience.
