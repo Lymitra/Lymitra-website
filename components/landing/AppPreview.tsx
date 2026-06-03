@@ -29,21 +29,21 @@ function GooglePlayLogo() {
 /* ── SCREEN 1: Dashboard ─────────────────────────── */
 function PhoneDashboard() {
   return (
-    <Image src="/screenshots/home-dark.png" alt="Home Screen" width={294} height={600} unoptimized style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+    <Image src="/screenshots/dashboard.png" alt="Dashboard Screen" width={390} height={844} unoptimized priority style={{ width: "100%", height: "100%", objectFit: "contain" }} />
   );
 }
 
-/* ── SCREEN 2: Vault / Deposit ───────────────────── */
-function PhoneVault() {
+/* ── SCREEN 2: Swap ─────────────────────────────── */
+function PhoneSwap() {
   return (
-    <Image src="/screenshots/vault-dark.png" alt="Vault Screen" width={294} height={600} unoptimized style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+    <Image src="/screenshots/swap.png" alt="Swap Screen" width={390} height={844} unoptimized priority style={{ width: "100%", height: "100%", objectFit: "contain" }} />
   );
 }
 
-/* ── SCREEN 3: Payroll Running ───────────────────── */
-function PhonePay() {
+/* ── SCREEN 3: Payroll ──────────────────────────── */
+function PhonePayroll() {
   return (
-    <Image src="/screenshots/payroll-dark.png" alt="Payroll Screen" width={294} height={600} unoptimized style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+    <Image src="/screenshots/payroll.png" alt="Payroll Screen" width={390} height={844} unoptimized priority style={{ width: "100%", height: "100%", objectFit: "contain" }} />
   );
 }
 
@@ -74,10 +74,10 @@ export function AppPreview() {
       {/* Phones */}
       <div className="app-phones-row reveal">
         <div className="phone-wrap phone-side">
-          <div className="phone-label">Vault</div>
+          <div className="phone-label">Swap</div>
           <div className="phone-frame">
             <div className="phone-notch" />
-            <div className="phone-screen"><PhoneVault /></div>
+            <div className="phone-screen"><PhoneSwap /></div>
           </div>
         </div>
 
@@ -93,7 +93,7 @@ export function AppPreview() {
           <div className="phone-label">Payroll</div>
           <div className="phone-frame">
             <div className="phone-notch" />
-            <div className="phone-screen"><PhonePay /></div>
+            <div className="phone-screen"><PhonePayroll /></div>
           </div>
         </div>
       </div>
