@@ -59,4 +59,4 @@ RPC: `https://dream-rpc.somnia.network`
 
 ---
 
-Built for the **Somnia Agentathon**. Check out the [Mobile App](https://github.com/Lymitra/lymitra-mobile) for the full experience.
+Check out the [Mobile App](https://github.com/Lymitra/lymitra-mobile) for the full experience.
